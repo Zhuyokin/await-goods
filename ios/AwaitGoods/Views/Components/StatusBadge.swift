@@ -5,8 +5,8 @@ struct StatusBadge: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Image(systemName: "circle.fill")
-                .font(.system(size: 5, weight: .regular))
+            Image(systemName: status.iconName)
+                .font(.system(size: 10, weight: .regular))
             Text(status.title)
                 .font(.system(size: 12, weight: .regular))
         }

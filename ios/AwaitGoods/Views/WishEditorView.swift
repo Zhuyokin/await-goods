@@ -131,7 +131,7 @@ struct WishEditorView: View {
     private var editorHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(item == nil ? "先放进清单" : "调整这件候物")
-                .font(.system(size: 34, weight: .bold))
+                .font(.system(size: 32, weight: .semibold))
                 .foregroundStyle(HWTheme.primaryText)
 
             Text("少填几项也没关系，关键是先别急着买。")
@@ -145,7 +145,7 @@ struct WishEditorView: View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
 
                 if let subtitle {
@@ -163,11 +163,11 @@ struct WishEditorView: View {
     private func softTextField(_ title: String, placeholder: String, text: Binding<String>, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundStyle(HWTheme.freshGreen)
-                .frame(width: 38, height: 38)
-                .background(HWTheme.mint.opacity(0.17))
-                .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                .frame(width: 34, height: 34)
+                .background(HWTheme.mint.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -181,7 +181,7 @@ struct WishEditorView: View {
         }
         .padding(14)
         .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var categorySuggestions: some View {

@@ -141,9 +141,9 @@ struct AwaitGoodsWidgetView: View {
 
     private func widgetRow(_ item: WishSnapshot) -> some View {
         HStack(spacing: 9) {
-            Image(systemName: "square")
-                .font(.system(size: 16, weight: .ultraLight))
-                .foregroundStyle(WidgetPalette.tertiary)
+            Image(systemName: "heart")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(WidgetPalette.green)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.title)
@@ -201,7 +201,7 @@ struct AwaitGoodsWidgetView: View {
     }
 
     private func waitText(for date: Date?) -> String {
-        guard let date else { return "候着" }
+        guard let date else { return "想买" }
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: Date())
         let end = calendar.startOfDay(for: date)
@@ -228,17 +228,17 @@ private enum WidgetPalette {
         })
     }
 
-    static let background = adaptive(light: (0.988, 0.961, 0.910), dark: (0.105, 0.094, 0.078))
-    static let card = adaptive(light: (1.000, 0.986, 0.956), dark: (0.170, 0.150, 0.122))
-    static let field = adaptive(light: (0.965, 0.925, 0.858), dark: (0.215, 0.188, 0.150))
-    static let primary = adaptive(light: (0.260, 0.220, 0.180), dark: (0.940, 0.910, 0.865))
-    static let secondary = adaptive(light: (0.555, 0.488, 0.415), dark: (0.725, 0.660, 0.575))
-    static let tertiary = adaptive(light: (0.700, 0.625, 0.540), dark: (0.555, 0.500, 0.435))
-    static let border = adaptive(light: (0.910, 0.845, 0.745), dark: (0.335, 0.292, 0.232))
-    static let green = adaptive(light: (0.260, 0.635, 0.485), dark: (0.560, 0.760, 0.565))
-    static let mint = adaptive(light: (0.740, 0.812, 0.650), dark: (0.500, 0.615, 0.410))
-    static let apricot = adaptive(light: (0.945, 0.710, 0.545), dark: (0.725, 0.455, 0.345))
-    static let backgroundLight = adaptive(light: (0.996, 0.976, 0.937), dark: (0.130, 0.116, 0.096))
+    static let background = adaptive(light: (0.965, 0.956, 0.930), dark: (0.105, 0.102, 0.094))
+    static let card = adaptive(light: (1.000, 0.998, 0.990), dark: (0.172, 0.162, 0.148))
+    static let field = adaptive(light: (0.935, 0.923, 0.895), dark: (0.224, 0.210, 0.190))
+    static let primary = adaptive(light: (0.145, 0.140, 0.125), dark: (0.930, 0.908, 0.870))
+    static let secondary = adaptive(light: (0.420, 0.395, 0.350), dark: (0.705, 0.675, 0.625))
+    static let tertiary = adaptive(light: (0.590, 0.555, 0.495), dark: (0.560, 0.530, 0.485))
+    static let border = adaptive(light: (0.842, 0.812, 0.752), dark: (0.338, 0.310, 0.268))
+    static let green = adaptive(light: (0.360, 0.475, 0.365), dark: (0.620, 0.735, 0.590))
+    static let mint = adaptive(light: (0.790, 0.835, 0.765), dark: (0.455, 0.560, 0.435))
+    static let apricot = adaptive(light: (0.770, 0.585, 0.385), dark: (0.725, 0.520, 0.335))
+    static let backgroundLight = adaptive(light: (0.982, 0.977, 0.960), dark: (0.132, 0.126, 0.116))
     static let backgroundBase = background
     static let ink = primary
     static let separator = border.opacity(0.64)
@@ -260,7 +260,7 @@ struct AwaitGoodsWidget: Widget {
             AwaitGoodsWidgetView(entry: entry)
         }
         .configurationDisplayName("候物")
-        .description("查看正在候着的物品。")
+        .description("查看正在想买的物品。")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

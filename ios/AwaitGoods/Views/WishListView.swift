@@ -100,7 +100,7 @@ struct WishListView: View {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("候物")
-                        .font(.system(size: 36, weight: .bold))
+                        .font(.system(size: 34, weight: .semibold))
                         .foregroundStyle(HWTheme.primaryText)
 
                     Text(summaryText)
@@ -138,13 +138,13 @@ struct WishListView: View {
         .padding(.horizontal, 18)
         .padding(.top, 24)
         .padding(.bottom, 14)
-        .background(HWTheme.skyWash.opacity(0.34).ignoresSafeArea(edges: .top))
+        .background(HWTheme.listBackground.opacity(0.78).ignoresSafeArea(edges: .top))
     }
 
     private var searchField: some View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
-            .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: 17, weight: .regular))
                 .foregroundStyle(HWTheme.tertiaryText)
 
             TextField("搜索名称、备注或分类", text: $searchText)
@@ -159,16 +159,16 @@ struct WishListView: View {
                 .buttonStyle(.plain)
             }
         }
-        .font(.system(size: 16, weight: .medium))
-        .padding(.horizontal, 18)
-        .padding(.vertical, 15)
-        .background(HWTheme.cardBackground.opacity(0.92))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .font(.system(size: 15, weight: .regular))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(HWTheme.cardBackground.opacity(0.94))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.38))
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(HWTheme.cardBorder.opacity(0.58), lineWidth: 0.8)
         )
-        .shadow(color: HWTheme.softShadow, radius: 9, x: 0, y: 5)
+        .shadow(color: HWTheme.softShadow, radius: 2, x: 0, y: 1)
     }
 
     private var statusChips: some View {
@@ -188,7 +188,9 @@ struct WishListView: View {
         return Button {
             selectedStatus = status
         } label: {
-            HStack(spacing: 5) {
+            HStack(spacing: 6) {
+                Image(systemName: status?.iconName ?? "square.grid.2x2")
+                    .font(.system(size: 11, weight: .regular))
                 Text(title)
                 Text("\(count)")
                     .font(.system(size: 12, weight: .regular).monospacedDigit())
@@ -196,12 +198,16 @@ struct WishListView: View {
             }
             .font(.system(size: 14, weight: isSelected ? .medium : .regular))
             .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.secondaryText)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 10)
-            .background(isSelected ? HWTheme.freshGreen.opacity(0.82) : HWTheme.cardBackground.opacity(0.92))
+            .padding(.horizontal, 13)
+            .padding(.vertical, 8)
+            .background(isSelected ? HWTheme.freshGreen.opacity(0.88) : HWTheme.cardBackground.opacity(0.94))
             .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.secondaryText)
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .shadow(color: isSelected ? HWTheme.freshGreen.opacity(0.20) : HWTheme.softShadow.opacity(0.60), radius: 7, x: 0, y: 4)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isSelected ? Color.clear : HWTheme.cardBorder.opacity(0.55), lineWidth: 0.8)
+            )
+            .shadow(color: isSelected ? HWTheme.freshGreen.opacity(0.12) : HWTheme.softShadow.opacity(0.45), radius: 2, x: 0, y: 1)
         }
         .buttonStyle(.plain)
     }
@@ -216,7 +222,7 @@ struct WishListView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.primaryText)
 
-                        Text(selectedIDs.isEmpty ? "轻点左侧方框多选" : "可以批量放下、删除或换标记")
+                        Text(selectedIDs.isEmpty ? "轻点左侧图标多选" : "可以批量改为不买、删除或换标记")
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                     }
@@ -238,7 +244,7 @@ struct WishListView: View {
                     }
                     .disabled(selectedIDs.isEmpty)
 
-                    batchActionButton("放下", icon: "tray.and.arrow.down", color: HWTheme.tertiaryText) {
+                    batchActionButton("不买", icon: "xmark", color: HWTheme.tertiaryText) {
                         updateSelectedStatus(.released)
                     }
                     .disabled(selectedIDs.isEmpty)
@@ -299,9 +305,9 @@ struct WishListView: View {
 
     private var quickAddBar: some View {
         HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(HWTheme.apricot)
+            Image(systemName: "square.and.pencil")
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(HWTheme.softWood)
 
             TextField("先记下来，晚点再决定", text: $quickAddTitle)
                 .focused($quickAddFocused)
@@ -310,11 +316,11 @@ struct WishListView: View {
 
             Button(action: quickAdd) {
                 Image(systemName: "arrow.up")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(HWTheme.cardBackground)
-                    .frame(width: 42, height: 42)
+                    .frame(width: 40, height: 40)
                     .background(trimmedQuickAddTitle.isEmpty ? HWTheme.tertiaryText.opacity(0.72) : HWTheme.freshGreen)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .disabled(trimmedQuickAddTitle.isEmpty)
         }
@@ -324,13 +330,13 @@ struct WishListView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(HWTheme.cardBackground)
+                .fill(HWTheme.cardBackground.opacity(0.96))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.55))
+                .stroke(HWTheme.cardBorder.opacity(0.68), lineWidth: 0.8)
         )
-        .shadow(color: HWTheme.softShadow, radius: 10, x: 0, y: 5)
+            .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
         .padding(.horizontal, 18)
         .padding(.top, 7)
         .padding(.bottom, 7)
@@ -378,7 +384,7 @@ struct WishListView: View {
         let waitingCount = items.filter { $0.status == .waiting }.count
         if items.isEmpty { return "先记下心动，给冲动一点冷静时间" }
         if waitingCount == 0 { return "清单很轻，今天也很克制" }
-        return "还有 \(waitingCount) 件正在等一等"
+        return "还有 \(waitingCount) 件想买的东西"
     }
 
     private var trimmedQuickAddTitle: String {
@@ -402,7 +408,12 @@ struct WishListView: View {
             return
         }
 
-        updateStatus(item.status == .bought ? .waiting : .bought, for: item)
+        switch item.status {
+        case .waiting:
+            updateStatus(.bought, for: item)
+        case .bought, .released, .paused:
+            updateStatus(.waiting, for: item)
+        }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
@@ -535,10 +546,14 @@ private struct HeaderIconButtonStyle: ButtonStyle {
         configuration.label
             .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(configuration.isPressed ? HWTheme.freshGreen : HWTheme.primaryText)
-            .frame(width: 48, height: 48)
+            .frame(width: 44, height: 44)
             .background(HWTheme.cardBackground.opacity(configuration.isPressed ? 0.78 : 0.94))
-            .clipShape(Circle())
-            .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(HWTheme.cardBorder.opacity(0.58), lineWidth: 0.8)
+            )
+            .shadow(color: HWTheme.softShadow, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -547,10 +562,10 @@ private struct FilledHeaderIconButtonStyle: ButtonStyle {
         configuration.label
             .font(.system(size: 20, weight: .bold))
             .foregroundStyle(HWTheme.cardBackground)
-            .frame(width: 52, height: 52)
+            .frame(width: 46, height: 46)
             .background(configuration.isPressed ? HWTheme.apricot : HWTheme.freshGreen)
-            .clipShape(Circle())
-            .shadow(color: HWTheme.freshGreen.opacity(0.28), radius: 10, x: 0, y: 5)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .shadow(color: HWTheme.freshGreen.opacity(0.14), radius: 2, x: 0, y: 1)
     }
 }
 
@@ -619,9 +634,9 @@ private struct WishActionSheet: View {
                 )
 
                 HStack(spacing: 8) {
-                    compactAction("已入手", icon: "checkmark", color: HWTheme.sky) { onStatus(.bought) }
-                    compactAction("放下", icon: "tray.and.arrow.down", color: HWTheme.tertiaryText) { onStatus(.released) }
-                    compactAction("搁置", icon: "pause", color: HWTheme.butter) { onStatus(.paused) }
+                    compactAction("已买", icon: WishItemStatus.bought.iconName, color: HWTheme.sky) { onStatus(.bought) }
+                    compactAction("不买", icon: WishItemStatus.released.iconName, color: HWTheme.tertiaryText) { onStatus(.released) }
+                    compactAction("再想想", icon: WishItemStatus.paused.iconName, color: HWTheme.butter) { onStatus(.paused) }
                 }
 
                 actionRow("删除", icon: "trash", color: HWTheme.dangerRed) { onDelete() }

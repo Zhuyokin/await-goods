@@ -90,10 +90,10 @@ struct WishDetailView: View {
 
                     detailSection("现在怎么处理") {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                            statusAction("已入手", icon: "checkmark", status: .bought, color: HWTheme.softBlueGray)
-                            statusAction("继续候着", icon: "hourglass", status: .waiting, color: HWTheme.mint)
-                            statusAction("已放下", icon: "archivebox", status: .released, color: HWTheme.tertiaryText)
-                            statusAction("搁置", icon: "pause", status: .paused, color: HWTheme.softWood)
+                            statusAction("已买", icon: WishItemStatus.bought.iconName, status: .bought, color: HWTheme.softBlueGray)
+                            statusAction("想买", icon: WishItemStatus.waiting.iconName, status: .waiting, color: HWTheme.freshGreen)
+                            statusAction("不买", icon: WishItemStatus.released.iconName, status: .released, color: HWTheme.tertiaryText)
+                            statusAction("再想想", icon: WishItemStatus.paused.iconName, status: .paused, color: HWTheme.softWood)
                         }
                     }
                 }
@@ -162,11 +162,11 @@ struct WishDetailView: View {
         case .waiting:
             return item.waitUntil.map { $0 <= Date() ? "等待结束了，看看它是否仍然值得。" : "还想要，就让它再等一天。" } ?? "先放在这里，别急着决定。"
         case .bought:
-            return "已经入手，记得回看它是否真的被使用。"
+            return "已经买了，记得回看它是否真的被使用。"
         case .released:
-            return "放下也是一种入手。"
+            return "不买也很好，清单因此更轻。"
         case .paused:
-            return "先搁置，等需求自己回来。"
+            return "先再想想，等需求自己变清楚。"
         }
     }
 

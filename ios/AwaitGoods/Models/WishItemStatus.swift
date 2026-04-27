@@ -10,10 +10,19 @@ enum WishItemStatus: String, Codable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .waiting: return "候着"
-        case .bought: return "已入手"
-        case .released: return "已放下"
-        case .paused: return "搁置"
+        case .waiting: return "想买"
+        case .bought: return "已买"
+        case .released: return "不买"
+        case .paused: return "再想想"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .waiting: return "heart"
+        case .bought: return "checkmark"
+        case .released: return "xmark"
+        case .paused: return "pause"
         }
     }
 }

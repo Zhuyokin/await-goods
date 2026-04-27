@@ -9,7 +9,7 @@ struct WishRowView: View {
     let onOpen: () -> Void
 
     var body: some View {
-        HStack(spacing: 11) {
+        HStack(spacing: 10) {
             if item.markColor != .none {
                 Rectangle()
                     .fill(HWTheme.markColor(item.markColor))
@@ -18,13 +18,16 @@ struct WishRowView: View {
 
             Button(action: onCheck) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 15, style: .continuous)
-                        .fill(bubbleColor.opacity(0.20))
-                        .frame(width: 44, height: 44)
-                        .shadow(color: bubbleColor.opacity(0.22), radius: 8, x: 0, y: 4)
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(bubbleColor.opacity(0.12))
+                        .frame(width: 42, height: 42)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(bubbleColor.opacity(0.34), lineWidth: 0.8)
+                        )
 
                     Image(systemName: bubbleIcon)
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.system(size: 17, weight: .regular))
                         .foregroundStyle(bubbleColor)
                 }
             }
@@ -34,7 +37,7 @@ struct WishRowView: View {
                 HStack(alignment: .center, spacing: 10) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.title)
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(size: 17, weight: .medium))
                             .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
                             .strikethrough(item.status == .released, color: HWTheme.secondaryText)
                             .lineLimit(1)
@@ -53,11 +56,11 @@ struct WishRowView: View {
                     if let priceText {
                         Text(priceText)
                             .font(.system(size: 14, weight: .medium).monospacedDigit())
-                            .foregroundStyle(HWTheme.freshGreen)
+                            .foregroundStyle(HWTheme.softBlueGray)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(HWTheme.mint.opacity(0.16))
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(HWTheme.fieldBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                 }
                 .contentShape(Rectangle())
@@ -67,21 +70,18 @@ struct WishRowView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(HWTheme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.55))
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(HWTheme.cardBorder.opacity(0.68), lineWidth: 0.8)
         )
-        .shadow(color: HWTheme.softShadow, radius: 7, x: 0, y: 4)
+        .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
     }
 
     private var bubbleIcon: String {
         if isEditing { return isSelected ? "checkmark" : "circle" }
         switch item.status {
-        case .waiting: return "leaf.fill"
-        case .bought: return "checkmark"
-        case .released: return "minus"
-        case .paused: return "pause.fill"
+        case .waiting, .bought, .released, .paused: return item.status.iconName
         }
     }
 
@@ -99,7 +99,7 @@ struct WishRowView: View {
 
     private var statusColor: Color {
         switch item.status {
-        case .waiting: return HWTheme.mint
+        case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
         case .released: return HWTheme.tertiaryText
         case .paused: return HWTheme.softWood
@@ -114,18 +114,18 @@ struct WishRowView: View {
     private var subtitle: String {
         switch item.status {
         case .bought:
-            return "已入手"
+            return item.status.title
         case .released:
-            return "已放下"
+            return item.status.title
         case .paused:
-            return "搁置"
+            return item.status.title
         case .waiting:
             return waitText
         }
     }
 
     private var waitText: String {
-        guard let waitUntil = item.waitUntil else { return item.category.isEmpty ? "候着" : item.category }
+        guard let waitUntil = item.waitUntil else { return item.category.isEmpty ? item.status.title : item.category }
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: Date())
         let end = calendar.startOfDay(for: waitUntil)
