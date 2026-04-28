@@ -1,13 +1,22 @@
 import SwiftData
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
+
+private enum QuickAddField: Hashable {
+    case title
+    case price
+    case saved
+    case category
+}
 
 struct WishListView: View {
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
 
     @State private var searchText = ""
-    @State private var selectedStatus: WishItemStatus?
+    @State private var selectedStatus: WishItemStatus? = .waiting
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
     @State private var selectedIDs = Set<UUID>()
@@ -18,103 +27,144 @@ struct WishListView: View {
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
     @State private var quickAddTitle = ""
-    @FocusState private var quickAddFocused: Bool
+    @State private var quickAddPriceText = ""
+    @State private var quickAddSavedText = ""
+    @State private var quickAddCategory = ""
+    @State private var quickAddExpanded = false
+    @State private var draggedItem: WishItem?
+    @State private var dragOrderedIDs: [UUID] = []
+    @FocusState private var quickAddField: QuickAddField?
 
     private var isEditing: Bool { editMode.isEditing }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                headerView
-
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        if displayedItems.isEmpty {
-                            EmptyStateView()
-                                .padding(.top, 48)
-                        } else {
-                            ForEach(displayedItems) { item in
-                                WishRowView(
-                                    item: item,
-                                    isEditing: isEditing,
-                                    isSelected: selectedIDs.contains(item.id),
-                                    onCheck: { rowCheckTapped(item) },
-                                    onOpen: { open(item) }
-                                )
-                                .padding(.horizontal, 14)
-                                .onLongPressGesture(minimumDuration: 0.35) {
-                                    guard !isEditing else { return }
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    actionItem = item
-                                }
-                            }
-                        }
-                    }
-                    .padding(.top, 8)
-                    .padding(.bottom, isEditing ? 82 : 92)
-                }
-                .scrollDismissesKeyboard(.interactively)
-            }
-            .toolbar(.hidden, for: .navigationBar)
-            .background { HWCreamLeafBackdrop() }
-            .environment(\.editMode, $editMode)
-            .safeAreaInset(edge: .bottom) { bottomBar }
-            .sheet(isPresented: $showingEditor) {
-                WishEditorView(item: editingItem, existingItems: items) { savedItem in
-                    persistChanges()
-                    Task { await NotificationScheduler.schedule(for: savedItem) }
-                }
-            }
-            .sheet(item: $selectedDetailItem) { item in
-                WishDetailView(item: item) {
-                    persistChanges()
-                }
-            }
-            .sheet(item: $actionItem) { item in
-                WishActionSheet(
-                    item: item,
-                    onEdit: { edit(item) },
-                    onCopyLink: { UIPasteboard.general.string = item.linkString },
-                    onColor: { color in setMarkColor(color, for: item) },
-                    onStatus: { status in updateStatus(status, for: item) },
-                    onDelete: { itemToDelete = item }
-                )
-                .presentationDetents([.height(item.linkURL == nil ? 390 : 440)])
-                .presentationDragIndicator(.hidden)
-                .presentationBackground(HWTheme.pageBackground)
-            }
-            .alert("删除后不可恢复", isPresented: deleteConfirmationBinding) {
-                Button("取消", role: .cancel) { itemToDelete = nil }
-                Button("删除", role: .destructive) { deletePendingItem() }
-            }
-            .alert("删除选中的候物？", isPresented: $showingBulkDeleteConfirmation) {
-                Button("取消", role: .cancel) { }
-                Button("删除", role: .destructive) { deleteSelectedItems() }
-            }
-            .onAppear { WidgetSyncService.sync(items: items) }
+            rootContent
         }
+    }
+
+    private var rootContent: some View {
+        VStack(spacing: 0) {
+            headerView
+            itemScrollView
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .background { HWCreamLeafBackdrop() }
+        .environment(\.editMode, $editMode)
+        .safeAreaInset(edge: .bottom) { bottomBar }
+        .sheet(isPresented: $showingEditor) { editorSheet }
+        .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
+        .sheet(item: $actionItem) { item in actionSheet(for: item) }
+        .alert(appLanguage.text("删除后不可恢复"), isPresented: deleteConfirmationBinding) {
+            Button(appLanguage.text("取消"), role: .cancel) { itemToDelete = nil }
+            Button(appLanguage.text("删除"), role: .destructive) { deletePendingItem() }
+        }
+        .alert(appLanguage.text("删除选中的候物？"), isPresented: $showingBulkDeleteConfirmation) {
+            Button(appLanguage.text("取消"), role: .cancel) { }
+            Button(appLanguage.text("删除"), role: .destructive) { deleteSelectedItems() }
+        }
+        .onAppear {
+            NotificationScheduler.cancelAllWishNotifications()
+            WidgetSyncService.sync(items: items)
+        }
+    }
+
+    private var itemScrollView: some View {
+        ScrollView {
+            LazyVStack(spacing: 8) {
+                if displayedItems.isEmpty {
+                    EmptyStateView()
+                        .padding(.top, 48)
+                } else {
+                    ForEach(displayedItems) { item in
+                        rowView(for: item)
+                    }
+                }
+            }
+            .padding(.top, 8)
+            .padding(.bottom, isEditing ? 82 : (isQuickAddExpanded ? 172 : 92))
+        }
+        .scrollDismissesKeyboard(.interactively)
+    }
+
+    private func rowView(for item: WishItem) -> some View {
+        WishRowView(
+            item: item,
+            isEditing: isEditing,
+            isSelected: selectedIDs.contains(item.id),
+            onCheck: { rowCheckTapped(item) },
+            onOpen: { open(item) },
+            onMore: { actionItem = item }
+        )
+        .padding(.horizontal, 14)
+        .onDrag {
+            sortMode = .manual
+            draggedItem = item
+            dragOrderedIDs = manuallySorted(items).map(\.id)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            return NSItemProvider(object: item.id.uuidString as NSString)
+        }
+        .onDrop(
+            of: [UTType.text],
+            delegate: WishDropDelegate(
+                targetItem: item,
+                draggedItem: $draggedItem,
+                orderedIDs: $dragOrderedIDs,
+                commitMove: commitDragOrder
+            )
+        )
+    }
+
+    private var editorSheet: some View {
+        WishEditorView(item: editingItem, existingItems: items) { _ in
+            persistChanges()
+        }
+    }
+
+    private func detailSheet(for item: WishItem) -> some View {
+        WishDetailView(item: item) {
+            persistChanges()
+        }
+    }
+
+    private func actionSheet(for item: WishItem) -> some View {
+        WishActionSheet(
+            item: item,
+            onEdit: { edit(item) },
+            onCopyLink: { UIPasteboard.general.string = item.linkString },
+            onColor: { color in setMarkColor(color, for: item) },
+            onStatus: { status in updateStatus(status, for: item) },
+            onDelete: { itemToDelete = item }
+        )
+        .presentationDetents([.height(item.linkURL == nil ? 350 : 400)])
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(HWTheme.pageBackground)
     }
 
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("候物")
-                        .font(.system(size: 34, weight: .semibold))
-                        .foregroundStyle(HWTheme.primaryText)
+                HStack(spacing: 10) {
+                    AppLogoMark()
 
-                    Text(summaryText)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(HWTheme.secondaryText)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(appLanguage.text("候物"))
+                            .font(.system(size: 32, weight: .semibold))
+                            .foregroundStyle(HWTheme.primaryText)
+
+                        Text(summaryText)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(HWTheme.secondaryText)
+                    }
                 }
 
                 Spacer()
 
                 HStack(spacing: 6) {
                     Menu {
-                        Section("排序") { sortMenuContent }
-                        Section("批量") {
-                            Button(isEditing ? "完成整理" : "整理清单") { toggleEditing() }
+                        Section(appLanguage.text("排序")) { sortMenuContent }
+                        Section(appLanguage.text("批量")) {
+                            Button(isEditing ? appLanguage.text("完成整理") : appLanguage.text("整理清单")) { toggleEditing() }
                                 .disabled(items.isEmpty && !isEditing)
                         }
                     } label: {
@@ -123,8 +173,11 @@ struct WishListView: View {
                     .buttonStyle(HeaderIconButtonStyle())
 
                     Button {
-                        editingItem = nil
-                        showingEditor = true
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            selectedStatus = .waiting
+                            quickAddExpanded = true
+                            quickAddField = .title
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -147,7 +200,7 @@ struct WishListView: View {
                 .font(.system(size: 17, weight: .regular))
                 .foregroundStyle(HWTheme.tertiaryText)
 
-            TextField("搜索名称、备注或分类", text: $searchText)
+            TextField(appLanguage.text("搜索名称、备注或分类"), text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
 
@@ -174,10 +227,10 @@ struct WishListView: View {
     private var statusChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                statusChip(title: "全部", count: items.count, status: nil)
                 ForEach(WishItemStatus.allCases) { status in
-                    statusChip(title: status.title, count: items.filter { $0.status == status }.count, status: status)
+                    statusChip(title: appLanguage.text(status.title), count: items.filter { $0.status == status }.count, status: status)
                 }
+                    statusChip(title: appLanguage.text("全部"), count: items.count, status: nil)
             }
             .padding(.vertical, 2)
         }
@@ -218,18 +271,18 @@ struct WishListView: View {
             VStack(spacing: 9) {
                 HStack(spacing: 8) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(selectedIDs.isEmpty ? "整理清单" : "已选 \(selectedIDs.count) 件")
+                        Text(selectedIDs.isEmpty ? appLanguage.text("整理清单") : String(format: appLanguage.text("已选 %d 件"), selectedIDs.count))
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.primaryText)
 
-                        Text(selectedIDs.isEmpty ? "轻点左侧图标多选" : "可以批量改为不买、删除或换标记")
+                        Text(selectedIDs.isEmpty ? appLanguage.text("轻点左侧图标多选") : appLanguage.text("可以批量放下、删除或换标记"))
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                     }
 
                     Spacer()
 
-                    Button("完成") { finishEditing() }
+                    Button(appLanguage.text("完成")) { finishEditing() }
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(HWTheme.freshGreen)
                         .padding(.horizontal, 14)
@@ -239,24 +292,24 @@ struct WishListView: View {
                 }
 
                     HStack(spacing: 8) {
-                    batchActionButton("删除", icon: "trash", color: HWTheme.dangerRed) {
+                    batchActionButton(appLanguage.text("删除"), icon: "trash", color: HWTheme.dangerRed) {
                         showingBulkDeleteConfirmation = true
                     }
                     .disabled(selectedIDs.isEmpty)
 
-                    batchActionButton("不买", icon: "xmark", color: HWTheme.tertiaryText) {
+                    batchActionButton(appLanguage.text(WishItemStatus.released.title), icon: "xmark", color: HWTheme.tertiaryText) {
                         updateSelectedStatus(.released)
                     }
                     .disabled(selectedIDs.isEmpty)
 
                     Menu {
                         ForEach(MarkColor.allCases) { color in
-                            Button(color.title) { updateSelectedColor(color) }
+                            Button(appLanguage.text(color.title)) { updateSelectedColor(color) }
                         }
                     } label: {
                         HStack(spacing: 7) {
                             Image(systemName: "paintpalette")
-                            Text("标记")
+                            Text(appLanguage.text("标记"))
                         }
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(selectedIDs.isEmpty ? HWTheme.tertiaryText : HWTheme.softWood)
@@ -304,49 +357,116 @@ struct WishListView: View {
     }
 
     private var quickAddBar: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "square.and.pencil")
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(HWTheme.softWood)
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundStyle(HWTheme.softWood)
 
-            TextField("先记下来，晚点再决定", text: $quickAddTitle)
-                .focused($quickAddFocused)
-                .submitLabel(.done)
-                .onSubmit { quickAdd() }
+                TextField(appLanguage.text("先记下一个心愿"), text: $quickAddTitle)
+                    .focused($quickAddField, equals: .title)
+                    .submitLabel(.next)
+                    .onTapGesture { quickAddExpanded = true }
+                    .onSubmit { quickAddField = .price }
 
-            Button(action: quickAdd) {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(HWTheme.cardBackground)
-                    .frame(width: 40, height: 40)
-                    .background(trimmedQuickAddTitle.isEmpty ? HWTheme.tertiaryText.opacity(0.72) : HWTheme.freshGreen)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                Button(action: quickAdd) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(HWTheme.cardBackground)
+                        .frame(width: 40, height: 40)
+                        .background(canQuickAdd ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.72))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                .disabled(!canQuickAdd)
             }
-            .disabled(trimmedQuickAddTitle.isEmpty)
+
+            if isQuickAddExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        compactQuickField(appLanguage.text("价格"), text: $quickAddPriceText, icon: "yensign", field: .price)
+                            .keyboardType(.decimalPad)
+                            .submitLabel(.next)
+                            .onSubmit { quickAddField = .saved }
+                        compactQuickField(appLanguage.text("已存"), text: $quickAddSavedText, icon: "banknote", field: .saved)
+                            .keyboardType(.decimalPad)
+                            .submitLabel(.next)
+                            .onSubmit { quickAddField = .category }
+                        compactQuickField(appLanguage.text("标签"), text: $quickAddCategory, icon: "tag", field: .category)
+                            .submitLabel(.done)
+                    }
+
+                    quickCategorySuggestions
+
+                    if let quickAddValidationMessage {
+                        Text(quickAddValidationMessage)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(HWTheme.dangerRed)
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
         }
         .font(.system(size: 16, weight: .medium))
         .padding(.leading, 18)
         .padding(.trailing, 8)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(HWTheme.cardBackground.opacity(0.96))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(HWTheme.cardBorder.opacity(0.68), lineWidth: 0.8)
         )
-            .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
+        .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
         .padding(.horizontal, 18)
         .padding(.top, 7)
         .padding(.bottom, 7)
         .background(HWTheme.pageBackground.opacity(0.46))
     }
 
+    private func compactQuickField(_ title: String, text: Binding<String>, icon: String, field: QuickAddField) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 12, weight: .regular))
+                .foregroundStyle(HWTheme.freshGreen)
+
+            TextField(title, text: text)
+                .font(.system(size: 13, weight: .medium))
+                .focused($quickAddField, equals: field)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .background(HWTheme.fieldBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var quickCategorySuggestions: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 7) {
+                ForEach(["数码", "衣物", "家居", "书影音", "礼物", "运动"], id: \.self) { category in
+                    Button {
+                        quickAddExpanded = true
+                        quickAddCategory = category
+                    } label: {
+                        Text(appLanguage.text(category))
+                            .font(.system(size: 12, weight: quickAddCategory == category ? .medium : .regular))
+                            .foregroundStyle(quickAddCategory == category ? HWTheme.cardBackground : HWTheme.secondaryText)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 6)
+                            .background(quickAddCategory == category ? HWTheme.freshGreen.opacity(0.82) : HWTheme.fieldBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private var sortMenuContent: some View {
         ForEach(SortMode.allCases) { mode in
-            Button(mode.title) { sortMode = mode }
+            Button(appLanguage.text(mode.title)) { sortMode = mode }
         }
     }
 
@@ -368,11 +488,11 @@ struct WishListView: View {
 
         switch sortMode {
         case .manual:
-            return result.sorted { $0.sortIndex == $1.sortIndex ? $0.createdAt > $1.createdAt : $0.sortIndex < $1.sortIndex }
+            return manuallySorted(result)
         case .recent:
             return result.sorted { $0.createdAt > $1.createdAt }
-        case .waitEnd:
-            return result.sorted { ($0.waitUntil ?? .distantFuture) < ($1.waitUntil ?? .distantFuture) }
+        case .savings:
+            return result.sorted { $0.savingsProgress == $1.savingsProgress ? ($0.price ?? 0) > ($1.price ?? 0) : $0.savingsProgress > $1.savingsProgress }
         case .priceHigh:
             return result.sorted { ($0.price ?? 0) > ($1.price ?? 0) }
         case .priority:
@@ -382,13 +502,43 @@ struct WishListView: View {
 
     private var summaryText: String {
         let waitingCount = items.filter { $0.status == .waiting }.count
-        if items.isEmpty { return "先记下心动，给冲动一点冷静时间" }
-        if waitingCount == 0 { return "清单很轻，今天也很克制" }
-        return "还有 \(waitingCount) 件想买的东西"
+        if items.isEmpty { return appLanguage.text("先记下心动，给预算一点空间") }
+        if waitingCount == 0 { return appLanguage.text("清单很轻，今天也很清爽") }
+        return String(format: appLanguage.text("还有 %d 件想买的东西"), waitingCount)
     }
 
     private var trimmedQuickAddTitle: String {
         quickAddTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var isQuickAddExpanded: Bool {
+        quickAddExpanded ||
+        quickAddField != nil ||
+        !quickAddPriceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        !quickAddSavedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        !quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var quickAddParsedPrice: Double? {
+        normalizedAmount(from: quickAddPriceText)
+    }
+
+    private var quickAddParsedSavedAmount: Double {
+        normalizedAmount(from: quickAddSavedText) ?? 0
+    }
+
+    private var quickAddValidationMessage: String? {
+        let hasPrice = !quickAddPriceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasSaved = !quickAddSavedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        if hasPrice && quickAddParsedPrice == nil { return appLanguage.text("价格需大于 0") }
+        if hasSaved && normalizedAmount(from: quickAddSavedText) == nil { return appLanguage.text("已存需大于 0") }
+        if let quickAddParsedPrice, quickAddParsedSavedAmount > quickAddParsedPrice { return appLanguage.text("已存不能超过价格") }
+        return nil
+    }
+
+    private var canQuickAdd: Bool {
+        !trimmedQuickAddTitle.isEmpty && quickAddValidationMessage == nil
     }
 
     private var deleteConfirmationBinding: Binding<Bool> {
@@ -411,7 +561,7 @@ struct WishListView: View {
         switch item.status {
         case .waiting:
             updateStatus(.bought, for: item)
-        case .bought, .released, .paused:
+        case .bought, .released:
             updateStatus(.waiting, for: item)
         }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -433,14 +583,6 @@ struct WishListView: View {
     private func updateStatus(_ status: WishItemStatus, for item: WishItem) {
         item.status = status
         persistChanges()
-
-        Task {
-            if status == .waiting {
-                await NotificationScheduler.schedule(for: item)
-            } else {
-                await NotificationScheduler.cancel(for: item)
-            }
-        }
     }
 
     private func setMarkColor(_ color: MarkColor, for item: WishItem) {
@@ -452,16 +594,6 @@ struct WishListView: View {
         let selectedItems = items.filter { selectedIDs.contains($0.id) }
         selectedItems.forEach { $0.status = status }
         persistChanges()
-
-        Task {
-            for item in selectedItems {
-                if status == .waiting {
-                    await NotificationScheduler.schedule(for: item)
-                } else {
-                    await NotificationScheduler.cancel(for: item)
-                }
-            }
-        }
     }
 
     private func updateSelectedColor(_ color: MarkColor) {
@@ -487,10 +619,25 @@ struct WishListView: View {
         persistChanges()
     }
 
-    private func moveItems(from source: IndexSet, to destination: Int) {
-        var reordered = displayedItems
-        reordered.move(fromOffsets: source, toOffset: destination)
-        for (index, item) in reordered.enumerated() {
+    private func manuallySorted(_ sourceItems: [WishItem]) -> [WishItem] {
+        if dragOrderedIDs.isEmpty {
+            return sourceItems.sorted { $0.sortIndex == $1.sortIndex ? $0.createdAt > $1.createdAt : $0.sortIndex < $1.sortIndex }
+        }
+
+        let sourceByID = Dictionary(uniqueKeysWithValues: sourceItems.map { ($0.id, $0) })
+        let orderedItems = dragOrderedIDs.compactMap { sourceByID[$0] }
+        let orderedIDSet = Set(dragOrderedIDs)
+        let remainingItems = sourceItems
+            .filter { !orderedIDSet.contains($0.id) }
+            .sorted { $0.sortIndex == $1.sortIndex ? $0.createdAt > $1.createdAt : $0.sortIndex < $1.sortIndex }
+        return orderedItems + remainingItems
+    }
+
+    private func commitDragOrder(_ orderedIDs: [UUID]) {
+        guard !orderedIDs.isEmpty else { return }
+        let itemByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        for (index, id) in orderedIDs.enumerated() {
+            guard let item = itemByID[id] else { continue }
             item.sortIndex = index
             item.updatedAt = Date()
         }
@@ -498,28 +645,39 @@ struct WishListView: View {
     }
 
     private func quickAdd() {
-        guard !trimmedQuickAddTitle.isEmpty else { return }
+        guard canQuickAdd else { return }
         let nextIndex = (items.map(\.sortIndex).max() ?? -1) + 1
-        let defaultWaitDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())
         let newItem = WishItem(
             title: trimmedQuickAddTitle,
-            price: nil,
+            price: quickAddParsedPrice,
             linkString: "",
             note: "",
-            category: "",
+            category: quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines),
             priority: .medium,
             markColor: .none,
             sortIndex: nextIndex,
-            waitUntil: defaultWaitDate,
-            targetDate: nil,
-            notifyEnabled: true
+            notifyEnabled: false,
+            savedAmount: quickAddParsedSavedAmount
         )
+        newItem.reconcileSavingsStatus()
         modelContext.insert(newItem)
+        selectedStatus = .waiting
         quickAddTitle = ""
-        quickAddFocused = false
+        quickAddPriceText = ""
+        quickAddSavedText = ""
+        quickAddCategory = ""
+        quickAddExpanded = false
+        quickAddField = nil
         persistChanges()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        Task { await NotificationScheduler.schedule(for: newItem) }
+    }
+
+    private func normalizedAmount(from text: String) -> Double? {
+        let normalized = text
+            .replacingOccurrences(of: ",", with: ".")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let value = Double(normalized), value > 0 else { return nil }
+        return value
     }
 
     private func toggleEditing() {
@@ -569,7 +727,38 @@ private struct FilledHeaderIconButtonStyle: ButtonStyle {
     }
 }
 
+private struct AppLogoMark: View {
+    private var appIcon: UIImage? {
+        UIImage(named: "AppLogo")
+    }
+
+    var body: some View {
+        Group {
+            if let appIcon {
+                Image(uiImage: appIcon)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: "bag")
+                    .font(.system(size: 20, weight: .regular))
+                    .foregroundStyle(HWTheme.freshGreen)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(HWTheme.mint.opacity(0.22))
+            }
+        }
+        .frame(width: 44, height: 44)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(HWTheme.cardBorder.opacity(0.48), lineWidth: 0.8)
+        )
+        .shadow(color: HWTheme.softShadow, radius: 2, x: 0, y: 1)
+        .accessibilityHidden(true)
+    }
+}
+
 private struct WishActionSheet: View {
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.dismiss) private var dismiss
 
     let item: WishItem
@@ -586,18 +775,18 @@ private struct WishActionSheet: View {
                 .padding(.horizontal, 148)
                 .padding(.top, 10)
 
-            WishRowView(item: item, isEditing: false, isSelected: false, onCheck: {}, onOpen: {})
+            WishRowView(item: item, isEditing: false, isSelected: false, onCheck: {}, onOpen: {}, onMore: nil)
                 .allowsHitTesting(false)
 
             VStack(spacing: 10) {
-                actionRow("编辑", icon: "pencil", color: HWTheme.primaryText) { onEdit() }
+                actionRow(appLanguage.text("编辑"), icon: "pencil", color: HWTheme.primaryText) { onEdit() }
 
                 if item.linkURL != nil {
-                    actionRow("复制链接", icon: "link", color: HWTheme.linkBlue) { onCopyLink() }
+                    actionRow(appLanguage.text("复制链接"), icon: "link", color: HWTheme.linkBlue) { onCopyLink() }
                 }
 
                 HStack(spacing: 10) {
-                    Text("换个标记")
+                    Text(appLanguage.text("换个标记"))
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(HWTheme.secondaryText)
 
@@ -619,7 +808,7 @@ private struct WishActionSheet: View {
                                 }
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(color.title)
+                        .accessibilityLabel(appLanguage.text(color.title))
                     }
                 }
                 .padding(.horizontal, 12)
@@ -634,12 +823,12 @@ private struct WishActionSheet: View {
                 )
 
                 HStack(spacing: 8) {
-                    compactAction("已买", icon: WishItemStatus.bought.iconName, color: HWTheme.sky) { onStatus(.bought) }
-                    compactAction("不买", icon: WishItemStatus.released.iconName, color: HWTheme.tertiaryText) { onStatus(.released) }
-                    compactAction("再想想", icon: WishItemStatus.paused.iconName, color: HWTheme.butter) { onStatus(.paused) }
+                    compactAction(appLanguage.text(WishItemStatus.waiting.title), icon: WishItemStatus.waiting.iconName, color: HWTheme.freshGreen) { onStatus(.waiting) }
+                    compactAction(appLanguage.text(WishItemStatus.bought.title), icon: WishItemStatus.bought.iconName, color: HWTheme.sky) { onStatus(.bought) }
+                    compactAction(appLanguage.text(WishItemStatus.released.title), icon: WishItemStatus.released.iconName, color: HWTheme.tertiaryText) { onStatus(.released) }
                 }
 
-                actionRow("删除", icon: "trash", color: HWTheme.dangerRed) { onDelete() }
+                actionRow(appLanguage.text("删除"), icon: "trash", color: HWTheme.dangerRed) { onDelete() }
             }
 
             Spacer(minLength: 0)
@@ -708,7 +897,7 @@ private struct WishActionSheet: View {
 private enum SortMode: String, CaseIterable, Identifiable {
     case manual
     case recent
-    case waitEnd
+    case savings
     case priceHigh
     case priority
 
@@ -718,9 +907,39 @@ private enum SortMode: String, CaseIterable, Identifiable {
         switch self {
         case .manual: return "手动排序"
         case .recent: return "最近添加"
-        case .waitEnd: return "等待结束"
+        case .savings: return "存钱进度"
         case .priceHigh: return "价格高低"
         case .priority: return "优先级"
         }
+    }
+}
+
+private struct WishDropDelegate: DropDelegate {
+    let targetItem: WishItem
+    @Binding var draggedItem: WishItem?
+    @Binding var orderedIDs: [UUID]
+    let commitMove: ([UUID]) -> Void
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedItem, draggedItem.id != targetItem.id else { return }
+        guard let sourceIndex = orderedIDs.firstIndex(of: draggedItem.id),
+              let targetIndex = orderedIDs.firstIndex(of: targetItem.id) else { return }
+
+        withAnimation(.easeInOut(duration: 0.16)) {
+            let movedID = orderedIDs.remove(at: sourceIndex)
+            orderedIDs.insert(movedID, at: targetIndex)
+        }
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        let finalOrder = orderedIDs
+        draggedItem = nil
+        orderedIDs = []
+        commitMove(finalOrder)
+        return true
     }
 }

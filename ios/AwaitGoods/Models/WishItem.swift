@@ -18,6 +18,7 @@ final class WishItem {
     var waitUntil: Date?
     var targetDate: Date?
     var notifyEnabled: Bool
+    var savedAmount: Double?
 
     init(
         id: UUID = UUID(),
@@ -34,7 +35,8 @@ final class WishItem {
         updatedAt: Date = Date(),
         waitUntil: Date? = nil,
         targetDate: Date? = nil,
-        notifyEnabled: Bool = true
+        notifyEnabled: Bool = false,
+        savedAmount: Double? = nil
     ) {
         self.id = id
         self.title = title
@@ -51,6 +53,7 @@ final class WishItem {
         self.waitUntil = waitUntil
         self.targetDate = targetDate
         self.notifyEnabled = notifyEnabled
+        self.savedAmount = savedAmount
     }
 
     var status: WishItemStatus {
@@ -83,7 +86,50 @@ final class WishItem {
         return URL(string: trimmed)
     }
 
+    var savedAmountValue: Double {
+        get {
+            let amount = max(savedAmount ?? 0, 0)
+            guard let savingsTarget else { return amount }
+            return min(amount, savingsTarget)
+        }
+        set {
+            let amount = max(newValue, 0)
+            if let savingsTarget {
+                savedAmount = min(amount, savingsTarget)
+            } else {
+                savedAmount = amount
+            }
+            updatedAt = Date()
+        }
+    }
+
+    var savingsTarget: Double? {
+        guard let price, price > 0 else { return nil }
+        return price
+    }
+
+    var savingsProgress: Double {
+        guard let savingsTarget else { return 0 }
+        return min(savedAmountValue / savingsTarget, 1)
+    }
+
+    var remainingSavingsAmount: Double? {
+        guard let savingsTarget else { return nil }
+        return max(savingsTarget - savedAmountValue, 0)
+    }
+
+    var isSavingsComplete: Bool {
+        guard let savingsTarget else { return false }
+        return savedAmountValue >= savingsTarget
+    }
+
+    func reconcileSavingsStatus() {
+        if isSavingsComplete {
+            status = .bought
+        }
+    }
+
     var snapshot: WishSnapshot {
-        WishSnapshot(id: id, title: title, price: price, waitUntil: waitUntil, sortIndex: sortIndex)
+        WishSnapshot(id: id, title: title, price: price, savedAmount: savedAmountValue, sortIndex: sortIndex)
     }
 }

@@ -2,11 +2,14 @@ import SwiftUI
 import UIKit
 
 struct WishRowView: View {
+    @Environment(\.appLanguage) private var appLanguage
+
     let item: WishItem
     let isEditing: Bool
     let isSelected: Bool
     let onCheck: () -> Void
     let onOpen: () -> Void
+    let onMore: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 10) {
@@ -35,7 +38,7 @@ struct WishRowView: View {
 
             Button(action: onOpen) {
                 HStack(alignment: .center, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text(item.title)
                             .font(.system(size: 17, weight: .medium))
                             .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
@@ -48,6 +51,10 @@ struct WishRowView: View {
                                 .font(.system(size: 13))
                                 .foregroundStyle(HWTheme.secondaryText)
                                 .lineLimit(1)
+                        }
+
+                        if item.savingsTarget != nil {
+                            savingsBar
                         }
                     }
 
@@ -66,6 +73,18 @@ struct WishRowView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            if let onMore, !isEditing {
+                Button(action: onMore) {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(HWTheme.tertiaryText)
+                        .frame(width: 32, height: 32)
+                        .background(HWTheme.fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
@@ -80,9 +99,7 @@ struct WishRowView: View {
 
     private var bubbleIcon: String {
         if isEditing { return isSelected ? "checkmark" : "circle" }
-        switch item.status {
-        case .waiting, .bought, .released, .paused: return item.status.iconName
-        }
+        return item.status.iconName
     }
 
     private var bubbleColor: Color {
@@ -102,8 +119,22 @@ struct WishRowView: View {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
         case .released: return HWTheme.tertiaryText
-        case .paused: return HWTheme.softWood
         }
+    }
+
+    private var savingsBar: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(HWTheme.fieldBackground)
+
+                Capsule()
+                    .fill(item.isSavingsComplete ? HWTheme.softBlueGray : HWTheme.freshGreen.opacity(0.72))
+                    .frame(width: proxy.size.width * item.savingsProgress)
+            }
+        }
+        .frame(height: 4)
+        .padding(.top, 1)
     }
 
     private var priceText: String? {
@@ -114,25 +145,34 @@ struct WishRowView: View {
     private var subtitle: String {
         switch item.status {
         case .bought:
-            return item.status.title
+            return appLanguage.text(item.status.title)
         case .released:
-            return item.status.title
-        case .paused:
-            return item.status.title
+            return appLanguage.text(item.status.title)
         case .waiting:
-            return waitText
+            return savingsText
         }
     }
 
-    private var waitText: String {
-        guard let waitUntil = item.waitUntil else { return item.category.isEmpty ? item.status.title : item.category }
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        let end = calendar.startOfDay(for: waitUntil)
-        let days = calendar.dateComponents([.day], from: start, to: end).day ?? 0
+    private var savingsText: String {
+        guard let target = item.savingsTarget else {
+            return item.category.isEmpty ? appLanguage.text(item.status.title) : localizedCategory(item.category)
+        }
 
-        if days > 0 { return "还要等 \(days) 天" }
-        if days == 0 { return "今天可决定" }
-        return "可以再看看了"
+        if item.isSavingsComplete {
+            return appLanguage.text("已存满")
+        }
+
+        let percent = Int((item.savingsProgress * 100).rounded())
+        let savedText = moneyText(item.savedAmountValue)
+        let targetText = moneyText(target)
+        return "\(appLanguage.text("已存")) \(savedText) / \(targetText) · \(percent)%"
+    }
+
+    private func localizedCategory(_ category: String) -> String {
+        appLanguage.text(category)
+    }
+
+    private func moneyText(_ value: Double) -> String {
+        "¥\(value.formatted(.number.precision(.fractionLength(0...0))))"
     }
 }

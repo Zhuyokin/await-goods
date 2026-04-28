@@ -1,9 +1,7 @@
 import WidgetKit
 
 enum WidgetSyncService {
-    static func sync(items: [WishItem], limit: Int = 3) {
-        let storedLimit = UserDefaults.standard.integer(forKey: "widgetItemLimit")
-        let snapshotLimit = (1...3).contains(storedLimit) ? storedLimit : limit
+    static func sync(items: [WishItem], limit: Int = 5) {
         let snapshots = items
             .filter { $0.status == .waiting }
             .sorted { lhs, rhs in
@@ -12,7 +10,7 @@ enum WidgetSyncService {
                 }
                 return lhs.sortIndex < rhs.sortIndex
             }
-            .prefix(snapshotLimit)
+            .prefix(limit)
             .map(\.snapshot)
 
         WidgetSnapshotStore.save(items: Array(snapshots))

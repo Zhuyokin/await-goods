@@ -2,12 +2,11 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @AppStorage("defaultWaitDays") private var defaultWaitDays = DefaultWaitPeriod.seven.rawValue
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
-    @AppStorage("widgetItemLimit") private var widgetItemLimit = 3
+    @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
 
     let items: [WishItem]
     let onChange: () -> Void
@@ -22,17 +21,14 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    settingsHeader
-
-                    settingsSection("日常偏好", subtitle: "默认值轻一点，记录就不会有负担") {
-                        waitPeriodSelector
-                        softToggle(title: "通知提醒", subtitle: "只在冷静期结束时轻轻提醒", icon: "bell", isOn: $notificationsEnabled)
+                    settingsSection(appLanguage.text("日常偏好"), subtitle: appLanguage.text("默认值轻一点，记录就不会有负担")) {
+                        languageSelector
                         appearanceSelector
                         widgetCounter
                     }
 
-                    settingsSection("数据", subtitle: "留一份记录，也可以随时清空") {
-                        settingsActionRow("生成导出文件", subtitle: "保存为 JSON 备份", icon: "doc.badge.arrow.up", color: HWTheme.linkBlue) {
+                    settingsSection(appLanguage.text("数据"), subtitle: appLanguage.text("留一份记录，也可以随时清空")) {
+                        settingsActionRow(appLanguage.text("生成导出文件"), subtitle: appLanguage.text("保存为 JSON 备份"), icon: "doc.badge.arrow.up", color: HWTheme.linkBlue) {
                             exportURL = makeExportFile()
                         }
 
@@ -44,11 +40,11 @@ struct SettingsView: View {
                                         .foregroundStyle(HWTheme.freshGreen)
 
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text("分享导出文件")
+                                        Text(appLanguage.text("分享导出文件"))
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundStyle(HWTheme.primaryText)
 
-                                        Text("文件已生成，可以发送或存到 iCloud")
+                                        Text(appLanguage.text("文件已生成，可以发送或存到 iCloud"))
                                             .font(.system(size: 12))
                                             .foregroundStyle(HWTheme.secondaryText)
                                     }
@@ -61,7 +57,7 @@ struct SettingsView: View {
                             }
                         }
 
-                        settingsActionRow("清空全部数据", subtitle: "会删除所有候物和提醒", icon: "trash", color: HWTheme.dangerRed, isDestructive: true) {
+                        settingsActionRow(appLanguage.text("清空全部数据"), subtitle: appLanguage.text("会删除所有候物和存钱记录"), icon: "trash", color: HWTheme.dangerRed, isDestructive: true) {
                             showingClearConfirmation = true
                         }
                     }
@@ -70,50 +66,40 @@ struct SettingsView: View {
                     appInfoCard
                 }
                 .padding(14)
+                .padding(.top, 6)
                 .padding(.bottom, 18)
             }
             .background(HWTheme.pageBackground.ignoresSafeArea())
-            .navigationTitle("设置")
+            .navigationTitle(appLanguage.text("设置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if showsDoneButton {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("完成") { dismiss() }
+                        Button(appLanguage.text("完成")) { dismiss() }
                             .fontWeight(.medium)
                             .foregroundStyle(HWTheme.freshGreen)
                     }
                 }
             }
-            .alert("所有候物都会被删除", isPresented: $showingClearConfirmation) {
-                Button("取消", role: .cancel) { }
-                Button("清空", role: .destructive) { clearAll() }
-            }
-            .onChange(of: notificationsEnabled) { _, enabled in
-                if !enabled {
-                    NotificationScheduler.cancelAllWishNotifications()
-                }
-            }
-            .onChange(of: widgetItemLimit) { _, _ in onChange() }
-            .onAppear {
-                if widgetItemLimit > 3 {
-                    widgetItemLimit = 3
-                    onChange()
-                }
+            .alert(appLanguage.text("所有候物都会被删除"), isPresented: $showingClearConfirmation) {
+                Button(appLanguage.text("取消"), role: .cancel) { }
+                Button(appLanguage.text("清空"), role: .destructive) { clearAll() }
             }
         }
     }
 
-    private var settingsHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("把候物调成舒服的样子")
-                .font(.system(size: 24, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
+    private var languageSelector: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            rowTitle(appLanguage.text("语言"), icon: "globe.asia.australia")
 
-            Text("少一点打扰，多一点克制感。")
-                .font(.system(size: 14))
-                .foregroundStyle(HWTheme.secondaryText)
+            HStack(spacing: 6) {
+                ForEach(AppLanguage.allCases) { language in
+                    chip(language.title, isSelected: appLanguageRawValue == language.rawValue) {
+                        appLanguageRawValue = language.rawValue
+                    }
+                }
+            }
         }
-        .padding(.top, 6)
     }
 
     private func settingsSection<Content: View>(_ title: String, subtitle: String, @ViewBuilder content: () -> Content) -> some View {
@@ -133,27 +119,13 @@ struct SettingsView: View {
         .softCard()
     }
 
-    private var waitPeriodSelector: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            rowTitle("默认等待期", icon: "hourglass")
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 72), spacing: 6)], spacing: 6) {
-                ForEach(DefaultWaitPeriod.allCases) { period in
-                    chip(period.title, isSelected: defaultWaitDays == period.rawValue) {
-                        defaultWaitDays = period.rawValue
-                    }
-                }
-            }
-        }
-    }
-
     private var appearanceSelector: some View {
         VStack(alignment: .leading, spacing: 7) {
-            rowTitle("外观模式", icon: "sparkles")
+            rowTitle(appLanguage.text("外观模式"), icon: "sparkles")
 
             HStack(spacing: 6) {
                 ForEach(AppAppearanceMode.allCases) { mode in
-                    chip(mode.title, isSelected: appearanceMode == mode.rawValue) {
+                    chip(appLanguage.text(mode.title), isSelected: appearanceMode == mode.rawValue) {
                         appearanceMode = mode.rawValue
                     }
                 }
@@ -166,29 +138,20 @@ struct SettingsView: View {
             rowIcon("rectangle.stack")
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("小组件展示")
+                Text(appLanguage.text("小组件展示"))
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
 
-                Text("最多展示 \(widgetItemLimit) 件正在等的东西")
+                Text(appLanguage.text("小号 1 件 · 中号 3 件 · 大号 5 件"))
                     .font(.system(size: 12))
                     .foregroundStyle(HWTheme.secondaryText)
             }
 
             Spacer()
 
-            HStack(spacing: 8) {
-                counterButton("minus") { widgetItemLimit = max(1, widgetItemLimit - 1) }
-                    .disabled(widgetItemLimit <= 1)
-
-                Text("\(widgetItemLimit)")
-                    .font(.system(size: 16, weight: .medium).monospacedDigit())
-                    .foregroundStyle(HWTheme.primaryText)
-                    .padding(.horizontal, 3)
-
-                counterButton("plus") { widgetItemLimit = min(3, widgetItemLimit + 1) }
-                    .disabled(widgetItemLimit >= 3)
-            }
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(HWTheme.freshGreen)
         }
         .padding(10)
         .background(HWTheme.fieldBackground)
@@ -287,10 +250,10 @@ struct SettingsView: View {
     private var contactCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("联系客服")
+                Text(appLanguage.text("联系客服"))
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
-                Text("有任何问题或建议，欢迎联系我们。")
+                Text(appLanguage.text("有任何问题或建议，欢迎联系我们。"))
                     .font(.system(size: 13))
                     .foregroundStyle(HWTheme.secondaryText)
             }
@@ -309,7 +272,7 @@ struct SettingsView: View {
                         .frame(width: 24, height: 24)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("微信")
+                        Text(appLanguage.text("微信"))
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                         Text("Zhuyokin")
@@ -319,7 +282,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Text(wechatIDCopied ? "已复制" : "点击复制")
+                    Text(wechatIDCopied ? appLanguage.text("已复制") : appLanguage.text("点击复制"))
                         .font(.system(size: 12))
                         .foregroundStyle(wechatIDCopied ? HWTheme.freshGreen : HWTheme.tertiaryText)
                         .animation(.easeInOut(duration: 0.2), value: wechatIDCopied)
@@ -334,7 +297,11 @@ struct SettingsView: View {
     }
 
     private var appInfoCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(appLanguage.text("关于 App"))
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(HWTheme.primaryText)
+
             HStack(spacing: 10) {
                 Image(systemName: "bag")
                     .font(.system(size: 20, weight: .regular))
@@ -344,14 +311,16 @@ struct SettingsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("候物 AwaitGoods")
+                    Text(appLanguage.text("候物 AwaitGoods"))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text("v1.0 · 等一等，再入手")
+                    Text(appLanguage.text("v1.0 · 慢慢存，轻轻买"))
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }
+
+                Spacer(minLength: 0)
             }
         }
         .softCard()
@@ -388,12 +357,10 @@ private struct WishItemExport: Codable {
     let priority: String
     let status: String
     let markColor: String
+    let savedAmount: Double
     let sortIndex: Int
     let createdAt: Date
     let updatedAt: Date
-    let waitUntil: Date?
-    let targetDate: Date?
-    let notifyEnabled: Bool
 
     init(item: WishItem) {
         id = item.id
@@ -405,12 +372,10 @@ private struct WishItemExport: Codable {
         priority = item.priority.title
         status = item.status.title
         markColor = item.markColor.title
+        savedAmount = item.savedAmountValue
         sortIndex = item.sortIndex
         createdAt = item.createdAt
         updatedAt = item.updatedAt
-        waitUntil = item.waitUntil
-        targetDate = item.targetDate
-        notifyEnabled = item.notifyEnabled
     }
 }
 

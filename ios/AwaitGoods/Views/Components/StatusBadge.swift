@@ -1,13 +1,15 @@
 import SwiftUI
 
 struct StatusBadge: View {
+    @Environment(\.appLanguage) private var appLanguage
+
     let status: WishItemStatus
 
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: status.iconName)
                 .font(.system(size: 10, weight: .regular))
-            Text(status.title)
+            Text(appLanguage.text(status.title))
                 .font(.system(size: 12, weight: .regular))
         }
         .foregroundStyle(color)
@@ -24,7 +26,6 @@ struct StatusBadge: View {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
         case .released: return HWTheme.tertiaryText
-        case .paused: return HWTheme.softWood
         }
     }
 }

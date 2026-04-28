@@ -20,6 +20,11 @@ struct AwaitGoodsApp: App {
         WindowGroup {
             MainTabView()
                 .preferredColorScheme(AppAppearanceMode(rawValue: appearanceMode)?.colorScheme)
+                #if DEBUG
+                .task {
+                    ScreenshotSeedService.seedIfNeeded(in: modelContainer)
+                }
+                #endif
         }
         .modelContainer(modelContainer)
     }

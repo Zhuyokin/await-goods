@@ -12,24 +12,25 @@
 		2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */; };
 		3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2653E608D5681E19C79E2CC /* SettingsView.swift */; };
 		3CB1951B7446472661AC50E9 /* DefaultWaitPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */; };
+		458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */; };
 		52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5C55ADED2249C0FB071C /* WishItem.swift */; };
 		54716D683573B89F8270A22B /* MarkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708A78E8FDF0E2F171E13882 /* MarkColor.swift */; };
 		6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */; };
 		702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00133B432093F41F0FC4B014 /* EmptyStateView.swift */; };
-		76E5A4972F9F2379002007AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 76E5A4962F9F2379002007AD /* Assets.xcassets */; };
-		76E5A4992F9F2492002007AD /* icon-ios-76x76@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 76E5A4982F9F2492002007AD /* icon-ios-76x76@2x.png */; };
 		85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8417533398FE2DB01C3EA65F /* WishPriority.swift */; };
 		8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
 		9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */; };
 		9F9D3DAD43A518783D42C0D6 /* AwaitGoodsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A31A090FB2553369506A0C6A /* HWTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385568F103509773D3A07A67 /* HWTheme.swift */; };
 		A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF262B512826CB029A457C94 /* WishDetailView.swift */; };
+		A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */; };
 		B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */; };
 		BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */; };
 		C0366C5697BE19B915941584 /* WishRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB35C22516A74C1F747CD7F /* WishRowView.swift */; };
 		CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F51BB09909F523764B4634 /* StatusBadge.swift */; };
 		D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */; };
 		E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
+		E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */; };
 		E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E8C33675EC2CB045CBCF087 /* WishListView.swift */; };
 		F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,8 @@
 
 /* Begin PBXFileReference section */
 		00133B432093F41F0FC4B014 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSeedService.swift; sourceTree = "<group>"; };
 		0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishEditorView.swift; sourceTree = "<group>"; };
 		0AB35C22516A74C1F747CD7F /* WishRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishRowView.swift; sourceTree = "<group>"; };
 		2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncService.swift; sourceTree = "<group>"; };
@@ -69,11 +72,9 @@
 		51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxButton.swift; sourceTree = "<group>"; };
 		52EE328A30A60851158B84DC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		598489FCE453058291FD72FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		6061B99572CFCD8AA755CA41 /* 候物.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6061B99572CFCD8AA755CA41 /* AwaitGoods.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AwaitGoods.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		61E4D95575BCE5B2F683F77F /* AwaitGoodsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoodsWidget.entitlements; sourceTree = "<group>"; };
 		708A78E8FDF0E2F171E13882 /* MarkColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkColor.swift; sourceTree = "<group>"; };
-		76E5A4962F9F2379002007AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		76E5A4982F9F2492002007AD /* icon-ios-76x76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-ios-76x76@2x.png"; sourceTree = "<group>"; };
 		78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWaitPeriod.swift; sourceTree = "<group>"; };
 		83F51BB09909F523764B4634 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		8417533398FE2DB01C3EA65F /* WishPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishPriority.swift; sourceTree = "<group>"; };
@@ -84,10 +85,11 @@
 		AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSnapshot.swift; sourceTree = "<group>"; };
 		C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemStatus.swift; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
-		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2653E608D5681E19C79E2CC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsApp.swift; sourceTree = "<group>"; };
 		EF262B512826CB029A457C94 /* WishDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishDetailView.swift; sourceTree = "<group>"; };
+		F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -114,7 +116,6 @@
 				9DDD83468F435680B473E561 /* AwaitGoodsWidget */,
 				21E649D51EFD8A4804667F39 /* Shared */,
 				F44BDB8A4230ED0EE4C14F19 /* Products */,
-				76E5A4982F9F2492002007AD /* icon-ios-76x76@2x.png */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,6 +136,7 @@
 		3A05756FFB906584B4D79286 /* AwaitGoods */ = {
 			isa = PBXGroup;
 			children = (
+				F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */,
 				900A7A734584BB47390FDEE2 /* AwaitGoods.entitlements */,
 				EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */,
 				AAB07323C9FC637505E17945 /* Info.plist */,
@@ -142,7 +144,6 @@
 				A29243118C49966921FAEBD6 /* Services */,
 				1AFF3494A30E1366493951A3 /* Theme */,
 				34A9B0B936DCF23D8C7DC981 /* Views */,
-				76E5A4962F9F2379002007AD /* Assets.xcassets */,
 			);
 			path = AwaitGoods;
 			sourceTree = "<group>";
@@ -161,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */,
+				03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */,
 				2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */,
 			);
 			path = Services;
@@ -170,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */,
+				00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */,
 				78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */,
 				708A78E8FDF0E2F171E13882 /* MarkColor.swift */,
 				927A5C55ADED2249C0FB071C /* WishItem.swift */,
@@ -192,7 +195,7 @@
 		F44BDB8A4230ED0EE4C14F19 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6061B99572CFCD8AA755CA41 /* 候物.app */,
+				6061B99572CFCD8AA755CA41 /* AwaitGoods.app */,
 				D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */,
 			);
 			name = Products;
@@ -235,7 +238,7 @@
 			packageProductDependencies = (
 			);
 			productName = AwaitGoods;
-			productReference = 6061B99572CFCD8AA755CA41 /* 候物.app */;
+			productReference = 6061B99572CFCD8AA755CA41 /* AwaitGoods.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -248,9 +251,11 @@
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					AB2BD341F07B30547403BE4A = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					BB9465ECF6E5C882A69DA8AD = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -280,8 +285,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				76E5A4992F9F2492002007AD /* icon-ios-76x76@2x.png in Resources */,
-				76E5A4972F9F2379002007AD /* Assets.xcassets in Resources */,
+				E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */,
+				458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */,
 				D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */,
 				6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */,
 				3CB1951B7446472661AC50E9 /* DefaultWaitPeriod.swift in Sources */,
@@ -301,6 +306,7 @@
 				29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */,
 				54716D683573B89F8270A22B /* MarkColor.swift in Sources */,
 				2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */,
+				A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */,
 				3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */,
 				CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */,
 				2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */,
@@ -397,16 +403,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = AwaitGoods/AwaitGoods.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoods/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "侯物";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -414,10 +417,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app;
 				PRODUCT_NAME = "候物";
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -428,7 +427,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = AwaitGoodsWidget/AwaitGoodsWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -513,16 +512,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = AwaitGoods/AwaitGoods.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoods/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "侯物";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -530,10 +526,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app;
 				PRODUCT_NAME = "候物";
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -544,7 +536,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = AwaitGoodsWidget/AwaitGoodsWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
