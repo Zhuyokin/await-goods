@@ -26,11 +26,11 @@ struct WishListView: View {
     @State private var itemToDelete: WishItem?
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
+    @State private var showingQuickAddSheet = false
     @State private var quickAddTitle = ""
     @State private var quickAddPriceText = ""
     @State private var quickAddSavedText = ""
     @State private var quickAddCategory = ""
-    @State private var quickAddExpanded = false
     @State private var draggedItem: WishItem?
     @State private var dragOrderedIDs: [UUID] = []
     @FocusState private var quickAddField: QuickAddField?
@@ -52,6 +52,7 @@ struct WishListView: View {
         .background { HWCreamLeafBackdrop() }
         .environment(\.editMode, $editMode)
         .safeAreaInset(edge: .bottom) { bottomBar }
+        .sheet(isPresented: $showingQuickAddSheet, onDismiss: resetQuickAddDraft) { quickAddSheet }
         .sheet(isPresented: $showingEditor) { editorSheet }
         .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
         .sheet(item: $actionItem) { item in actionSheet(for: item) }
@@ -82,7 +83,7 @@ struct WishListView: View {
                 }
             }
             .padding(.top, 8)
-            .padding(.bottom, isEditing ? 82 : (isQuickAddExpanded ? 172 : 92))
+            .padding(.bottom, isEditing ? 82 : 24)
         }
         .scrollDismissesKeyboard(.interactively)
     }
@@ -175,8 +176,7 @@ struct WishListView: View {
                     Button {
                         withAnimation(.easeInOut(duration: 0.18)) {
                             selectedStatus = .waiting
-                            quickAddExpanded = true
-                            quickAddField = .title
+                            showingQuickAddSheet = true
                         }
                     } label: {
                         Image(systemName: "plus")
@@ -335,8 +335,6 @@ struct WishListView: View {
             .padding(.top, 6)
             .padding(.bottom, 6)
             .background(HWTheme.pageBackground.opacity(0.72))
-        } else {
-            quickAddBar
         }
     }
 
@@ -356,41 +354,51 @@ struct WishListView: View {
         .buttonStyle(.plain)
     }
 
-    private var quickAddBar: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 12) {
-                Image(systemName: "square.and.pencil")
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(HWTheme.softWood)
+    private var quickAddSheet: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(appLanguage.text("先记下一个心愿"))
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(HWTheme.primaryText)
 
-                TextField(appLanguage.text("先记下一个心愿"), text: $quickAddTitle)
-                    .focused($quickAddField, equals: .title)
-                    .submitLabel(.next)
-                    .onTapGesture { quickAddExpanded = true }
-                    .onSubmit { quickAddField = .price }
+                        Text(appLanguage.text("少填几项也没关系，清单会安静地接住它。"))
+                            .font(.system(size: 13))
+                            .foregroundStyle(HWTheme.secondaryText)
+                    }
 
-                Button(action: quickAdd) {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(HWTheme.cardBackground)
-                        .frame(width: 40, height: 40)
-                        .background(canQuickAdd ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.72))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-                .disabled(!canQuickAdd)
-            }
+                    HStack(spacing: 12) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 17, weight: .regular))
+                            .foregroundStyle(HWTheme.softWood)
 
-            if isQuickAddExpanded {
-                VStack(alignment: .leading, spacing: 8) {
+                        TextField(appLanguage.text("先记下一个心愿"), text: $quickAddTitle)
+                            .font(.system(size: 16, weight: .medium))
+                            .focused($quickAddField, equals: .title)
+                            .submitLabel(.next)
+                            .onSubmit { quickAddField = .price }
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 13)
+                    .background(HWTheme.cardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(HWTheme.cardBorder.opacity(0.58), lineWidth: 0.8)
+                    )
+
                     HStack(spacing: 8) {
                         compactQuickField(appLanguage.text("价格"), text: $quickAddPriceText, icon: "yensign", field: .price)
                             .keyboardType(.decimalPad)
                             .submitLabel(.next)
                             .onSubmit { quickAddField = .saved }
+
                         compactQuickField(appLanguage.text("已存"), text: $quickAddSavedText, icon: "banknote", field: .saved)
                             .keyboardType(.decimalPad)
                             .submitLabel(.next)
                             .onSubmit { quickAddField = .category }
+
                         compactQuickField(appLanguage.text("标签"), text: $quickAddCategory, icon: "tag", field: .category)
                             .submitLabel(.done)
                     }
@@ -402,27 +410,36 @@ struct WishListView: View {
                             .font(.system(size: 12, weight: .regular))
                             .foregroundStyle(HWTheme.dangerRed)
                     }
+
+                    Button(action: quickAdd) {
+                        Text(appLanguage.text("先放进清单"))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(HWTheme.cardBackground)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(canQuickAdd ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.72))
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .disabled(!canQuickAdd)
+                    .buttonStyle(.plain)
                 }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                .padding(18)
+            }
+            .background(HWTheme.pageBackground.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(appLanguage.text("取消")) { closeQuickAddSheet() }
+                        .foregroundStyle(HWTheme.secondaryText)
+                }
             }
         }
-        .font(.system(size: 16, weight: .medium))
-        .padding(.leading, 18)
-        .padding(.trailing, 8)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(HWTheme.cardBackground.opacity(0.96))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.68), lineWidth: 0.8)
-        )
-        .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
-        .padding(.horizontal, 18)
-        .padding(.top, 7)
-        .padding(.bottom, 7)
-        .background(HWTheme.pageBackground.opacity(0.46))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(HWTheme.pageBackground)
+        .onAppear {
+            quickAddField = .title
+        }
     }
 
     private func compactQuickField(_ title: String, text: Binding<String>, icon: String, field: QuickAddField) -> some View {
@@ -446,7 +463,6 @@ struct WishListView: View {
             HStack(spacing: 7) {
                 ForEach(["数码", "衣物", "家居", "书影音", "礼物", "运动"], id: \.self) { category in
                     Button {
-                        quickAddExpanded = true
                         quickAddCategory = category
                     } label: {
                         Text(appLanguage.text(category))
@@ -509,14 +525,6 @@ struct WishListView: View {
 
     private var trimmedQuickAddTitle: String {
         quickAddTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var isQuickAddExpanded: Bool {
-        quickAddExpanded ||
-        quickAddField != nil ||
-        !quickAddPriceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        !quickAddSavedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        !quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var quickAddParsedPrice: Double? {
@@ -662,14 +670,22 @@ struct WishListView: View {
         newItem.reconcileSavingsStatus()
         modelContext.insert(newItem)
         selectedStatus = .waiting
+        persistChanges()
+        closeQuickAddSheet()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func closeQuickAddSheet() {
+        resetQuickAddDraft()
+        showingQuickAddSheet = false
+    }
+
+    private func resetQuickAddDraft() {
         quickAddTitle = ""
         quickAddPriceText = ""
         quickAddSavedText = ""
         quickAddCategory = ""
-        quickAddExpanded = false
         quickAddField = nil
-        persistChanges()
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func normalizedAmount(from text: String) -> Double? {
