@@ -27,6 +27,8 @@ struct WishListView: View {
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
     @State private var showingQuickAddSheet = false
+    @State private var linkCopiedToastVisible = false
+    @State private var linkCopiedToastToken = UUID()
     @State private var quickAddTitle = ""
     @State private var quickAddPriceText = ""
     @State private var quickAddSavedText = ""
@@ -56,6 +58,7 @@ struct WishListView: View {
         .sheet(isPresented: $showingEditor) { editorSheet }
         .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
         .sheet(item: $actionItem) { item in actionSheet(for: item) }
+        .overlay(alignment: .bottom) { copyLinkToast }
         .alert(appLanguage.text("删除后不可恢复"), isPresented: deleteConfirmationBinding) {
             Button(appLanguage.text("取消"), role: .cancel) { itemToDelete = nil }
             Button(appLanguage.text("删除"), role: .destructive) { deletePendingItem() }
@@ -132,7 +135,7 @@ struct WishListView: View {
         WishActionSheet(
             item: item,
             onEdit: { edit(item) },
-            onCopyLink: { UIPasteboard.general.string = item.linkString },
+            onCopyLink: { copyLink(for: item) },
             onColor: { color in setMarkColor(color, for: item) },
             onStatus: { status in updateStatus(status, for: item) },
             onDelete: { itemToDelete = item }
@@ -461,16 +464,16 @@ struct WishListView: View {
     private var quickCategorySuggestions: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
-                ForEach(["数码", "衣物", "家居", "书影音", "礼物", "运动"], id: \.self) { category in
+                ForEach(WishCategoryCatalog.suggestions(from: items, including: quickAddCategory), id: \.self) { category in
                     Button {
                         quickAddCategory = category
                     } label: {
                         Text(appLanguage.text(category))
-                            .font(.system(size: 12, weight: quickAddCategory == category ? .medium : .regular))
-                            .foregroundStyle(quickAddCategory == category ? HWTheme.cardBackground : HWTheme.secondaryText)
+                            .font(.system(size: 12, weight: trimmedQuickAddCategory == category ? .medium : .regular))
+                            .foregroundStyle(trimmedQuickAddCategory == category ? HWTheme.cardBackground : HWTheme.secondaryText)
                             .padding(.horizontal, 9)
                             .padding(.vertical, 6)
-                            .background(quickAddCategory == category ? HWTheme.freshGreen.opacity(0.82) : HWTheme.fieldBackground)
+                            .background(trimmedQuickAddCategory == category ? HWTheme.freshGreen.opacity(0.82) : HWTheme.fieldBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -525,6 +528,26 @@ struct WishListView: View {
 
     private var trimmedQuickAddTitle: String {
         quickAddTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var trimmedQuickAddCategory: String {
+        quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    @ViewBuilder
+    private var copyLinkToast: some View {
+        if linkCopiedToastVisible {
+            Label(appLanguage.text("已复制"), systemImage: "checkmark.circle.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(HWTheme.cardBackground)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(HWTheme.primaryText.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
+                .padding(.bottom, isEditing ? 108 : 18)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 
     private var quickAddParsedPrice: Double? {
@@ -598,6 +621,30 @@ struct WishListView: View {
         persistChanges()
     }
 
+    private func copyLink(for item: WishItem) {
+        let linkString = item.linkString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !linkString.isEmpty else { return }
+        UIPasteboard.general.string = linkString
+        showCopyLinkToast()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func showCopyLinkToast() {
+        let toastToken = UUID()
+        linkCopiedToastToken = toastToken
+
+        withAnimation(.easeInOut(duration: 0.18)) {
+            linkCopiedToastVisible = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            guard linkCopiedToastToken == toastToken else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                linkCopiedToastVisible = false
+            }
+        }
+    }
+
     private func updateSelectedStatus(_ status: WishItemStatus) {
         let selectedItems = items.filter { selectedIDs.contains($0.id) }
         selectedItems.forEach { $0.status = status }
@@ -660,7 +707,7 @@ struct WishListView: View {
             price: quickAddParsedPrice,
             linkString: "",
             note: "",
-            category: quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines),
+            category: trimmedQuickAddCategory,
             priority: .medium,
             markColor: .none,
             sortIndex: nextIndex,

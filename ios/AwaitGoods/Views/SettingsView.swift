@@ -332,7 +332,7 @@ struct SettingsView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text(appLanguage.text("v1.0 · 慢慢存，轻轻买"))
+                    Text("v1.0.3 · \(appLanguage.text("慢慢存，轻轻买"))")
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }

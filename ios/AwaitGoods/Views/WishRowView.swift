@@ -39,11 +39,16 @@ struct WishRowView: View {
             Button(action: onOpen) {
                 HStack(alignment: .center, spacing: 10) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(item.title)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
-                            .strikethrough(item.status == .released, color: HWTheme.secondaryText)
-                            .lineLimit(1)
+                        HStack(alignment: .firstTextBaseline, spacing: 7) {
+                            Text(item.title)
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
+                                .strikethrough(item.status == .released, color: HWTheme.secondaryText)
+                                .lineLimit(1)
+                                .layoutPriority(1)
+
+                            priorityBadge
+                        }
 
                         HStack(spacing: 6) {
                             statusDot
@@ -119,6 +124,35 @@ struct WishRowView: View {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
         case .released: return HWTheme.tertiaryText
+        }
+    }
+
+    private var priorityBadge: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(priorityColor)
+                .frame(width: 5, height: 5)
+
+            Text(appLanguage.text(item.priority.title))
+                .font(.system(size: 11, weight: .semibold))
+        }
+        .foregroundStyle(priorityColor)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(priorityColor.opacity(0.13))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(priorityColor.opacity(0.28), lineWidth: 0.7)
+        )
+        .accessibilityLabel("\(appLanguage.text(item.priority.title))\(appLanguage.text("优先级"))")
+    }
+
+    private var priorityColor: Color {
+        switch item.priority {
+        case .low: return HWTheme.softBlueGray
+        case .medium: return HWTheme.apricot
+        case .high: return HWTheme.dangerRed
         }
     }
 

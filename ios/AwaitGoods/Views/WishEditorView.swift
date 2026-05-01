@@ -193,8 +193,8 @@ struct WishEditorView: View {
     private var categorySuggestions: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(["数码", "衣物", "家居", "书影音", "礼物", "运动"], id: \.self) { suggestion in
-                    chipButton(appLanguage.text(suggestion), isSelected: category == suggestion) {
+                ForEach(WishCategoryCatalog.suggestions(from: existingItems, including: category), id: \.self) { suggestion in
+                    chipButton(appLanguage.text(suggestion), isSelected: trimmedCategory == suggestion) {
                         category = suggestion
                     }
                 }
@@ -304,6 +304,10 @@ struct WishEditorView: View {
         title.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var trimmedCategory: String {
+        category.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var parsedPrice: Double? {
         normalizedAmount(from: priceText)
     }
@@ -349,7 +353,7 @@ struct WishEditorView: View {
             item.price = parsedPrice
             item.savedAmountValue = parsedSavedAmount
             item.linkString = linkString.trimmingCharacters(in: .whitespacesAndNewlines)
-            item.category = category.trimmingCharacters(in: .whitespacesAndNewlines)
+            item.category = trimmedCategory
             item.priority = priority
             item.waitUntil = nil
             item.targetDate = nil
@@ -366,7 +370,7 @@ struct WishEditorView: View {
                 price: parsedPrice,
                 linkString: linkString.trimmingCharacters(in: .whitespacesAndNewlines),
                 note: note.trimmingCharacters(in: .whitespacesAndNewlines),
-                category: category.trimmingCharacters(in: .whitespacesAndNewlines),
+                category: trimmedCategory,
                 priority: priority,
                 markColor: markColor,
                 sortIndex: nextIndex,

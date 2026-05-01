@@ -133,3 +133,23 @@ final class WishItem {
         WishSnapshot(id: id, title: title, price: price, savedAmount: savedAmountValue, sortIndex: sortIndex)
     }
 }
+
+enum WishCategoryCatalog {
+    static let defaultCategories = ["数码", "衣物", "家居", "书影音", "礼物", "运动"]
+
+    static func suggestions(from items: [WishItem], including draftCategory: String = "") -> [String] {
+        var seenCategories = Set<String>()
+        var suggestions: [String] = []
+
+        for category in defaultCategories + items.map(\.category) + [draftCategory] {
+            let trimmedCategory = category.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedCategory.isEmpty else { continue }
+
+            let categoryKey = trimmedCategory.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            guard seenCategories.insert(categoryKey).inserted else { continue }
+            suggestions.append(trimmedCategory)
+        }
+
+        return suggestions
+    }
+}
