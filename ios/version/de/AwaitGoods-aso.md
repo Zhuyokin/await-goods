@@ -6,7 +6,7 @@ Aktualisiert: 2026-05-02
 
 - App-Name: AwaitGoods
 - Chinesischer Name: 候物
-- Untertitel: Wunschliste und Sparfortschritt
+- Untertitel: Wunschliste & Sparfortschritt
 - Hauptkategorie: Produktivität
 - Zweitkategorie: Lifestyle
 - Altersfreigabe: 4+

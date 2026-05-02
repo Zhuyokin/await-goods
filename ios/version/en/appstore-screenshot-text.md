@@ -2,27 +2,27 @@
 
 Updated: 2026-05-02
 
-## Screenshot 1: Home
+## Screenshot 1: Minimal List
 
-- Headline: A wishlist you can scan in seconds
-- Supporting copy: Price, saved amount, status, and priority stay clear on one page
+- Headline: Minimal List
+- Supporting copy: Every wish at a glance
 
-## Screenshot 2: Add
+## Screenshot 2: Home Widget
 
-- Headline: Save the wish before you buy
-- Supporting copy: Add a name, price, category, and link. A few fields are enough.
+- Headline: Home Widget
+- Supporting copy: See progress instantly
 
-## Screenshot 3: Progress
+## Screenshot 3: Multi-language
 
-- Headline: Save slowly, decide calmly
-- Supporting copy: Add savings over time or fill the target when it feels right
+- Headline: Multi-language
+- Supporting copy: Export and import safely
 
-## Screenshot 4: Search and Organize
+## Screenshot 4: Add a Wish
 
-- Headline: Search, sort, and filter without clutter
-- Supporting copy: Open search from the top-right icon and keep every wish tidy
+- Headline: Add a Wish
+- Supporting copy: Save it in one tap
 
-## Screenshot 5: Settings and Widgets
+## Screenshot 5: Edit a Wish
 
-- Headline: Themes, languages, backup, and widgets ready
-- Supporting copy: Eight languages, refined themes, JSON backup, and home screen widgets
+- Headline: Edit a Wish
+- Supporting copy: Adjust details and progress

@@ -2,27 +2,27 @@
 
 Aktualisiert: 2026-05-02
 
-## Screenshot 1: Start
+## Screenshot 1: Minimal-Liste
 
-- Titel: Eine Wunschliste auf einen Blick
-- Text: Preis, Sparbetrag, Status und Priorität bleiben auf einer Seite klar sichtbar
+- Titel: Minimal-Liste
+- Text: Alle Wünsche auf einen Blick
 
-## Screenshot 2: Hinzufügen
+## Screenshot 2: Home-Widget
 
-- Titel: Erst speichern, dann kaufen
-- Text: Name, Preis, Kategorie und Link genügen für den ersten Eintrag
+- Titel: Home-Widget
+- Text: Fortschritt direkt im Blick
 
-## Screenshot 3: Fortschritt
+## Screenshot 3: Mehrsprachig
 
-- Titel: Langsam sparen, ruhiger entscheiden
-- Text: Sparbetrag ergänzen oder das Ziel auffüllen, wenn der Moment passt
+- Titel: Mehrsprachig
+- Text: Export und Import sicher
 
-## Screenshot 4: Suche und Ordnung
+## Screenshot 4: Wunsch hinzufügen
 
-- Titel: Suchen, sortieren und filtern ohne Unruhe
-- Text: Die Suche öffnet sich über das Symbol oben rechts und hält die Liste klar
+- Titel: Wunsch hinzufügen
+- Text: Mit einem Tippen erfasst
 
-## Screenshot 5: Einstellungen und Widgets
+## Screenshot 5: Wunsch bearbeiten
 
-- Titel: Themes, Sprachen, Backup und Widgets bereit
-- Text: Acht Sprachen, feine Farbthemen, JSON-Backup und Home-Bildschirm-Widgets
+- Titel: Wunsch bearbeiten
+- Text: Details und Fortschritt anpassen

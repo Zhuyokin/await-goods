@@ -2,27 +2,27 @@
 
 Mis à jour : 2026-05-02
 
-## Capture 1 : Accueil
+## Capture 1 : Liste minimale
 
-- Titre : Une wishlist lisible en un instant
-- Texte : Prix, épargne, statut et priorité restent clairs sur la même page
+- Titre : Liste minimale
+- Texte : Toutes vos envies, d’un regard
 
-## Capture 2 : Ajouter
+## Capture 2 : Widget d’accueil
 
-- Titre : Notez l’envie avant d’acheter
-- Texte : Nom, prix, catégorie et lien. Quelques champs suffisent.
+- Titre : Widget d’accueil
+- Texte : Progression visible aussitôt
 
-## Capture 3 : Progression
+## Capture 3 : Multilingue
 
-- Titre : Épargner doucement, décider calmement
-- Texte : Ajoutez de l’épargne ou complétez l’objectif quand le bon moment arrive
+- Titre : Multilingue
+- Texte : Export et import sereins
 
-## Capture 4 : Recherche et organisation
+## Capture 4 : Ajouter une envie
 
-- Titre : Rechercher, trier et filtrer sans encombrement
-- Texte : La recherche s’ouvre depuis l’icône en haut à droite et garde la liste nette
+- Titre : Ajouter une envie
+- Texte : Noter en un geste
 
-## Capture 5 : Réglages et widgets
+## Capture 5 : Modifier une envie
 
-- Titre : Thèmes, langues, sauvegarde et widgets prêts
-- Texte : Huit langues, thèmes raffinés, sauvegarde JSON et widgets d’écran d’accueil
+- Titre : Modifier une envie
+- Texte : Détails et progrès ajustables

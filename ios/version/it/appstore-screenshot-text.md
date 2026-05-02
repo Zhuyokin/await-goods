@@ -2,27 +2,27 @@
 
 Aggiornato: 2026-05-02
 
-## Screenshot 1: Home
+## Screenshot 1: Lista essenziale
 
-- Titolo: Una wishlist chiara in pochi secondi
-- Testo: Prezzo, risparmio, stato e priorità restano leggibili nella stessa schermata
+- Titolo: Lista essenziale
+- Testo: Tutti i desideri, al volo
 
-## Screenshot 2: Aggiungi
+## Screenshot 2: Widget Home
 
-- Titolo: Salva il desiderio prima di comprare
-- Testo: Nome, prezzo, categoria e link. Bastano pochi campi.
+- Titolo: Widget Home
+- Testo: Progressi subito visibili
 
-## Screenshot 3: Progresso
+## Screenshot 3: Più lingue
 
-- Titolo: Risparmia piano, decidi con calma
-- Testo: Aggiungi risparmi o completa l’obiettivo quando senti che è il momento giusto
+- Titolo: Più lingue
+- Testo: Export e import sicuri
 
-## Screenshot 4: Cerca e organizza
+## Screenshot 4: Aggiungi desiderio
 
-- Titolo: Cerca, ordina e filtra senza caos
-- Testo: La ricerca si apre dall’icona in alto a destra e mantiene la lista pulita
+- Titolo: Aggiungi desiderio
+- Testo: Un tocco, tutto segnato
 
-## Screenshot 5: Impostazioni e widget
+## Screenshot 5: Modifica desiderio
 
-- Titolo: Temi, lingue, backup e widget pronti
-- Testo: Otto lingue, temi raffinati, backup JSON e widget schermata Home
+- Titolo: Modifica desiderio
+- Testo: Dettagli e progressi regolabili

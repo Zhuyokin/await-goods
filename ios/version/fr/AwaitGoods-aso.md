@@ -6,7 +6,7 @@ Mis à jour : 2026-05-02
 
 - Nom de l’app : AwaitGoods
 - Nom chinois : 候物
-- Sous-titre : Wishlist et progression d’épargne
+- Sous-titre : Liste de souhaits & épargne
 - Catégorie principale : Productivité
 - Catégorie secondaire : Style de vie
 - Âge recommandé : 4+
@@ -19,8 +19,7 @@ wishlist,liste envies,liste achats,souhait,épargne,budget,achats,envies,awaitgo
 
 ## Texte promotionnel
 
-AwaitGoods est une wishlist minimaliste pour noter ce que vous voulez avant d’acheter. Ajoutez prix, montant épargné, catégorie, lien et notes, puis décidez plus calmement grâce à la progression.
-
+AwaitGoods, wishlist minimaliste pour vos futurs achats. Notez prix, épargne, catégorie, lien et notes. Suivez votre progression et choisissez sereinement.
 ## Description
 
 AwaitGoods aide à transformer les envies d’achat en une liste légère et locale. Quand quelque chose vous plaît, vous pouvez d’abord l’ajouter, renseigner le prix, suivre l’épargne et choisir le bon rythme.
