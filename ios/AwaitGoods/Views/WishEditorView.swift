@@ -70,7 +70,7 @@ struct WishEditorView: View {
                             .focused($titleFocused)
 
                         HStack(spacing: 8) {
-                            softTextField(appLanguage.text("价格"), placeholder: appLanguage.text("可选"), text: $priceText, icon: "yensign")
+                            softTextField(appLanguage.text("价格"), placeholder: appLanguage.text("可选"), text: $priceText, icon: "dollarsign")
                                 .keyboardType(.decimalPad)
 
                             softTextField(appLanguage.text("已存"), placeholder: appLanguage.text("可选"), text: $savedText, icon: "banknote")
@@ -407,6 +407,6 @@ struct WishEditorView: View {
     }
 
     private func moneyText(_ value: Double) -> String {
-        "¥\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
     }
 }

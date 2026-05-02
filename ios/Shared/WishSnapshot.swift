@@ -55,6 +55,26 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
 struct WidgetSnapshotPayload: Codable {
     let updatedAt: Date
     let items: [WishSnapshot]
+    let languageCode: String
+
+    init(updatedAt: Date, items: [WishSnapshot], languageCode: String = "zhHans") {
+        self.updatedAt = updatedAt
+        self.items = items
+        self.languageCode = languageCode
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case updatedAt
+        case items
+        case languageCode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        items = try container.decode([WishSnapshot].self, forKey: .items)
+        languageCode = try container.decodeIfPresent(String.self, forKey: .languageCode) ?? "zhHans"
+    }
 }
 
 enum SharedAppGroup {
@@ -68,8 +88,8 @@ enum WidgetSnapshotStore {
         UserDefaults(suiteName: SharedAppGroup.identifier) ?? .standard
     }
 
-    static func save(items: [WishSnapshot]) {
-        let payload = WidgetSnapshotPayload(updatedAt: Date(), items: items)
+    static func save(items: [WishSnapshot], languageCode: String = "zhHans") {
+        let payload = WidgetSnapshotPayload(updatedAt: Date(), items: items, languageCode: languageCode)
         guard let data = try? JSONEncoder().encode(payload) else { return }
         defaults.set(data, forKey: key)
     }
@@ -80,5 +100,13 @@ enum WidgetSnapshotStore {
             return []
         }
         return payload.items
+    }
+
+    static func loadLanguageCode() -> String {
+        guard let data = defaults.data(forKey: key),
+              let payload = try? JSONDecoder().decode(WidgetSnapshotPayload.self, from: data) else {
+            return "zhHans"
+        }
+        return payload.languageCode
     }
 }

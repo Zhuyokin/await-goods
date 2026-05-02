@@ -36,6 +36,10 @@ struct AwaitGoodsWidgetView: View {
     @Environment(\.widgetFamily) private var widgetFamily
     let entry: AwaitGoodsEntry
 
+    private var copy: WidgetCopy {
+        WidgetCopy(languageCode: WidgetSnapshotStore.loadLanguageCode())
+    }
+
     private var maxCount: Int {
         switch widgetFamily {
         case .systemSmall:
@@ -96,7 +100,7 @@ struct AwaitGoodsWidgetView: View {
 
             Spacer(minLength: 0)
 
-            Text(entry.items.isEmpty ? "今天也很克制" : "轻点打开清单")
+            Text(entry.items.isEmpty ? copy.restrainedText : copy.openText)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(WidgetPalette.secondary)
         }
@@ -129,7 +133,7 @@ struct AwaitGoodsWidgetView: View {
                 .foregroundStyle(WidgetPalette.green)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text("候物")
+                Text(copy.appName)
                     .font(.system(size: compact ? 14 : 15, weight: .medium))
                     .foregroundStyle(WidgetPalette.ink)
 
@@ -204,11 +208,11 @@ struct AwaitGoodsWidgetView: View {
 
     private var emptyWidgetText: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text("清单很轻")
+            Text(copy.emptyTitle)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(WidgetPalette.ink)
 
-            Text("先记下心动，晚点再决定。")
+            Text(copy.emptySubtitle)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(WidgetPalette.secondary)
                 .lineLimit(2)
@@ -216,13 +220,13 @@ struct AwaitGoodsWidgetView: View {
     }
 
     private var summaryText: String {
-        entry.items.isEmpty ? "今天没有待存心愿" : "还有 \(entry.items.count) 件想买"
+        entry.items.isEmpty ? copy.emptySummary : copy.waitingSummary(count: entry.items.count)
     }
 
     private func savingsText(for item: WishSnapshot) -> String {
-        guard let remaining = item.remainingAmount else { return "想买" }
-        if remaining == 0 { return "已存满" }
-        return "还差 \(priceText(for: remaining) ?? "¥0")"
+        guard let remaining = item.remainingAmount else { return copy.wantedText }
+        if remaining == 0 { return copy.completedText }
+        return copy.remainingText(priceText(for: remaining) ?? "$0")
     }
 
     private func progressText(for item: WishSnapshot) -> String {
@@ -232,7 +236,108 @@ struct AwaitGoodsWidgetView: View {
 
     private func priceText(for price: Double?) -> String? {
         guard let price else { return nil }
-        return "¥\(price.formatted(.number.precision(.fractionLength(0...0))))"
+        return "$\(price.formatted(.number.precision(.fractionLength(0...0))))"
+    }
+}
+
+private struct WidgetCopy {
+    private enum Language {
+        case zhHans
+        case zhHant
+        case en
+
+        init(languageCode: String) {
+            switch languageCode {
+            case "zhHans": self = .zhHans
+            case "zhHant": self = .zhHant
+            case "en": self = .en
+            default: self = .en
+            }
+        }
+    }
+
+    private let language: Language
+
+    init(languageCode: String) {
+        language = Language(languageCode: languageCode)
+    }
+
+    var appName: String {
+        switch language {
+        case .zhHans, .zhHant: return "候物"
+        case .en: return "AwaitGoods"
+        }
+    }
+
+    var restrainedText: String {
+        switch language {
+        case .zhHans: return "今天也很克制"
+        case .zhHant: return "今天也很克制"
+        case .en: return "Quiet today"
+        }
+    }
+
+    var openText: String {
+        switch language {
+        case .zhHans: return "轻点打开清单"
+        case .zhHant: return "輕點打開清單"
+        case .en: return "Tap to open"
+        }
+    }
+
+    var emptyTitle: String {
+        switch language {
+        case .zhHans: return "清单很轻"
+        case .zhHant: return "清單很輕"
+        case .en: return "Quiet list"
+        }
+    }
+
+    var emptySubtitle: String {
+        switch language {
+        case .zhHans: return "先记下心动，晚点再决定。"
+        case .zhHant: return "先記下心動，晚點再決定。"
+        case .en: return "Save the wish first. Decide later."
+        }
+    }
+
+    var emptySummary: String {
+        switch language {
+        case .zhHans: return "今天没有待存心愿"
+        case .zhHant: return "今天沒有待存心願"
+        case .en: return "No waiting wishes today"
+        }
+    }
+
+    var wantedText: String {
+        switch language {
+        case .zhHans, .zhHant: return "想买"
+        case .en: return "Wanted"
+        }
+    }
+
+    var completedText: String {
+        switch language {
+        case .zhHans: return "已存满"
+        case .zhHant: return "已存滿"
+        case .en: return "Saved up"
+        }
+    }
+
+    func waitingSummary(count: Int) -> String {
+        switch language {
+        case .zhHans: return "还有 \(count) 件想买"
+        case .zhHant: return "還有 \(count) 件想買"
+        case .en: return count == 1 ? "1 wish waiting" : "\(count) wishes waiting"
+        }
+    }
+
+    func remainingText(_ price: String) -> String {
+        switch language {
+        case .zhHans: return "还差 \(price)"
+        case .zhHant: return "還差 \(price)"
+        case .en: return "\(price) left"
+        }
     }
 }
 
@@ -277,8 +382,8 @@ struct AwaitGoodsWidget: Widget {
         StaticConfiguration(kind: kind, provider: AwaitGoodsProvider()) { entry in
             AwaitGoodsWidgetView(entry: entry)
         }
-        .configurationDisplayName("候物")
-        .description("查看正在想买的物品。")
+        .configurationDisplayName(NSLocalizedString("AwaitGoodsWidgetName", comment: "Widget display name"))
+        .description(NSLocalizedString("AwaitGoodsWidgetDescription", comment: "Widget description"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

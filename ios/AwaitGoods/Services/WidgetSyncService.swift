@@ -1,3 +1,4 @@
+import Foundation
 import WidgetKit
 
 enum WidgetSyncService {
@@ -13,7 +14,8 @@ enum WidgetSyncService {
             .prefix(limit)
             .map(\.snapshot)
 
-        WidgetSnapshotStore.save(items: Array(snapshots))
+        let languageCode = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.zhHans.rawValue
+        WidgetSnapshotStore.save(items: Array(snapshots), languageCode: languageCode)
         WidgetCenter.shared.reloadAllTimelines()
     }
 }

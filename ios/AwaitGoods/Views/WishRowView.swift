@@ -37,18 +37,15 @@ struct WishRowView: View {
             .buttonStyle(.plain)
 
             Button(action: onOpen) {
-                HStack(alignment: .center, spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
                     VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .firstTextBaseline, spacing: 7) {
-                            Text(item.title)
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
-                                .strikethrough(item.status == .released, color: HWTheme.secondaryText)
-                                .lineLimit(1)
-                                .layoutPriority(1)
-
-                            priorityBadge
-                        }
+                        Text(item.title)
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
+                            .strikethrough(item.status == .released, color: HWTheme.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         HStack(spacing: 6) {
                             statusDot
@@ -62,18 +59,9 @@ struct WishRowView: View {
                             savingsBar
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Spacer(minLength: 8)
-
-                    if let priceText {
-                        Text(priceText)
-                            .font(.system(size: 14, weight: .medium).monospacedDigit())
-                            .foregroundStyle(HWTheme.softBlueGray)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(HWTheme.fieldBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
+                    trailingMeta
                 }
                 .contentShape(Rectangle())
             }
@@ -145,7 +133,28 @@ struct WishRowView: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .stroke(priorityColor.opacity(0.28), lineWidth: 0.7)
         )
+        .fixedSize(horizontal: true, vertical: false)
         .accessibilityLabel("\(appLanguage.text(item.priority.title))\(appLanguage.text("优先级"))")
+    }
+
+    private var trailingMeta: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            priorityBadge
+
+            if let priceText {
+                Text(priceText)
+                    .font(.system(size: 13, weight: .medium).monospacedDigit())
+                    .foregroundStyle(HWTheme.softBlueGray)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(HWTheme.fieldBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+        }
+        .frame(minWidth: 58, alignment: .topTrailing)
+        .layoutPriority(1)
     }
 
     private var priorityColor: Color {
@@ -173,7 +182,7 @@ struct WishRowView: View {
 
     private var priceText: String? {
         guard let price = item.price else { return nil }
-        return "¥\(price.formatted(.number.precision(.fractionLength(0...2))))"
+        return "$\(price.formatted(.number.precision(.fractionLength(0...2))))"
     }
 
     private var subtitle: String {
@@ -207,6 +216,6 @@ struct WishRowView: View {
     }
 
     private func moneyText(_ value: Double) -> String {
-        "¥\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
     }
 }

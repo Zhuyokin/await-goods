@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LaunchViewController">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="LaunchScene">
+            <objects>
+                <viewController id="LaunchViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LaunchView">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchArt">
+                                <rect key="frame" x="108.5" y="303" width="176" height="176"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchLineTop">
+                                        <rect key="frame" x="30" y="34" width="116" height="1"/>
+                                        <color key="backgroundColor" red="0.50196078431372548" green="0.68235294117647061" blue="0.52549019607843139" alpha="0.26000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="1" id="LaunchLineTopHeight"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchLineMid">
+                                        <rect key="frame" x="30" y="56" width="116" height="1"/>
+                                        <color key="backgroundColor" red="0.50196078431372548" green="0.68235294117647061" blue="0.52549019607843139" alpha="0.16" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="1" id="LaunchLineMidHeight"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchLineBottom">
+                                        <rect key="frame" x="30" y="78" width="116" height="1"/>
+                                        <color key="backgroundColor" red="0.50196078431372548" green="0.68235294117647061" blue="0.52549019607843139" alpha="0.13" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="1" id="LaunchLineBottomHeight"/>
+                                        </constraints>
+                                    </view>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="候" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchHanOne">
+                                        <rect key="frame" x="28" y="48" width="76" height="78"/>
+                                        <fontDescription key="fontDescription" type="system" weight="light" pointSize="72"/>
+                                        <color key="textColor" red="0.29411764705882354" green="0.51764705882352935" blue="0.37254901960784315" alpha="0.22" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="物" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchHanTwo">
+                                        <rect key="frame" x="92" y="83" width="58" height="62"/>
+                                        <fontDescription key="fontDescription" type="system" weight="ultraLight" pointSize="56"/>
+                                        <color key="textColor" red="0.70588235294117652" green="0.51372549019607838" blue="0.40000000000000002" alpha="0.22000000000000003" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchReceipt">
+                                        <rect key="frame" x="48" y="104" width="96" height="46"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Await" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchReceiptTop">
+                                                <rect key="frame" x="14" y="9" width="39" height="15"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                                                <color key="textColor" red="0.12156862745098039" green="0.14117647058823529" blue="0.13333333333333333" alpha="0.88" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchReceiptRule">
+                                                <rect key="frame" x="14" y="29" width="68" height="1"/>
+                                                <color key="backgroundColor" red="0.50196078431372548" green="0.68235294117647061" blue="0.52549019607843139" alpha="0.24" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="1" id="LaunchReceiptRuleHeight"/>
+                                                </constraints>
+                                            </view>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="1" blue="0.99607843137254903" alpha="0.92000000000000004" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstItem="LaunchReceiptTop" firstAttribute="leading" secondItem="LaunchReceipt" secondAttribute="leading" constant="14" id="LaunchReceiptTopLeading"/>
+                                            <constraint firstItem="LaunchReceiptTop" firstAttribute="top" secondItem="LaunchReceipt" secondAttribute="top" constant="9" id="LaunchReceiptTopTop"/>
+                                            <constraint firstItem="LaunchReceiptRule" firstAttribute="leading" secondItem="LaunchReceipt" secondAttribute="leading" constant="14" id="LaunchReceiptRuleLeading"/>
+                                            <constraint firstAttribute="trailing" secondItem="LaunchReceiptRule" secondAttribute="trailing" constant="14" id="LaunchReceiptRuleTrailing"/>
+                                            <constraint firstItem="LaunchReceiptRule" firstAttribute="top" secondItem="LaunchReceiptTop" secondAttribute="bottom" constant="5" id="LaunchReceiptRuleTop"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" red="0.95294117647058818" green="0.97647058823529409" blue="0.94509803921568625" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="176" id="LaunchArtWidth"/>
+                                    <constraint firstAttribute="height" constant="176" id="LaunchArtHeight"/>
+                                    <constraint firstItem="LaunchLineTop" firstAttribute="leading" secondItem="LaunchArt" secondAttribute="leading" constant="30" id="LaunchLineTopLeading"/>
+                                    <constraint firstAttribute="trailing" secondItem="LaunchLineTop" secondAttribute="trailing" constant="30" id="LaunchLineTopTrailing"/>
+                                    <constraint firstItem="LaunchLineTop" firstAttribute="top" secondItem="LaunchArt" secondAttribute="top" constant="34" id="LaunchLineTopTop"/>
+                                    <constraint firstItem="LaunchLineMid" firstAttribute="leading" secondItem="LaunchArt" secondAttribute="leading" constant="30" id="LaunchLineMidLeading"/>
+                                    <constraint firstAttribute="trailing" secondItem="LaunchLineMid" secondAttribute="trailing" constant="30" id="LaunchLineMidTrailing"/>
+                                    <constraint firstItem="LaunchLineMid" firstAttribute="top" secondItem="LaunchLineTop" secondAttribute="bottom" constant="21" id="LaunchLineMidTop"/>
+                                    <constraint firstItem="LaunchLineBottom" firstAttribute="leading" secondItem="LaunchArt" secondAttribute="leading" constant="30" id="LaunchLineBottomLeading"/>
+                                    <constraint firstAttribute="trailing" secondItem="LaunchLineBottom" secondAttribute="trailing" constant="30" id="LaunchLineBottomTrailing"/>
+                                    <constraint firstItem="LaunchLineBottom" firstAttribute="top" secondItem="LaunchLineMid" secondAttribute="bottom" constant="21" id="LaunchLineBottomTop"/>
+                                    <constraint firstItem="LaunchHanOne" firstAttribute="leading" secondItem="LaunchArt" secondAttribute="leading" constant="28" id="LaunchHanOneLeading"/>
+                                    <constraint firstItem="LaunchHanOne" firstAttribute="top" secondItem="LaunchArt" secondAttribute="top" constant="48" id="LaunchHanOneTop"/>
+                                    <constraint firstItem="LaunchHanTwo" firstAttribute="trailing" secondItem="LaunchArt" secondAttribute="trailing" constant="26" id="LaunchHanTwoTrailing"/>
+                                    <constraint firstItem="LaunchHanTwo" firstAttribute="top" secondItem="LaunchArt" secondAttribute="top" constant="83" id="LaunchHanTwoTop"/>
+                                    <constraint firstItem="LaunchReceipt" firstAttribute="leading" secondItem="LaunchArt" secondAttribute="leading" constant="48" id="LaunchReceiptLeading"/>
+                                    <constraint firstItem="LaunchReceipt" firstAttribute="top" secondItem="LaunchArt" secondAttribute="top" constant="104" id="LaunchReceiptTopConstraint"/>
+                                    <constraint firstItem="LaunchReceipt" firstAttribute="width" constant="96" id="LaunchReceiptWidth"/>
+                                    <constraint firstItem="LaunchReceipt" firstAttribute="height" constant="46" id="LaunchReceiptHeight"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="候物 AwaitGoods" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchName">
+                                <rect key="frame" x="98.5" y="505" width="196" height="29"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="24"/>
+                                <color key="textColor" red="0.12156862745098039" green="0.14117647058823529" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="慢慢存，轻轻买" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTagline">
+                                <rect key="frame" x="137" y="542" width="119" height="19"/>
+                                <fontDescription key="fontDescription" type="system" weight="regular" pointSize="15"/>
+                                <color key="textColor" red="0.38039215686274508" green="0.43137254901960786" blue="0.396078431372549" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="LaunchSafeArea"/>
+                        <color key="backgroundColor" red="0.97254901960784312" green="0.98431372549019602" blue="0.96470588235294119" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="LaunchArt" firstAttribute="centerX" secondItem="LaunchView" secondAttribute="centerX" id="LaunchArtCenterX"/>
+                            <constraint firstItem="LaunchArt" firstAttribute="centerY" secondItem="LaunchView" secondAttribute="centerY" constant="-30" id="LaunchArtCenterY"/>
+                            <constraint firstItem="LaunchName" firstAttribute="top" secondItem="LaunchArt" secondAttribute="bottom" constant="26" id="LaunchNameTop"/>
+                            <constraint firstItem="LaunchName" firstAttribute="centerX" secondItem="LaunchView" secondAttribute="centerX" id="LaunchNameCenterX"/>
+                            <constraint firstItem="LaunchTagline" firstAttribute="top" secondItem="LaunchName" secondAttribute="bottom" constant="8" id="LaunchTaglineTop"/>
+                            <constraint firstItem="LaunchTagline" firstAttribute="centerX" secondItem="LaunchView" secondAttribute="centerX" id="LaunchTaglineCenterX"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="LaunchFirstResponder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

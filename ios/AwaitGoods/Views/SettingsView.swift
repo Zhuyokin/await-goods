@@ -8,6 +8,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
+    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
 
     let items: [WishItem]
     let onChange: () -> Void
@@ -17,6 +18,8 @@ struct SettingsView: View {
     @State private var showingClearConfirmation = false
     @State private var dataTransferMessage: DataTransferMessage?
     @State private var wechatIDCopied = false
+    @State private var contactToastVisible = false
+    @State private var contactToastToken = UUID()
 
     var showsDoneButton = false
 
@@ -27,6 +30,7 @@ struct SettingsView: View {
                     settingsSection(appLanguage.text("日常偏好"), subtitle: appLanguage.text("默认值轻一点，记录就不会有负担")) {
                         languageSelector
                         appearanceSelector
+                        themeSelector
                         widgetCounter
                     }
 
@@ -77,6 +81,7 @@ struct SettingsView: View {
                 .padding(.bottom, 18)
             }
             .background(HWTheme.pageBackground.ignoresSafeArea())
+            .overlay(alignment: .bottom) { contactToast }
             .navigationTitle(appLanguage.text("设置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -112,6 +117,7 @@ struct SettingsView: View {
                     ForEach(AppLanguage.allCases) { language in
                         chip(language.title, isSelected: appLanguageRawValue == language.rawValue) {
                             appLanguageRawValue = language.rawValue
+                            WidgetSyncService.sync(items: items)
                         }
                     }
                 }
@@ -148,6 +154,85 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    private var themeSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            rowTitle(appLanguage.text("主题配色"), icon: "paintpalette")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 9) {
+                    ForEach(AppTheme.allCases) { theme in
+                        themeCard(theme)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    private func themeCard(_ theme: AppTheme) -> some View {
+        let isSelected = appThemeRawValue == theme.rawValue
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                appThemeRawValue = theme.rawValue
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 7) {
+                    Image(systemName: theme.icon)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.freshGreen)
+                        .frame(width: 26, height: 26)
+                        .background(isSelected ? HWTheme.freshGreen : HWTheme.cardBackground.opacity(0.92))
+                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+
+                    Spacer(minLength: 6)
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(HWTheme.freshGreen)
+                    }
+                }
+
+                HStack(spacing: -3) {
+                    ForEach(Array(theme.swatchColors.enumerated()), id: \.offset) { _, color in
+                        Circle()
+                            .fill(color)
+                            .frame(width: 20, height: 20)
+                            .overlay(
+                                Circle()
+                                    .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 1)
+                            )
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(appLanguage.text(theme.title))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(HWTheme.primaryText)
+                        .lineLimit(1)
+
+                    Text(appLanguage.text(theme.subtitle))
+                        .font(.system(size: 11))
+                        .foregroundStyle(HWTheme.secondaryText)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(11)
+            .frame(width: 154, alignment: .topLeading)
+            .frame(minHeight: 118, alignment: .topLeading)
+            .background(isSelected ? HWTheme.mint.opacity(0.25) : HWTheme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.58) : HWTheme.cardBorder.opacity(0.56), lineWidth: 0.9)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     private var widgetCounter: some View {
@@ -278,6 +363,7 @@ struct SettingsView: View {
             Button {
                 UIPasteboard.general.string = "Zhuyokin"
                 wechatIDCopied = true
+                showContactToast()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     wechatIDCopied = false
                 }
@@ -313,6 +399,22 @@ struct SettingsView: View {
         .softCard()
     }
 
+    @ViewBuilder
+    private var contactToast: some View {
+        if contactToastVisible {
+            Label(appLanguage.text("微信号已复制"), systemImage: "checkmark.circle.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(HWTheme.cardBackground)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(HWTheme.primaryText.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
+                .padding(.bottom, 18)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+
     private var appInfoCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(appLanguage.text("关于 App"))
@@ -332,7 +434,7 @@ struct SettingsView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text("v1.0.3 · \(appLanguage.text("慢慢存，轻轻买"))")
+                    Text("v1.0.4 · \(appLanguage.text("慢慢存，轻轻买"))")
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }
@@ -348,6 +450,22 @@ struct SettingsView: View {
         items.forEach { modelContext.delete($0) }
         try? modelContext.save()
         onChange()
+    }
+
+    private func showContactToast() {
+        let toastToken = UUID()
+        contactToastToken = toastToken
+
+        withAnimation(.easeInOut(duration: 0.18)) {
+            contactToastVisible = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            guard contactToastToken == toastToken else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                contactToastVisible = false
+            }
+        }
     }
 
     private func handleImportSelection(_ result: Result<[URL], Error>) {

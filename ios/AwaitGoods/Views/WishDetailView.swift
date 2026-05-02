@@ -356,6 +356,6 @@ struct WishDetailView: View {
     }
 
     private func moneyText(_ value: Double) -> String {
-        "¥\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
     }
 }

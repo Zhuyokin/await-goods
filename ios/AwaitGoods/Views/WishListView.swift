@@ -16,6 +16,7 @@ struct WishListView: View {
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
 
     @State private var searchText = ""
+    @State private var isSearchPresented = false
     @State private var selectedStatus: WishItemStatus? = .waiting
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
@@ -35,6 +36,7 @@ struct WishListView: View {
     @State private var quickAddCategory = ""
     @State private var draggedItem: WishItem?
     @State private var dragOrderedIDs: [UUID] = []
+    @FocusState private var searchFieldFocused: Bool
     @FocusState private var quickAddField: QuickAddField?
 
     private var isEditing: Bool { editMode.isEditing }
@@ -58,6 +60,7 @@ struct WishListView: View {
         .sheet(isPresented: $showingEditor) { editorSheet }
         .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
         .sheet(item: $actionItem) { item in actionSheet(for: item) }
+        .overlay(alignment: .bottomTrailing) { floatingAddButton }
         .overlay(alignment: .bottom) { copyLinkToast }
         .alert(appLanguage.text("删除后不可恢复"), isPresented: deleteConfirmationBinding) {
             Button(appLanguage.text("取消"), role: .cancel) { itemToDelete = nil }
@@ -86,7 +89,7 @@ struct WishListView: View {
                 }
             }
             .padding(.top, 8)
-            .padding(.bottom, isEditing ? 82 : 24)
+            .padding(.bottom, isEditing ? 82 : 104)
         }
         .scrollDismissesKeyboard(.interactively)
     }
@@ -164,7 +167,12 @@ struct WishListView: View {
 
                 Spacer()
 
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
+                    Button(action: toggleSearch) {
+                        Image(systemName: isSearchPresented ? "xmark" : "magnifyingglass")
+                    }
+                    .buttonStyle(HeaderIconButtonStyle())
+
                     Menu {
                         Section(appLanguage.text("排序")) { sortMenuContent }
                         Section(appLanguage.text("批量")) {
@@ -175,26 +183,21 @@ struct WishListView: View {
                         Image(systemName: "slider.horizontal.3")
                     }
                     .buttonStyle(HeaderIconButtonStyle())
-
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.18)) {
-                            selectedStatus = .waiting
-                            showingQuickAddSheet = true
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .buttonStyle(FilledHeaderIconButtonStyle())
                 }
             }
 
-            searchField
+            if isSearchPresented {
+                searchField
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
             statusChips
         }
         .padding(.horizontal, 18)
         .padding(.top, 24)
         .padding(.bottom, 14)
         .background(HWTheme.listBackground.opacity(0.78).ignoresSafeArea(edges: .top))
+        .animation(.easeInOut(duration: 0.18), value: isSearchPresented)
     }
 
     private var searchField: some View {
@@ -206,6 +209,8 @@ struct WishListView: View {
             TextField(appLanguage.text("搜索名称、备注或分类"), text: $searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .focused($searchFieldFocused)
+                .submitLabel(.search)
 
             if !searchText.isEmpty {
                 Button { searchText = "" } label: {
@@ -266,6 +271,25 @@ struct WishListView: View {
             .shadow(color: isSelected ? HWTheme.freshGreen.opacity(0.12) : HWTheme.softShadow.opacity(0.45), radius: 2, x: 0, y: 1)
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var floatingAddButton: some View {
+        if !isEditing {
+            Button {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    selectedStatus = .waiting
+                    showingQuickAddSheet = true
+                }
+            } label: {
+                Image(systemName: "plus")
+            }
+            .buttonStyle(FloatingAddButtonStyle())
+            .accessibilityLabel(appLanguage.text("新增候物"))
+            .padding(.trailing, 20)
+            .padding(.bottom, 18)
+            .transition(.scale(scale: 0.82).combined(with: .opacity))
+        }
     }
 
     @ViewBuilder
@@ -392,7 +416,7 @@ struct WishListView: View {
                     )
 
                     HStack(spacing: 8) {
-                        compactQuickField(appLanguage.text("价格"), text: $quickAddPriceText, icon: "yensign", field: .price)
+                        compactQuickField(appLanguage.text("价格"), text: $quickAddPriceText, icon: "dollarsign", field: .price)
                             .keyboardType(.decimalPad)
                             .submitLabel(.next)
                             .onSubmit { quickAddField = .saved }
@@ -743,6 +767,24 @@ struct WishListView: View {
         return value
     }
 
+    private func toggleSearch() {
+        withAnimation(.easeInOut(duration: 0.18)) {
+            if isSearchPresented {
+                searchText = ""
+                isSearchPresented = false
+                searchFieldFocused = false
+            } else {
+                isSearchPresented = true
+            }
+        }
+
+        if isSearchPresented {
+            DispatchQueue.main.async {
+                searchFieldFocused = true
+            }
+        }
+    }
+
     private func toggleEditing() {
         if isEditing {
             finishEditing()
@@ -778,45 +820,19 @@ private struct HeaderIconButtonStyle: ButtonStyle {
     }
 }
 
-private struct FilledHeaderIconButtonStyle: ButtonStyle {
+private struct FloatingAddButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 20, weight: .bold))
             .foregroundStyle(HWTheme.cardBackground)
-            .frame(width: 46, height: 46)
+            .frame(width: 58, height: 58)
             .background(configuration.isPressed ? HWTheme.apricot : HWTheme.freshGreen)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: HWTheme.freshGreen.opacity(0.14), radius: 2, x: 0, y: 1)
-    }
-}
-
-private struct AppLogoMark: View {
-    private var appIcon: UIImage? {
-        UIImage(named: "AppLogo")
-    }
-
-    var body: some View {
-        Group {
-            if let appIcon {
-                Image(uiImage: appIcon)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Image(systemName: "bag")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(HWTheme.freshGreen)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(HWTheme.mint.opacity(0.22))
-            }
-        }
-        .frame(width: 44, height: 44)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.48), lineWidth: 0.8)
-        )
-        .shadow(color: HWTheme.softShadow, radius: 2, x: 0, y: 1)
-        .accessibilityHidden(true)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 2)
+            )
+            .shadow(color: HWTheme.freshGreen.opacity(configuration.isPressed ? 0.10 : 0.24), radius: 10, x: 0, y: 5)
     }
 }
 
