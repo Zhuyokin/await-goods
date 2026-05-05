@@ -25,9 +25,9 @@ struct AwaitGoodsProvider: TimelineProvider {
 
     private var sampleItems: [WishSnapshot] {
         [
-            WishSnapshot(id: UUID(), title: "MacBook 支架", price: 129, waitUntil: Calendar.current.date(byAdding: .day, value: 5, to: Date()), sortIndex: 0),
-            WishSnapshot(id: UUID(), title: "黑色羊毛大衣", price: 1680, waitUntil: Date(), sortIndex: 1),
-            WishSnapshot(id: UUID(), title: "咖啡手冲壶", price: 268, waitUntil: Calendar.current.date(byAdding: .day, value: 12, to: Date()), sortIndex: 2)
+            WishSnapshot(id: UUID(), title: "MacBook 支架", price: 129, savedAmount: 80, sortIndex: 0),
+            WishSnapshot(id: UUID(), title: "黑色羊毛大衣", price: 1680, savedAmount: 620, sortIndex: 1),
+            WishSnapshot(id: UUID(), title: "咖啡手冲壶", price: 268, savedAmount: 268, sortIndex: 2)
         ]
     }
 }
@@ -36,8 +36,19 @@ struct AwaitGoodsWidgetView: View {
     @Environment(\.widgetFamily) private var widgetFamily
     let entry: AwaitGoodsEntry
 
+    private var copy: WidgetCopy {
+        WidgetCopy(languageCode: WidgetSnapshotStore.loadLanguageCode())
+    }
+
     private var maxCount: Int {
-        widgetFamily == .systemSmall ? 1 : 3
+        switch widgetFamily {
+        case .systemSmall:
+            return 1
+        case .systemLarge:
+            return 5
+        default:
+            return 3
+        }
     }
 
     var body: some View {
@@ -45,7 +56,7 @@ struct AwaitGoodsWidgetView: View {
             if widgetFamily == .systemSmall {
                 smallWidget
             } else {
-                mediumWidget
+                listWidget
             }
         }
         .containerBackground(for: .widget) {
@@ -65,7 +76,7 @@ struct AwaitGoodsWidgetView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "circle.fill")
                             .font(.system(size: 4, weight: .regular))
-                        Text(waitText(for: firstItem.waitUntil))
+                        Text(savingsText(for: firstItem))
                             .font(.system(size: 12, weight: .regular))
                     }
                     .foregroundStyle(WidgetPalette.green)
@@ -80,6 +91,8 @@ struct AwaitGoodsWidgetView: View {
                             .font(.system(size: 14, weight: .medium).monospacedDigit())
                             .foregroundStyle(WidgetPalette.green)
                     }
+
+                    progressBar(for: firstItem, height: 4)
                 }
             } else {
                 emptyWidgetText
@@ -87,14 +100,14 @@ struct AwaitGoodsWidgetView: View {
 
             Spacer(minLength: 0)
 
-            Text(entry.items.isEmpty ? "今天也很克制" : "轻点打开清单")
+            Text(entry.items.isEmpty ? copy.restrainedText : copy.openText)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(WidgetPalette.secondary)
         }
     }
 
-    private var mediumWidget: some View {
-        VStack(alignment: .leading, spacing: 11) {
+    private var listWidget: some View {
+        VStack(alignment: .leading, spacing: widgetFamily == .systemLarge ? 8 : 10) {
             widgetHeader(compact: false)
 
             if entry.items.isEmpty {
@@ -120,7 +133,7 @@ struct AwaitGoodsWidgetView: View {
                 .foregroundStyle(WidgetPalette.green)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text("候物")
+                Text(copy.appName)
                     .font(.system(size: compact ? 14 : 15, weight: .medium))
                     .foregroundStyle(WidgetPalette.ink)
 
@@ -140,56 +153,66 @@ struct AwaitGoodsWidgetView: View {
     }
 
     private func widgetRow(_ item: WishSnapshot) -> some View {
-        HStack(spacing: 9) {
+        HStack(spacing: 8) {
             Image(systemName: "heart")
-                .font(.system(size: 14, weight: .regular))
+                .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(WidgetPalette.green)
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(WidgetPalette.ink)
                     .lineLimit(1)
 
-                HStack(spacing: 5) {
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 4, weight: .regular))
-                        .foregroundStyle(WidgetPalette.mint)
-
-                    Text(waitText(for: item.waitUntil))
-                        .font(.system(size: 11, weight: .regular))
-                        .foregroundStyle(WidgetPalette.secondary)
-                        .lineLimit(1)
-                }
+                progressBar(for: item, height: 3)
             }
 
             Spacer(minLength: 4)
 
-            if let priceText = priceText(for: item.price) {
-                Text(priceText)
-                    .font(.system(size: 12, weight: .medium).monospacedDigit())
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(progressText(for: item))
+                    .font(.system(size: 11, weight: .medium).monospacedDigit())
                     .foregroundStyle(WidgetPalette.green)
+
+                Text(savingsText(for: item))
+                    .font(.system(size: 10, weight: .regular))
+                    .foregroundStyle(WidgetPalette.secondary)
+                    .lineLimit(1)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(WidgetPalette.card)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(WidgetPalette.separator)
         )
     }
 
+    private func progressBar(for item: WishSnapshot, height: CGFloat) -> some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(WidgetPalette.field)
+
+                Capsule()
+                    .fill(item.savingsProgress >= 1 ? WidgetPalette.apricot : WidgetPalette.green)
+                    .frame(width: proxy.size.width * item.savingsProgress)
+            }
+        }
+        .frame(height: height)
+    }
+
     private var emptyWidgetText: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text("清单很轻")
+            Text(copy.emptyTitle)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(WidgetPalette.ink)
 
-            Text("先记下心动，晚点再决定。")
+            Text(copy.emptySubtitle)
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(WidgetPalette.secondary)
                 .lineLimit(2)
@@ -197,24 +220,124 @@ struct AwaitGoodsWidgetView: View {
     }
 
     private var summaryText: String {
-        entry.items.isEmpty ? "今天没有待决定" : "还有 \(entry.items.count) 件等一等"
+        entry.items.isEmpty ? copy.emptySummary : copy.waitingSummary(count: entry.items.count)
     }
 
-    private func waitText(for date: Date?) -> String {
-        guard let date else { return "想买" }
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        let end = calendar.startOfDay(for: date)
-        let days = calendar.dateComponents([.day], from: start, to: end).day ?? 0
+    private func savingsText(for item: WishSnapshot) -> String {
+        guard let remaining = item.remainingAmount else { return copy.wantedText }
+        if remaining == 0 { return copy.completedText }
+        return copy.remainingText(priceText(for: remaining) ?? "$0")
+    }
 
-        if days > 0 { return "还等 \(days) 天" }
-        if days == 0 { return "今天决定" }
-        return "可再看"
+    private func progressText(for item: WishSnapshot) -> String {
+        guard item.price != nil else { return "--" }
+        return "\(Int((item.savingsProgress * 100).rounded()))%"
     }
 
     private func priceText(for price: Double?) -> String? {
         guard let price else { return nil }
-        return "¥\(price.formatted(.number.precision(.fractionLength(0...0))))"
+        return "$\(price.formatted(.number.precision(.fractionLength(0...0))))"
+    }
+}
+
+private struct WidgetCopy {
+    private enum Language {
+        case zhHans
+        case zhHant
+        case en
+
+        init(languageCode: String) {
+            switch languageCode {
+            case "zhHans": self = .zhHans
+            case "zhHant": self = .zhHant
+            case "en": self = .en
+            default: self = .en
+            }
+        }
+    }
+
+    private let language: Language
+
+    init(languageCode: String) {
+        language = Language(languageCode: languageCode)
+    }
+
+    var appName: String {
+        switch language {
+        case .zhHans, .zhHant: return "候物"
+        case .en: return "AwaitGoods"
+        }
+    }
+
+    var restrainedText: String {
+        switch language {
+        case .zhHans: return "今天也很克制"
+        case .zhHant: return "今天也很克制"
+        case .en: return "Quiet today"
+        }
+    }
+
+    var openText: String {
+        switch language {
+        case .zhHans: return "轻点打开清单"
+        case .zhHant: return "輕點打開清單"
+        case .en: return "Tap to open"
+        }
+    }
+
+    var emptyTitle: String {
+        switch language {
+        case .zhHans: return "清单很轻"
+        case .zhHant: return "清單很輕"
+        case .en: return "Quiet list"
+        }
+    }
+
+    var emptySubtitle: String {
+        switch language {
+        case .zhHans: return "先记下心动，晚点再决定。"
+        case .zhHant: return "先記下心動，晚點再決定。"
+        case .en: return "Save the wish first. Decide later."
+        }
+    }
+
+    var emptySummary: String {
+        switch language {
+        case .zhHans: return "今天没有待存心愿"
+        case .zhHant: return "今天沒有待存心願"
+        case .en: return "No waiting wishes today"
+        }
+    }
+
+    var wantedText: String {
+        switch language {
+        case .zhHans, .zhHant: return "想买"
+        case .en: return "Wanted"
+        }
+    }
+
+    var completedText: String {
+        switch language {
+        case .zhHans: return "已存满"
+        case .zhHant: return "已存滿"
+        case .en: return "Saved up"
+        }
+    }
+
+    func waitingSummary(count: Int) -> String {
+        switch language {
+        case .zhHans: return "还有 \(count) 件想买"
+        case .zhHant: return "還有 \(count) 件想買"
+        case .en: return count == 1 ? "1 wish waiting" : "\(count) wishes waiting"
+        }
+    }
+
+    func remainingText(_ price: String) -> String {
+        switch language {
+        case .zhHans: return "还差 \(price)"
+        case .zhHant: return "還差 \(price)"
+        case .en: return "\(price) left"
+        }
     }
 }
 
@@ -228,17 +351,17 @@ private enum WidgetPalette {
         })
     }
 
-    static let background = adaptive(light: (0.965, 0.956, 0.930), dark: (0.105, 0.102, 0.094))
-    static let card = adaptive(light: (1.000, 0.998, 0.990), dark: (0.172, 0.162, 0.148))
-    static let field = adaptive(light: (0.935, 0.923, 0.895), dark: (0.224, 0.210, 0.190))
-    static let primary = adaptive(light: (0.145, 0.140, 0.125), dark: (0.930, 0.908, 0.870))
-    static let secondary = adaptive(light: (0.420, 0.395, 0.350), dark: (0.705, 0.675, 0.625))
-    static let tertiary = adaptive(light: (0.590, 0.555, 0.495), dark: (0.560, 0.530, 0.485))
-    static let border = adaptive(light: (0.842, 0.812, 0.752), dark: (0.338, 0.310, 0.268))
-    static let green = adaptive(light: (0.360, 0.475, 0.365), dark: (0.620, 0.735, 0.590))
-    static let mint = adaptive(light: (0.790, 0.835, 0.765), dark: (0.455, 0.560, 0.435))
-    static let apricot = adaptive(light: (0.770, 0.585, 0.385), dark: (0.725, 0.520, 0.335))
-    static let backgroundLight = adaptive(light: (0.982, 0.977, 0.960), dark: (0.132, 0.126, 0.116))
+    static let background = adaptive(light: (0.972, 0.982, 0.968), dark: (0.105, 0.112, 0.108))
+    static let card = adaptive(light: (1.000, 1.000, 0.996), dark: (0.168, 0.176, 0.166))
+    static let field = adaptive(light: (0.936, 0.958, 0.938), dark: (0.214, 0.232, 0.214))
+    static let primary = adaptive(light: (0.120, 0.142, 0.132), dark: (0.930, 0.948, 0.922))
+    static let secondary = adaptive(light: (0.380, 0.430, 0.395), dark: (0.700, 0.744, 0.690))
+    static let tertiary = adaptive(light: (0.580, 0.628, 0.590), dark: (0.555, 0.600, 0.558))
+    static let border = adaptive(light: (0.800, 0.852, 0.802), dark: (0.328, 0.365, 0.330))
+    static let green = adaptive(light: (0.290, 0.520, 0.370), dark: (0.610, 0.780, 0.610))
+    static let mint = adaptive(light: (0.780, 0.882, 0.780), dark: (0.430, 0.575, 0.435))
+    static let apricot = adaptive(light: (0.800, 0.580, 0.460), dark: (0.725, 0.510, 0.410))
+    static let backgroundLight = adaptive(light: (0.992, 0.994, 0.988), dark: (0.132, 0.138, 0.132))
     static let backgroundBase = background
     static let ink = primary
     static let separator = border.opacity(0.64)
@@ -259,9 +382,9 @@ struct AwaitGoodsWidget: Widget {
         StaticConfiguration(kind: kind, provider: AwaitGoodsProvider()) { entry in
             AwaitGoodsWidgetView(entry: entry)
         }
-        .configurationDisplayName("候物")
-        .description("查看正在想买的物品。")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName(NSLocalizedString("AwaitGoodsWidgetName", comment: "Widget display name"))
+        .description(NSLocalizedString("AwaitGoodsWidgetDescription", comment: "Widget description"))
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 

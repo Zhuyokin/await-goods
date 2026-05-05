@@ -2,11 +2,14 @@ import SwiftUI
 import UIKit
 
 struct WishRowView: View {
+    @Environment(\.appLanguage) private var appLanguage
+
     let item: WishItem
     let isEditing: Bool
     let isSelected: Bool
     let onCheck: () -> Void
     let onOpen: () -> Void
+    let onMore: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 10) {
@@ -34,13 +37,15 @@ struct WishRowView: View {
             .buttonStyle(.plain)
 
             Button(action: onOpen) {
-                HStack(alignment: .center, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .top, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text(item.title)
                             .font(.system(size: 17, weight: .medium))
                             .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
                             .strikethrough(item.status == .released, color: HWTheme.secondaryText)
-                            .lineLimit(1)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         HStack(spacing: 6) {
                             statusDot
@@ -49,23 +54,30 @@ struct WishRowView: View {
                                 .foregroundStyle(HWTheme.secondaryText)
                                 .lineLimit(1)
                         }
-                    }
 
-                    Spacer(minLength: 8)
-
-                    if let priceText {
-                        Text(priceText)
-                            .font(.system(size: 14, weight: .medium).monospacedDigit())
-                            .foregroundStyle(HWTheme.softBlueGray)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(HWTheme.fieldBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        if item.savingsTarget != nil {
+                            savingsBar
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    trailingMeta
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+
+            if let onMore, !isEditing {
+                Button(action: onMore) {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(HWTheme.tertiaryText)
+                        .frame(width: 32, height: 32)
+                        .background(HWTheme.fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
@@ -80,9 +92,7 @@ struct WishRowView: View {
 
     private var bubbleIcon: String {
         if isEditing { return isSelected ? "checkmark" : "circle" }
-        switch item.status {
-        case .waiting, .bought, .released, .paused: return item.status.iconName
-        }
+        return item.status.iconName
     }
 
     private var bubbleColor: Color {
@@ -102,37 +112,110 @@ struct WishRowView: View {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
         case .released: return HWTheme.tertiaryText
-        case .paused: return HWTheme.softWood
         }
+    }
+
+    private var priorityBadge: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(priorityColor)
+                .frame(width: 5, height: 5)
+
+            Text(appLanguage.text(item.priority.title))
+                .font(.system(size: 11, weight: .semibold))
+        }
+        .foregroundStyle(priorityColor)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(priorityColor.opacity(0.13))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(priorityColor.opacity(0.28), lineWidth: 0.7)
+        )
+        .fixedSize(horizontal: true, vertical: false)
+        .accessibilityLabel("\(appLanguage.text(item.priority.title))\(appLanguage.text("优先级"))")
+    }
+
+    private var trailingMeta: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            priorityBadge
+
+            if let priceText {
+                Text(priceText)
+                    .font(.system(size: 13, weight: .medium).monospacedDigit())
+                    .foregroundStyle(HWTheme.softBlueGray)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.82)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(HWTheme.fieldBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+        }
+        .frame(minWidth: 58, alignment: .topTrailing)
+        .layoutPriority(1)
+    }
+
+    private var priorityColor: Color {
+        switch item.priority {
+        case .low: return HWTheme.softBlueGray
+        case .medium: return HWTheme.apricot
+        case .high: return HWTheme.dangerRed
+        }
+    }
+
+    private var savingsBar: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(HWTheme.fieldBackground)
+
+                Capsule()
+                    .fill(item.isSavingsComplete ? HWTheme.softBlueGray : HWTheme.freshGreen.opacity(0.72))
+                    .frame(width: proxy.size.width * item.savingsProgress)
+            }
+        }
+        .frame(height: 4)
+        .padding(.top, 1)
     }
 
     private var priceText: String? {
         guard let price = item.price else { return nil }
-        return "¥\(price.formatted(.number.precision(.fractionLength(0...2))))"
+        return "$\(price.formatted(.number.precision(.fractionLength(0...2))))"
     }
 
     private var subtitle: String {
         switch item.status {
         case .bought:
-            return item.status.title
+            return appLanguage.text(item.status.title)
         case .released:
-            return item.status.title
-        case .paused:
-            return item.status.title
+            return appLanguage.text(item.status.title)
         case .waiting:
-            return waitText
+            return savingsText
         }
     }
 
-    private var waitText: String {
-        guard let waitUntil = item.waitUntil else { return item.category.isEmpty ? item.status.title : item.category }
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        let end = calendar.startOfDay(for: waitUntil)
-        let days = calendar.dateComponents([.day], from: start, to: end).day ?? 0
+    private var savingsText: String {
+        guard let target = item.savingsTarget else {
+            return item.category.isEmpty ? appLanguage.text(item.status.title) : localizedCategory(item.category)
+        }
 
-        if days > 0 { return "还要等 \(days) 天" }
-        if days == 0 { return "今天可决定" }
-        return "可以再看看了"
+        if item.isSavingsComplete {
+            return appLanguage.text("已存满")
+        }
+
+        let percent = Int((item.savingsProgress * 100).rounded())
+        let savedText = moneyText(item.savedAmountValue)
+        let targetText = moneyText(target)
+        return "\(appLanguage.text("已存")) \(savedText) / \(targetText) · \(percent)%"
+    }
+
+    private func localizedCategory(_ category: String) -> String {
+        appLanguage.text(category)
+    }
+
+    private func moneyText(_ value: Double) -> String {
+        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
     }
 }

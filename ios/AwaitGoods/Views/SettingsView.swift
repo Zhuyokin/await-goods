@@ -1,38 +1,47 @@
 import SwiftData
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    @Environment(\.appLanguage) private var appLanguage
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @AppStorage("defaultWaitDays") private var defaultWaitDays = DefaultWaitPeriod.seven.rawValue
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
-    @AppStorage("widgetItemLimit") private var widgetItemLimit = 3
+    @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
+    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
 
     let items: [WishItem]
     let onChange: () -> Void
 
     @State private var exportURL: URL?
+    @State private var showingImporter = false
     @State private var showingClearConfirmation = false
+    @State private var dataTransferMessage: DataTransferMessage?
     @State private var wechatIDCopied = false
+    @State private var contactToastVisible = false
+    @State private var contactToastToken = UUID()
+    private let developerPageURL = URL(string: "https://apps.apple.com/developer/%E8%A3%95%E9%87%91-%E6%9C%B1/id1888184686")
 
     var showsDoneButton = false
+    private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    settingsHeader
-
-                    settingsSection("日常偏好", subtitle: "默认值轻一点，记录就不会有负担") {
-                        waitPeriodSelector
-                        softToggle(title: "通知提醒", subtitle: "只在冷静期结束时轻轻提醒", icon: "bell", isOn: $notificationsEnabled)
+                    settingsSection(appLanguage.text("日常偏好"), subtitle: appLanguage.text("默认值轻一点，记录就不会有负担")) {
+                        languageSelector
                         appearanceSelector
+                        themeSelector
                         widgetCounter
                     }
 
-                    settingsSection("数据", subtitle: "留一份记录，也可以随时清空") {
-                        settingsActionRow("生成导出文件", subtitle: "保存为 JSON 备份", icon: "doc.badge.arrow.up", color: HWTheme.linkBlue) {
+                    settingsSection(appLanguage.text("数据"), subtitle: appLanguage.text("留一份记录，也可以随时清空")) {
+                        settingsActionRow(appLanguage.text("导入备份文件"), subtitle: appLanguage.text("从 JSON 恢复或合并候物"), icon: "square.and.arrow.down", color: HWTheme.freshGreen) {
+                            showingImporter = true
+                        }
+
+                        settingsActionRow(appLanguage.text("生成导出文件"), subtitle: appLanguage.text("保存为 JSON 备份"), icon: "doc.badge.arrow.up", color: HWTheme.linkBlue) {
                             exportURL = makeExportFile()
                         }
 
@@ -44,11 +53,11 @@ struct SettingsView: View {
                                         .foregroundStyle(HWTheme.freshGreen)
 
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text("分享导出文件")
+                                        Text(appLanguage.text("分享导出文件"))
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundStyle(HWTheme.primaryText)
 
-                                        Text("文件已生成，可以发送或存到 iCloud")
+                                        Text(appLanguage.text("文件已生成，可以发送或存到 iCloud"))
                                             .font(.system(size: 12))
                                             .foregroundStyle(HWTheme.secondaryText)
                                     }
@@ -61,7 +70,7 @@ struct SettingsView: View {
                             }
                         }
 
-                        settingsActionRow("清空全部数据", subtitle: "会删除所有候物和提醒", icon: "trash", color: HWTheme.dangerRed, isDestructive: true) {
+                        settingsActionRow(appLanguage.text("清空全部数据"), subtitle: appLanguage.text("会删除所有候物和存钱记录"), icon: "trash", color: HWTheme.dangerRed, isDestructive: true) {
                             showingClearConfirmation = true
                         }
                     }
@@ -70,50 +79,52 @@ struct SettingsView: View {
                     appInfoCard
                 }
                 .padding(14)
+                .padding(.top, 6)
                 .padding(.bottom, 18)
             }
             .background(HWTheme.pageBackground.ignoresSafeArea())
-            .navigationTitle("设置")
+            .overlay(alignment: .bottom) { contactToast }
+            .navigationTitle(appLanguage.text("设置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if showsDoneButton {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("完成") { dismiss() }
+                        Button(appLanguage.text("完成")) { dismiss() }
                             .fontWeight(.medium)
                             .foregroundStyle(HWTheme.freshGreen)
                     }
                 }
             }
-            .alert("所有候物都会被删除", isPresented: $showingClearConfirmation) {
-                Button("取消", role: .cancel) { }
-                Button("清空", role: .destructive) { clearAll() }
+            .alert(appLanguage.text("所有候物都会被删除"), isPresented: $showingClearConfirmation) {
+                Button(appLanguage.text("取消"), role: .cancel) { }
+                Button(appLanguage.text("清空"), role: .destructive) { clearAll() }
             }
-            .onChange(of: notificationsEnabled) { _, enabled in
-                if !enabled {
-                    NotificationScheduler.cancelAllWishNotifications()
-                }
-            }
-            .onChange(of: widgetItemLimit) { _, _ in onChange() }
-            .onAppear {
-                if widgetItemLimit > 3 {
-                    widgetItemLimit = 3
-                    onChange()
-                }
+            .fileImporter(isPresented: $showingImporter, allowedContentTypes: [.json], allowsMultipleSelection: false, onCompletion: handleImportSelection)
+            .alert(item: $dataTransferMessage) { message in
+                Alert(
+                    title: Text(message.title),
+                    message: Text(message.message),
+                    dismissButton: .default(Text(appLanguage.text("完成")))
+                )
             }
         }
     }
 
-    private var settingsHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("把候物调成舒服的样子")
-                .font(.system(size: 24, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
+    private var languageSelector: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            rowTitle(appLanguage.text("语言"), icon: "globe.asia.australia")
 
-            Text("少一点打扰，多一点克制感。")
-                .font(.system(size: 14))
-                .foregroundStyle(HWTheme.secondaryText)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(AppLanguage.allCases) { language in
+                        chip(language.title, isSelected: appLanguageRawValue == language.rawValue) {
+                            appLanguageRawValue = language.rawValue
+                            WidgetSyncService.sync(items: activeItems)
+                        }
+                    }
+                }
+            }
         }
-        .padding(.top, 6)
     }
 
     private func settingsSection<Content: View>(_ title: String, subtitle: String, @ViewBuilder content: () -> Content) -> some View {
@@ -133,27 +144,13 @@ struct SettingsView: View {
         .softCard()
     }
 
-    private var waitPeriodSelector: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            rowTitle("默认等待期", icon: "hourglass")
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 72), spacing: 6)], spacing: 6) {
-                ForEach(DefaultWaitPeriod.allCases) { period in
-                    chip(period.title, isSelected: defaultWaitDays == period.rawValue) {
-                        defaultWaitDays = period.rawValue
-                    }
-                }
-            }
-        }
-    }
-
     private var appearanceSelector: some View {
         VStack(alignment: .leading, spacing: 7) {
-            rowTitle("外观模式", icon: "sparkles")
+            rowTitle(appLanguage.text("外观模式"), icon: "sparkles")
 
             HStack(spacing: 6) {
                 ForEach(AppAppearanceMode.allCases) { mode in
-                    chip(mode.title, isSelected: appearanceMode == mode.rawValue) {
+                    chip(appLanguage.text(mode.title), isSelected: appearanceMode == mode.rawValue) {
                         appearanceMode = mode.rawValue
                     }
                 }
@@ -161,34 +158,104 @@ struct SettingsView: View {
         }
     }
 
+    private var themeSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            rowTitle(appLanguage.text("主题配色"), icon: "paintpalette")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 9) {
+                    ForEach(AppTheme.allCases) { theme in
+                        themeCard(theme)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    private func themeCard(_ theme: AppTheme) -> some View {
+        let isSelected = appThemeRawValue == theme.rawValue
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                appThemeRawValue = theme.rawValue
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 7) {
+                    Image(systemName: theme.icon)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.freshGreen)
+                        .frame(width: 26, height: 26)
+                        .background(isSelected ? HWTheme.freshGreen : HWTheme.cardBackground.opacity(0.92))
+                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+
+                    Spacer(minLength: 6)
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(HWTheme.freshGreen)
+                    }
+                }
+
+                HStack(spacing: -3) {
+                    ForEach(Array(theme.swatchColors.enumerated()), id: \.offset) { _, color in
+                        Circle()
+                            .fill(color)
+                            .frame(width: 20, height: 20)
+                            .overlay(
+                                Circle()
+                                    .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 1)
+                            )
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(appLanguage.text(theme.title))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(HWTheme.primaryText)
+                        .lineLimit(1)
+
+                    Text(appLanguage.text(theme.subtitle))
+                        .font(.system(size: 11))
+                        .foregroundStyle(HWTheme.secondaryText)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(11)
+            .frame(width: 154, alignment: .topLeading)
+            .frame(minHeight: 118, alignment: .topLeading)
+            .background(isSelected ? HWTheme.mint.opacity(0.25) : HWTheme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.58) : HWTheme.cardBorder.opacity(0.56), lineWidth: 0.9)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
     private var widgetCounter: some View {
         HStack(spacing: 10) {
             rowIcon("rectangle.stack")
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("小组件展示")
+                Text(appLanguage.text("小组件展示"))
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
 
-                Text("最多展示 \(widgetItemLimit) 件正在等的东西")
+                Text(appLanguage.text("小号 1 件 · 中号 3 件 · 大号 5 件"))
                     .font(.system(size: 12))
                     .foregroundStyle(HWTheme.secondaryText)
             }
 
             Spacer()
 
-            HStack(spacing: 8) {
-                counterButton("minus") { widgetItemLimit = max(1, widgetItemLimit - 1) }
-                    .disabled(widgetItemLimit <= 1)
-
-                Text("\(widgetItemLimit)")
-                    .font(.system(size: 16, weight: .medium).monospacedDigit())
-                    .foregroundStyle(HWTheme.primaryText)
-                    .padding(.horizontal, 3)
-
-                counterButton("plus") { widgetItemLimit = min(3, widgetItemLimit + 1) }
-                    .disabled(widgetItemLimit >= 3)
-            }
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(HWTheme.freshGreen)
         }
         .padding(10)
         .background(HWTheme.fieldBackground)
@@ -287,10 +354,10 @@ struct SettingsView: View {
     private var contactCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("联系客服")
+                Text(appLanguage.text("联系客服"))
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
-                Text("有任何问题或建议，欢迎联系我们。")
+                Text(appLanguage.text("有任何问题或建议，欢迎联系我们。"))
                     .font(.system(size: 13))
                     .foregroundStyle(HWTheme.secondaryText)
             }
@@ -298,6 +365,7 @@ struct SettingsView: View {
             Button {
                 UIPasteboard.general.string = "Zhuyokin"
                 wechatIDCopied = true
+                showContactToast()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     wechatIDCopied = false
                 }
@@ -309,7 +377,7 @@ struct SettingsView: View {
                         .frame(width: 24, height: 24)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("微信")
+                        Text(appLanguage.text("微信"))
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                         Text("Zhuyokin")
@@ -319,7 +387,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Text(wechatIDCopied ? "已复制" : "点击复制")
+                    Text(wechatIDCopied ? appLanguage.text("已复制") : appLanguage.text("点击复制"))
                         .font(.system(size: 12))
                         .foregroundStyle(wechatIDCopied ? HWTheme.freshGreen : HWTheme.tertiaryText)
                         .animation(.easeInOut(duration: 0.2), value: wechatIDCopied)
@@ -333,8 +401,28 @@ struct SettingsView: View {
         .softCard()
     }
 
+    @ViewBuilder
+    private var contactToast: some View {
+        if contactToastVisible {
+            Label(appLanguage.text("微信号已复制"), systemImage: "checkmark.circle.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(HWTheme.cardBackground)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(HWTheme.primaryText.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
+                .padding(.bottom, 18)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+
     private var appInfoCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(appLanguage.text("关于 App"))
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(HWTheme.primaryText)
+
             HStack(spacing: 10) {
                 Image(systemName: "bag")
                     .font(.system(size: 20, weight: .regular))
@@ -344,14 +432,41 @@ struct SettingsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("候物 AwaitGoods")
+                    Text(appLanguage.text("候物 AwaitGoods"))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text("v1.0 · 等一等，再入手")
+                    Text("v1.0.5 · \(appLanguage.text("慢慢存，轻轻买"))")
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }
+
+                Spacer(minLength: 0)
+            }
+
+            if let developerPageURL {
+                Link(destination: developerPageURL) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "square.grid.2x2")
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(HWTheme.freshGreen)
+                            .frame(width: 24, height: 24)
+
+                        Text(appLanguage.text("更多我的应用"))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(HWTheme.primaryText)
+
+                        Spacer()
+
+                        Image(systemName: "arrow.up.right")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(HWTheme.tertiaryText)
+                    }
+                    .padding(10)
+                    .background(HWTheme.fieldBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
         }
         .softCard()
@@ -364,8 +479,95 @@ struct SettingsView: View {
         onChange()
     }
 
+    private func showContactToast() {
+        let toastToken = UUID()
+        contactToastToken = toastToken
+
+        withAnimation(.easeInOut(duration: 0.18)) {
+            contactToastVisible = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            guard contactToastToken == toastToken else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                contactToastVisible = false
+            }
+        }
+    }
+
+    private func handleImportSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+
+            do {
+                let summary = try importItems(from: url)
+                dataTransferMessage = DataTransferMessage(
+                    title: appLanguage.text("备份文件已导入"),
+                    message: String(format: appLanguage.text("新增 %d 条 · 更新 %d 条"), summary.inserted, summary.updated)
+                )
+            } catch BackupImportError.emptyBackup {
+                dataTransferMessage = DataTransferMessage(
+                    title: appLanguage.text("无法导入备份文件"),
+                    message: appLanguage.text("备份文件里没有可导入的候物")
+                )
+            } catch {
+                dataTransferMessage = DataTransferMessage(
+                    title: appLanguage.text("无法导入备份文件"),
+                    message: appLanguage.text("请确认选择的是候物导出的 JSON 文件")
+                )
+            }
+
+        case .failure(let error):
+            if let cocoaError = error as? CocoaError, cocoaError.code == .userCancelled {
+                return
+            }
+
+            dataTransferMessage = DataTransferMessage(
+                title: appLanguage.text("无法导入备份文件"),
+                message: appLanguage.text("请确认选择的是候物导出的 JSON 文件")
+            )
+        }
+    }
+
+    private func importItems(from url: URL) throws -> (inserted: Int, updated: Int) {
+        let hasSecurityAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if hasSecurityAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let data = try Data(contentsOf: url)
+        let importedItems = try JSONDecoder.backupFile.decode([WishItemExport].self, from: data)
+
+        guard !importedItems.isEmpty else {
+            throw BackupImportError.emptyBackup
+        }
+
+        var existingItemsByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        var inserted = 0
+        var updated = 0
+
+        for importedItem in importedItems {
+            if let existingItem = existingItemsByID[importedItem.id] {
+                importedItem.apply(to: existingItem)
+                updated += 1
+            } else {
+                let restoredItem = importedItem.makeWishItem()
+                modelContext.insert(restoredItem)
+                existingItemsByID[restoredItem.id] = restoredItem
+                inserted += 1
+            }
+        }
+
+        try modelContext.save()
+        onChange()
+        return (inserted, updated)
+    }
+
     private func makeExportFile() -> URL? {
-        let exportItems = items.map(WishItemExport.init)
+        let exportItems = activeItems.map(WishItemExport.init)
 
         do {
             let data = try JSONEncoder.prettyPrinted.encode(exportItems)
@@ -388,12 +590,10 @@ private struct WishItemExport: Codable {
     let priority: String
     let status: String
     let markColor: String
+    let savedAmount: Double
     let sortIndex: Int
     let createdAt: Date
     let updatedAt: Date
-    let waitUntil: Date?
-    let targetDate: Date?
-    let notifyEnabled: Bool
 
     init(item: WishItem) {
         id = item.id
@@ -402,16 +602,73 @@ private struct WishItemExport: Codable {
         link = item.linkString
         note = item.note
         category = item.category
-        priority = item.priority.title
-        status = item.status.title
-        markColor = item.markColor.title
+        priority = String(item.priority.rawValue)
+        status = item.status.rawValue
+        markColor = item.markColor.rawValue
+        savedAmount = item.savedAmountValue
         sortIndex = item.sortIndex
         createdAt = item.createdAt
         updatedAt = item.updatedAt
-        waitUntil = item.waitUntil
-        targetDate = item.targetDate
-        notifyEnabled = item.notifyEnabled
     }
+
+    func makeWishItem() -> WishItem {
+        WishItem(
+            id: id,
+            title: trimmedTitle,
+            price: normalizedPrice,
+            linkString: link.trimmingCharacters(in: .whitespacesAndNewlines),
+            note: note,
+            category: category.trimmingCharacters(in: .whitespacesAndNewlines),
+            priority: WishPriority.fromBackupValue(priority),
+            status: WishItemStatus.fromBackupValue(status),
+            markColor: MarkColor.fromBackupValue(markColor),
+            sortIndex: sortIndex,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            notifyEnabled: false,
+            savedAmount: normalizedSavedAmount
+        )
+    }
+
+    func apply(to item: WishItem) {
+        item.title = trimmedTitle
+        item.price = normalizedPrice
+        item.linkString = link.trimmingCharacters(in: .whitespacesAndNewlines)
+        item.note = note
+        item.category = category.trimmingCharacters(in: .whitespacesAndNewlines)
+        item.priority = WishPriority.fromBackupValue(priority)
+        item.status = WishItemStatus.fromBackupValue(status)
+        item.markColor = MarkColor.fromBackupValue(markColor)
+        item.savedAmountValue = normalizedSavedAmount
+        item.sortIndex = sortIndex
+        item.createdAt = createdAt
+        item.updatedAt = updatedAt
+        item.trashedAt = nil
+    }
+
+    private var trimmedTitle: String {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? title : trimmed
+    }
+
+    private var normalizedPrice: Double? {
+        guard let price, price > 0 else { return nil }
+        return price
+    }
+
+    private var normalizedSavedAmount: Double {
+        max(savedAmount, 0)
+    }
+}
+
+private struct DataTransferMessage: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+}
+
+private enum BackupImportError: Error {
+    case emptyBackup
 }
 
 private extension JSONEncoder {
@@ -420,5 +677,58 @@ private extension JSONEncoder {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
         return encoder
+    }
+}
+
+private extension JSONDecoder {
+    static var backupFile: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
+}
+
+private extension WishPriority {
+    static func fromBackupValue(_ value: String) -> WishPriority {
+        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "1", "low", "低":
+            return .low
+        case "3", "high", "高":
+            return .high
+        default:
+            return .medium
+        }
+    }
+}
+
+private extension WishItemStatus {
+    static func fromBackupValue(_ value: String) -> WishItemStatus {
+        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "waiting", "想买", "想買":
+            return .waiting
+        case "bought", "已拥有", "已擁有":
+            return .bought
+        case "released", "放下":
+            return .released
+        default:
+            return .waiting
+        }
+    }
+}
+
+private extension MarkColor {
+    static func fromBackupValue(_ value: String) -> MarkColor {
+        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "green", "绿色", "綠色":
+            return .green
+        case "yellow", "黄色", "黃色":
+            return .yellow
+        case "pink", "粉色":
+            return .pink
+        case "gray", "grey", "灰色":
+            return .gray
+        default:
+            return .none
+        }
     }
 }

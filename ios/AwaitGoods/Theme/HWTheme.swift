@@ -2,57 +2,62 @@ import SwiftUI
 import UIKit
 
 enum HWTheme {
-    private typealias RGB = (CGFloat, CGFloat, CGFloat)
+    private static var palette: AppThemePalette { AppTheme.current.palette }
 
-    private static func adaptive(light: RGB, dark: RGB, alpha: CGFloat = 1) -> Color {
+    private static func adaptive(_ color: AdaptiveThemeColor, alpha: CGFloat = 1) -> Color {
         Color(UIColor { traits in
-            let value = traits.userInterfaceStyle == .dark ? dark : light
+            let value = traits.userInterfaceStyle == .dark ? color.dark : color.light
             return UIColor(red: value.0, green: value.1, blue: value.2, alpha: alpha)
         })
     }
 
-    static let pageBackground = adaptive(light: (0.965, 0.956, 0.930), dark: (0.105, 0.102, 0.094))
-    static let listBackground = adaptive(light: (0.982, 0.977, 0.960), dark: (0.132, 0.126, 0.116))
-    static let cardBackground = adaptive(light: (1.000, 0.998, 0.990), dark: (0.172, 0.162, 0.148))
-    static let fieldBackground = adaptive(light: (0.935, 0.923, 0.895), dark: (0.224, 0.210, 0.190))
+    static var pageBackground: Color { adaptive(palette.pageBackground) }
+    static var listBackground: Color { adaptive(palette.listBackground) }
+    static var cardBackground: Color { adaptive(palette.cardBackground) }
+    static var fieldBackground: Color { adaptive(palette.fieldBackground) }
 
-    static let primaryText = adaptive(light: (0.145, 0.140, 0.125), dark: (0.930, 0.908, 0.870))
-    static let secondaryText = adaptive(light: (0.420, 0.395, 0.350), dark: (0.705, 0.675, 0.625))
-    static let tertiaryText = adaptive(light: (0.590, 0.555, 0.495), dark: (0.560, 0.530, 0.485))
-    static let separator = adaptive(light: (0.858, 0.832, 0.775), dark: (0.292, 0.270, 0.235))
-    static let cardBorder = adaptive(light: (0.842, 0.812, 0.752), dark: (0.338, 0.310, 0.268))
+    static var primaryText: Color { adaptive(palette.primaryText) }
+    static var secondaryText: Color { adaptive(palette.secondaryText) }
+    static var tertiaryText: Color { adaptive(palette.tertiaryText) }
+    static var separator: Color { adaptive(palette.separator) }
+    static var cardBorder: Color { adaptive(palette.cardBorder) }
 
-    static let mint = adaptive(light: (0.790, 0.835, 0.765), dark: (0.455, 0.560, 0.435))
-    static let freshGreen = adaptive(light: (0.360, 0.475, 0.365), dark: (0.620, 0.735, 0.590))
-    static let softWood = adaptive(light: (0.675, 0.610, 0.505), dark: (0.640, 0.555, 0.430))
-    static let softBlueGray = adaptive(light: (0.420, 0.530, 0.555), dark: (0.570, 0.680, 0.705))
-    static let cream = adaptive(light: (0.947, 0.929, 0.890), dark: (0.158, 0.148, 0.132))
-    static let apricot = adaptive(light: (0.770, 0.585, 0.385), dark: (0.725, 0.520, 0.335))
-    static let blossom = adaptive(light: (0.720, 0.545, 0.515), dark: (0.720, 0.455, 0.420))
-    static let skyWash = adaptive(light: (0.925, 0.944, 0.936), dark: (0.118, 0.138, 0.136))
+    static var mint: Color { adaptive(palette.mint) }
+    static var freshGreen: Color { adaptive(palette.freshGreen) }
+    static var softWood: Color { adaptive(palette.softWood) }
+    static var softBlueGray: Color { adaptive(palette.softBlueGray) }
+    static var cream: Color { adaptive(palette.cream) }
+    static var apricot: Color { adaptive(palette.apricot) }
+    static var blossom: Color { adaptive(palette.blossom) }
+    static var skyWash: Color { adaptive(palette.skyWash) }
 
-    static let linkBlue = adaptive(light: (0.300, 0.445, 0.520), dark: (0.565, 0.720, 0.785))
-    static let dangerRed = adaptive(light: (0.675, 0.285, 0.255), dark: (0.840, 0.470, 0.430))
-    static let softShadow = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor.black.withAlphaComponent(0.28)
-            : UIColor(red: 0.180, green: 0.150, blue: 0.105, alpha: 0.08)
-    })
+    static var linkBlue: Color { adaptive(palette.linkBlue) }
+    static var dangerRed: Color { adaptive(palette.dangerRed) }
+    static var softShadow: Color {
+        Color(UIColor { traits in
+            if traits.userInterfaceStyle == .dark {
+                return UIColor.black.withAlphaComponent(0.28)
+            }
 
-    static let weChatGreen = freshGreen
-    static let sky = softBlueGray
-    static let butter = softWood
-    static let matcha = mint
-    static let lavender = softBlueGray
-    static let leafGreen = freshGreen
+            let shadow = palette.shadowLight
+            return UIColor(red: shadow.0, green: shadow.1, blue: shadow.2, alpha: 0.08)
+        })
+    }
+
+    static var weChatGreen: Color { freshGreen }
+    static var sky: Color { softBlueGray }
+    static var butter: Color { softWood }
+    static var matcha: Color { mint }
+    static var lavender: Color { softBlueGray }
+    static var leafGreen: Color { freshGreen }
 
     static func markColor(_ markColor: MarkColor) -> Color {
         switch markColor {
         case .none: return fieldBackground
-        case .green: return adaptive(light: (0.740, 0.812, 0.650), dark: (0.500, 0.615, 0.410))
-        case .yellow: return adaptive(light: (0.920, 0.780, 0.535), dark: (0.670, 0.555, 0.355))
-        case .pink: return adaptive(light: (0.930, 0.745, 0.680), dark: (0.675, 0.460, 0.430))
-        case .gray: return adaptive(light: (0.765, 0.710, 0.650), dark: (0.470, 0.430, 0.380))
+        case .green: return adaptive(palette.markGreen)
+        case .yellow: return adaptive(palette.markYellow)
+        case .pink: return adaptive(palette.markPink)
+        case .gray: return adaptive(palette.markGray)
         }
     }
 }
@@ -117,6 +122,7 @@ struct HWCreamLeafBackdrop: View {
 extension View {
     func softCard() -> some View {
         self
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)

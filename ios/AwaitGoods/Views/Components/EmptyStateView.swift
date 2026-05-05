@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct EmptyStateView: View {
+    @Environment(\.appLanguage) private var appLanguage
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "bag")
@@ -8,11 +10,11 @@ struct EmptyStateView: View {
                 .foregroundStyle(HWTheme.tertiaryText)
             .padding(.bottom, 4)
 
-            Text("暂无候物")
+            Text(appLanguage.text("暂无候物"))
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(HWTheme.primaryText)
 
-            Text("等一等，再入手")
+            Text(appLanguage.text("慢慢存，轻轻买"))
                 .font(.system(size: 13))
                 .foregroundStyle(HWTheme.tertiaryText)
         }
