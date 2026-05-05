@@ -99,7 +99,7 @@
 		C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5287735703579D6E51D6BAC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
-		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB922D7306202AE976DE4560 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		E2653E608D5681E19C79E2CC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsApp.swift; sourceTree = "<group>"; };
@@ -493,6 +493,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AwaitGoods;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -605,6 +606,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AwaitGoods;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
