@@ -1,6 +1,6 @@
 # Support AwaitGoods (Français)
 
-Mis à jour : 2026-05-02
+Mis à jour : 2026-05-05
 
 ## 1. Contact
 
@@ -24,7 +24,7 @@ Merci d’indiquer le problème, le modèle de l’appareil, la version iOS, la 
 - Produit : AwaitGoods
 - Plateforme : iPhone et iPad
 - Système requis : iOS 17.0 ou ultérieur
-- Version actuelle : 1.0.4
+- Version actuelle : 1.0.5
 - Langues : chinois simplifié, chinois traditionnel, anglais, japonais, français, allemand, italien et coréen
 
 ## 4. FAQ

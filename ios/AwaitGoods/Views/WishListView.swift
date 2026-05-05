@@ -28,8 +28,11 @@ struct WishListView: View {
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
     @State private var showingQuickAddSheet = false
+    @State private var showingTrash = false
     @State private var linkCopiedToastVisible = false
     @State private var linkCopiedToastToken = UUID()
+    @State private var changeEffect: WishChangeEffect?
+    @State private var changeEffectToken = UUID()
     @State private var quickAddTitle = ""
     @State private var quickAddPriceText = ""
     @State private var quickAddSavedText = ""
@@ -40,6 +43,8 @@ struct WishListView: View {
     @FocusState private var quickAddField: QuickAddField?
 
     private var isEditing: Bool { editMode.isEditing }
+    private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
+    private var trashedItems: [WishItem] { items.filter(\.isTrashed) }
 
     var body: some View {
         NavigationStack {
@@ -60,19 +65,25 @@ struct WishListView: View {
         .sheet(isPresented: $showingEditor) { editorSheet }
         .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
         .sheet(item: $actionItem) { item in actionSheet(for: item) }
-        .overlay(alignment: .bottomTrailing) { floatingAddButton }
+        .sheet(isPresented: $showingTrash) { trashSheet }
+        .overlay(alignment: .bottom) { floatingAccessoryButtons }
         .overlay(alignment: .bottom) { copyLinkToast }
-        .alert(appLanguage.text("删除后不可恢复"), isPresented: deleteConfirmationBinding) {
+        .overlay { changeEffectOverlay }
+        .alert(appLanguage.text("移入回收站？"), isPresented: deleteConfirmationBinding) {
             Button(appLanguage.text("取消"), role: .cancel) { itemToDelete = nil }
-            Button(appLanguage.text("删除"), role: .destructive) { deletePendingItem() }
+            Button(appLanguage.text("移入回收站"), role: .destructive) { movePendingItemToTrash() }
+        } message: {
+            Text(appLanguage.text("删除会先放进回收站"))
         }
-        .alert(appLanguage.text("删除选中的候物？"), isPresented: $showingBulkDeleteConfirmation) {
+        .alert(appLanguage.text("移入回收站？"), isPresented: $showingBulkDeleteConfirmation) {
             Button(appLanguage.text("取消"), role: .cancel) { }
-            Button(appLanguage.text("删除"), role: .destructive) { deleteSelectedItems() }
+            Button(appLanguage.text("移入回收站"), role: .destructive) { moveSelectedItemsToTrash() }
+        } message: {
+            Text(appLanguage.text("删除会先放进回收站"))
         }
         .onAppear {
             NotificationScheduler.cancelAllWishNotifications()
-            WidgetSyncService.sync(items: items)
+            WidgetSyncService.sync(items: activeItems)
         }
     }
 
@@ -89,7 +100,8 @@ struct WishListView: View {
                 }
             }
             .padding(.top, 8)
-            .padding(.bottom, isEditing ? 82 : 104)
+            .padding(.bottom, isEditing ? 82 : 118)
+            .animation(.spring(response: 0.34, dampingFraction: 0.82), value: displayedItemIDs)
         }
         .scrollDismissesKeyboard(.interactively)
     }
@@ -104,10 +116,11 @@ struct WishListView: View {
             onMore: { actionItem = item }
         )
         .padding(.horizontal, 14)
+        .transition(.asymmetric(insertion: .scale(scale: 0.96).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
         .onDrag {
             sortMode = .manual
             draggedItem = item
-            dragOrderedIDs = manuallySorted(items).map(\.id)
+            dragOrderedIDs = manuallySorted(activeItems).map(\.id)
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             return NSItemProvider(object: item.id.uuidString as NSString)
         }
@@ -123,7 +136,7 @@ struct WishListView: View {
     }
 
     private var editorSheet: some View {
-        WishEditorView(item: editingItem, existingItems: items) { _ in
+        WishEditorView(item: editingItem, existingItems: activeItems) { _ in
             persistChanges()
         }
     }
@@ -148,6 +161,15 @@ struct WishListView: View {
         .presentationBackground(HWTheme.pageBackground)
     }
 
+    private var trashSheet: some View {
+        TrashBinView(
+            items: trashedItems,
+            onRestore: restoreFromTrash,
+            onDeleteForever: permanentlyDelete,
+            onEmptyTrash: emptyTrash
+        )
+    }
+
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .center, spacing: 12) {
@@ -158,14 +180,20 @@ struct WishListView: View {
                         Text(appLanguage.text("候物"))
                             .font(.system(size: 32, weight: .semibold))
                             .foregroundStyle(HWTheme.primaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.82)
+                            .allowsTightening(true)
 
                         Text(summaryText)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.secondaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.84)
+                            .truncationMode(.tail)
                     }
                 }
-
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
 
                 HStack(spacing: 8) {
                     Button(action: toggleSearch) {
@@ -177,7 +205,7 @@ struct WishListView: View {
                         Section(appLanguage.text("排序")) { sortMenuContent }
                         Section(appLanguage.text("批量")) {
                             Button(isEditing ? appLanguage.text("完成整理") : appLanguage.text("整理清单")) { toggleEditing() }
-                                .disabled(items.isEmpty && !isEditing)
+                                .disabled(activeItems.isEmpty && !isEditing)
                         }
                     } label: {
                         Image(systemName: "slider.horizontal.3")
@@ -236,9 +264,9 @@ struct WishListView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(WishItemStatus.allCases) { status in
-                    statusChip(title: appLanguage.text(status.title), count: items.filter { $0.status == status }.count, status: status)
+                    statusChip(title: appLanguage.text(status.title), count: activeItems.filter { $0.status == status }.count, status: status)
                 }
-                    statusChip(title: appLanguage.text("全部"), count: items.count, status: nil)
+                statusChip(title: appLanguage.text("全部"), count: activeItems.count, status: nil)
             }
             .padding(.vertical, 2)
         }
@@ -274,22 +302,54 @@ struct WishListView: View {
     }
 
     @ViewBuilder
-    private var floatingAddButton: some View {
+    private var floatingAccessoryButtons: some View {
         if !isEditing {
-            Button {
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    selectedStatus = .waiting
-                    showingQuickAddSheet = true
-                }
-            } label: {
-                Image(systemName: "plus")
+            HStack(alignment: .bottom) {
+                floatingTrashButton
+
+                Spacer(minLength: 0)
+
+                floatingAddButton
             }
-            .buttonStyle(FloatingAddButtonStyle())
-            .accessibilityLabel(appLanguage.text("新增候物"))
-            .padding(.trailing, 20)
+            .padding(.horizontal, 20)
             .padding(.bottom, 18)
             .transition(.scale(scale: 0.82).combined(with: .opacity))
         }
+    }
+
+    private var floatingTrashButton: some View {
+        Button {
+            showingTrash = true
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "trash")
+
+                if !trashedItems.isEmpty {
+                    Text("\(min(trashedItems.count, 99))")
+                        .font(.system(size: 10, weight: .semibold).monospacedDigit())
+                        .foregroundStyle(HWTheme.cardBackground)
+                        .frame(minWidth: 17, minHeight: 17)
+                        .background(HWTheme.dangerRed)
+                        .clipShape(Capsule())
+                        .offset(x: 8, y: -8)
+                }
+            }
+        }
+        .buttonStyle(FloatingTrashButtonStyle())
+        .accessibilityLabel(appLanguage.text("回收站"))
+    }
+
+    private var floatingAddButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.18)) {
+                selectedStatus = .waiting
+                showingQuickAddSheet = true
+            }
+        } label: {
+            Image(systemName: "plus")
+        }
+        .buttonStyle(FloatingAddButtonStyle())
+        .accessibilityLabel(appLanguage.text("新增候物"))
     }
 
     @ViewBuilder
@@ -302,7 +362,7 @@ struct WishListView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.primaryText)
 
-                        Text(selectedIDs.isEmpty ? appLanguage.text("轻点左侧图标多选") : appLanguage.text("可以批量放下、删除或换标记"))
+                        Text(selectedIDs.isEmpty ? appLanguage.text("轻点左侧图标多选") : appLanguage.text("可以批量放下、移入回收站或换标记"))
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                     }
@@ -318,7 +378,7 @@ struct WishListView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
 
-                    HStack(spacing: 8) {
+                HStack(spacing: 8) {
                     batchActionButton(appLanguage.text("删除"), icon: "trash", color: HWTheme.dangerRed) {
                         showingBulkDeleteConfirmation = true
                     }
@@ -488,7 +548,7 @@ struct WishListView: View {
     private var quickCategorySuggestions: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 7) {
-                ForEach(WishCategoryCatalog.suggestions(from: items, including: quickAddCategory), id: \.self) { category in
+                ForEach(WishCategoryCatalog.suggestions(from: activeItems, including: quickAddCategory), id: \.self) { category in
                     Button {
                         quickAddCategory = category
                     } label: {
@@ -514,7 +574,7 @@ struct WishListView: View {
     }
 
     private var displayedItems: [WishItem] {
-        var result = items
+        var result = activeItems
 
         if let selectedStatus {
             result = result.filter { $0.status == selectedStatus }
@@ -543,9 +603,13 @@ struct WishListView: View {
         }
     }
 
+    private var displayedItemIDs: [UUID] {
+        displayedItems.map(\.id)
+    }
+
     private var summaryText: String {
-        let waitingCount = items.filter { $0.status == .waiting }.count
-        if items.isEmpty { return appLanguage.text("先记下心动，给预算一点空间") }
+        let waitingCount = activeItems.filter { $0.status == .waiting }.count
+        if activeItems.isEmpty { return appLanguage.text("先记下心动，给预算一点空间") }
         if waitingCount == 0 { return appLanguage.text("清单很轻，今天也很清爽") }
         return String(format: appLanguage.text("还有 %d 件想买的东西"), waitingCount)
     }
@@ -619,7 +683,6 @@ struct WishListView: View {
         case .bought, .released:
             updateStatus(.waiting, for: item)
         }
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func open(_ item: WishItem) {
@@ -636,8 +699,30 @@ struct WishListView: View {
     }
 
     private func updateStatus(_ status: WishItemStatus, for item: WishItem) {
-        item.status = status
-        persistChanges()
+        guard item.status != status else { return }
+        showChangeEffect(.status(status))
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                item.status = status
+            }
+            persistChanges()
+        }
+    }
+
+    private func commitStatus(_ status: WishItemStatus, for itemsToUpdate: [WishItem]) {
+        let changingItems = itemsToUpdate.filter { $0.status != status && !$0.isTrashed }
+        guard !changingItems.isEmpty else { return }
+        showChangeEffect(.status(status))
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                changingItems.forEach { $0.status = status }
+            }
+            persistChanges()
+        }
     }
 
     private func setMarkColor(_ color: MarkColor, for item: WishItem) {
@@ -670,32 +755,92 @@ struct WishListView: View {
     }
 
     private func updateSelectedStatus(_ status: WishItemStatus) {
-        let selectedItems = items.filter { selectedIDs.contains($0.id) }
-        selectedItems.forEach { $0.status = status }
-        persistChanges()
+        let selectedItems = activeItems.filter { selectedIDs.contains($0.id) }
+        commitStatus(status, for: selectedItems)
+        selectedIDs.removeAll()
     }
 
     private func updateSelectedColor(_ color: MarkColor) {
-        items.filter { selectedIDs.contains($0.id) }.forEach { $0.markColor = color }
+        activeItems.filter { selectedIDs.contains($0.id) }.forEach { $0.markColor = color }
         persistChanges()
     }
 
-    private func deletePendingItem() {
+    private func movePendingItemToTrash() {
         guard let itemToDelete else { return }
-        Task { await NotificationScheduler.cancel(for: itemToDelete) }
-        modelContext.delete(itemToDelete)
+        moveToTrash([itemToDelete])
         self.itemToDelete = nil
-        persistChanges()
     }
 
-    private func deleteSelectedItems() {
-        let selectedItems = items.filter { selectedIDs.contains($0.id) }
-        selectedItems.forEach { item in
-            Task { await NotificationScheduler.cancel(for: item) }
+    private func moveSelectedItemsToTrash() {
+        let selectedItems = activeItems.filter { selectedIDs.contains($0.id) }
+        moveToTrash(selectedItems)
+        selectedIDs.removeAll()
+    }
+
+    private func moveToTrash(_ itemsToTrash: [WishItem]) {
+        guard !itemsToTrash.isEmpty else { return }
+        showChangeEffect(.trashed)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                itemsToTrash.forEach { item in
+                    Task { await NotificationScheduler.cancel(for: item) }
+                    item.moveToTrash()
+                }
+            }
+            persistChanges()
+        }
+    }
+
+    private func restoreFromTrash(_ item: WishItem) {
+        showChangeEffect(.restored)
+        withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+            item.restoreFromTrash()
+        }
+        persistChanges()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func permanentlyDelete(_ item: WishItem) {
+        withAnimation(.easeInOut(duration: 0.18)) {
             modelContext.delete(item)
         }
-        selectedIDs.removeAll()
         persistChanges()
+    }
+
+    private func emptyTrash() {
+        let itemsToDelete = trashedItems
+        guard !itemsToDelete.isEmpty else { return }
+        withAnimation(.easeInOut(duration: 0.18)) {
+            itemsToDelete.forEach { modelContext.delete($0) }
+        }
+        persistChanges()
+    }
+
+    private func showChangeEffect(_ kind: WishChangeEffectKind) {
+        let token = UUID()
+        changeEffectToken = token
+
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+            changeEffect = WishChangeEffect(kind: kind)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.92) {
+            guard changeEffectToken == token else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                changeEffect = nil
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var changeEffectOverlay: some View {
+        if let changeEffect {
+            WishChangeEffectView(effect: changeEffect)
+                .padding(.bottom, isEditing ? 68 : 0)
+                .transition(.scale(scale: 0.82).combined(with: .opacity))
+        }
     }
 
     private func manuallySorted(_ sourceItems: [WishItem]) -> [WishItem] {
@@ -714,7 +859,7 @@ struct WishListView: View {
 
     private func commitDragOrder(_ orderedIDs: [UUID]) {
         guard !orderedIDs.isEmpty else { return }
-        let itemByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        let itemByID = Dictionary(uniqueKeysWithValues: activeItems.map { ($0.id, $0) })
         for (index, id) in orderedIDs.enumerated() {
             guard let item = itemByID[id] else { continue }
             item.sortIndex = index
@@ -725,7 +870,7 @@ struct WishListView: View {
 
     private func quickAdd() {
         guard canQuickAdd else { return }
-        let nextIndex = (items.map(\.sortIndex).max() ?? -1) + 1
+        let nextIndex = (activeItems.map(\.sortIndex).max() ?? -1) + 1
         let newItem = WishItem(
             title: trimmedQuickAddTitle,
             price: quickAddParsedPrice,
@@ -800,7 +945,7 @@ struct WishListView: View {
 
     private func persistChanges() {
         try? modelContext.save()
-        WidgetSyncService.sync(items: items)
+        WidgetSyncService.sync(items: activeItems)
     }
 }
 
@@ -833,6 +978,169 @@ private struct FloatingAddButtonStyle: ButtonStyle {
                     .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 2)
             )
             .shadow(color: HWTheme.freshGreen.opacity(configuration.isPressed ? 0.10 : 0.24), radius: 10, x: 0, y: 5)
+    }
+}
+
+private struct FloatingTrashButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(configuration.isPressed ? HWTheme.cardBackground : HWTheme.dangerRed)
+            .frame(width: 52, height: 52)
+            .background(configuration.isPressed ? HWTheme.dangerRed : HWTheme.cardBackground.opacity(0.96))
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(HWTheme.cardBorder.opacity(0.62), lineWidth: 0.8)
+            )
+            .shadow(color: HWTheme.softShadow, radius: 9, x: 0, y: 5)
+    }
+}
+
+private struct TrashBinView: View {
+    @Environment(\.appLanguage) private var appLanguage
+    @Environment(\.dismiss) private var dismiss
+
+    let items: [WishItem]
+    let onRestore: (WishItem) -> Void
+    let onDeleteForever: (WishItem) -> Void
+    let onEmptyTrash: () -> Void
+
+    @State private var itemToDeleteForever: WishItem?
+    @State private var showingEmptyConfirmation = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 10) {
+                    if sortedItems.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 32, weight: .ultraLight))
+                                .foregroundStyle(HWTheme.tertiaryText)
+                                .padding(.bottom, 4)
+
+                            Text(appLanguage.text("回收站为空"))
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundStyle(HWTheme.primaryText)
+
+                            Text(appLanguage.text("暂无已删除候物"))
+                                .font(.system(size: 13))
+                                .foregroundStyle(HWTheme.tertiaryText)
+                        }
+                        .padding(22)
+                        .frame(maxWidth: .infinity)
+                        .softCard()
+                        .padding(.horizontal, 14)
+                        .padding(.top, 42)
+                    } else {
+                        ForEach(sortedItems) { item in
+                            trashRow(for: item)
+                                .padding(.horizontal, 14)
+                                .transition(.move(edge: .trailing).combined(with: .opacity))
+                        }
+                    }
+                }
+                .padding(.top, 12)
+                .padding(.bottom, 24)
+                .animation(.spring(response: 0.34, dampingFraction: 0.82), value: sortedItems.map(\.id))
+            }
+            .background(HWTheme.pageBackground.ignoresSafeArea())
+            .navigationTitle(appLanguage.text("回收站"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(appLanguage.text("完成")) { dismiss() }
+                        .foregroundStyle(HWTheme.freshGreen)
+                }
+
+                if !sortedItems.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(appLanguage.text("清空"), role: .destructive) {
+                            showingEmptyConfirmation = true
+                        }
+                        .foregroundStyle(HWTheme.dangerRed)
+                    }
+                }
+            }
+            .alert(appLanguage.text("确认彻底删除？"), isPresented: deleteForeverBinding) {
+                Button(appLanguage.text("取消"), role: .cancel) { itemToDeleteForever = nil }
+                Button(appLanguage.text("彻底删除"), role: .destructive) {
+                    guard let itemToDeleteForever else { return }
+                    onDeleteForever(itemToDeleteForever)
+                    self.itemToDeleteForever = nil
+                }
+            } message: {
+                Text(appLanguage.text("这些候物将无法恢复"))
+            }
+            .alert(appLanguage.text("清空回收站？"), isPresented: $showingEmptyConfirmation) {
+                Button(appLanguage.text("取消"), role: .cancel) { }
+                Button(appLanguage.text("清空"), role: .destructive) { onEmptyTrash() }
+            } message: {
+                Text(appLanguage.text("这些候物将无法恢复"))
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(HWTheme.pageBackground)
+    }
+
+    private var sortedItems: [WishItem] {
+        items.sorted { lhs, rhs in
+            switch (lhs.trashedAt, rhs.trashedAt) {
+            case let (lhsDate?, rhsDate?): return lhsDate > rhsDate
+            case (_?, nil): return true
+            case (nil, _?): return false
+            case (nil, nil): return lhs.updatedAt > rhs.updatedAt
+            }
+        }
+    }
+
+    private var deleteForeverBinding: Binding<Bool> {
+        Binding(
+            get: { itemToDeleteForever != nil },
+            set: { if !$0 { itemToDeleteForever = nil } }
+        )
+    }
+
+    private func trashRow(for item: WishItem) -> some View {
+        VStack(spacing: 10) {
+            WishRowView(item: item, isEditing: false, isSelected: false, onCheck: {}, onOpen: {}, onMore: nil)
+                .allowsHitTesting(false)
+
+            HStack(spacing: 8) {
+                trashActionButton(appLanguage.text("恢复"), icon: "arrow.uturn.left", color: HWTheme.freshGreen) {
+                    onRestore(item)
+                }
+
+                trashActionButton(appLanguage.text("彻底删除"), icon: "trash.slash", color: HWTheme.dangerRed) {
+                    itemToDeleteForever = item
+                }
+            }
+        }
+        .padding(10)
+        .background(HWTheme.cardBackground.opacity(0.72))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(HWTheme.cardBorder.opacity(0.58), lineWidth: 0.8)
+        )
+    }
+
+    private func trashActionButton(_ title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 7) {
+                Image(systemName: icon)
+                Text(title)
+            }
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(HWTheme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -907,7 +1215,7 @@ private struct WishActionSheet: View {
                     compactAction(appLanguage.text(WishItemStatus.released.title), icon: WishItemStatus.released.iconName, color: HWTheme.tertiaryText) { onStatus(.released) }
                 }
 
-                actionRow(appLanguage.text("删除"), icon: "trash", color: HWTheme.dangerRed) { onDelete() }
+                actionRow(appLanguage.text("移入回收站"), icon: "trash", color: HWTheme.dangerRed) { onDelete() }
             }
 
             Spacer(minLength: 0)

@@ -13,6 +13,8 @@ struct WishDetailView: View {
 
     @State private var isEditing = false
     @State private var depositText = ""
+    @State private var changeEffect: WishChangeEffect?
+    @State private var changeEffectToken = UUID()
 
     var body: some View {
         NavigationStack {
@@ -55,6 +57,7 @@ struct WishDetailView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(HWTheme.pageBackground.ignoresSafeArea())
+        .overlay { changeEffectOverlay }
         .navigationTitle(appLanguage.text("详情"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -321,25 +324,67 @@ struct WishDetailView: View {
 
     private func addDeposit() {
         guard let parsedDeposit else { return }
+        let shouldMarkBought = shouldMarkBought(afterSaving: parsedDeposit)
         item.savedAmountValue += parsedDeposit
-        item.reconcileSavingsStatus()
         depositText = ""
         persistChanges()
+        if shouldMarkBought {
+            updateStatus(.bought)
+        }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func fillSavings() {
         guard let target = item.savingsTarget else { return }
+        let shouldMarkBought = item.status != .bought
         item.savedAmountValue = target
-        item.reconcileSavingsStatus()
         persistChanges()
+        if shouldMarkBought {
+            updateStatus(.bought)
+        }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func updateStatus(_ status: WishItemStatus) {
-        item.status = status
-        persistChanges()
+        guard item.status != status else { return }
+        showChangeEffect(.status(status))
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+            withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
+                item.status = status
+            }
+            persistChanges()
+        }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func shouldMarkBought(afterSaving amount: Double) -> Bool {
+        guard item.status != .bought, let savingsTarget = item.savingsTarget else { return false }
+        return min(item.savedAmountValue + amount, savingsTarget) >= savingsTarget
+    }
+
+    private func showChangeEffect(_ kind: WishChangeEffectKind) {
+        let token = UUID()
+        changeEffectToken = token
+
+        withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+            changeEffect = WishChangeEffect(kind: kind)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.92) {
+            guard changeEffectToken == token else { return }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                changeEffect = nil
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var changeEffectOverlay: some View {
+        if let changeEffect {
+            WishChangeEffectView(effect: changeEffect)
+                .transition(.scale(scale: 0.82).combined(with: .opacity))
+        }
     }
 
     private func persistChanges() {
