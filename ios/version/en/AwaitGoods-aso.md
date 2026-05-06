@@ -16,11 +16,11 @@ Updated: 2026-05-02
 
 ## Keyword Suggestions
 
-wishlist,wish list,wish,shopping list,savings,save money,budget,things to buy,want list,minimal list,awaitgoods
+wishlist,wish list,wish,shopping list,savings,save money,budget,things to buy,want list,awaitgoods
 
 ## Promotional Text
 
-AwaitGoods is a minimal wishlist and shopping list app. Save what you want first, add price, saved amount, category, link, and notes, then make calmer decisions by seeing your savings progress.
+AwaitGoods is a minimal wishlist & shopping list app. Save items, add price, savings, category, link and notes. Track your savings progress to make calm buying decisions.
 
 ## App Description
 

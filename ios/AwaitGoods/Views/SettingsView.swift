@@ -20,8 +20,10 @@ struct SettingsView: View {
     @State private var wechatIDCopied = false
     @State private var contactToastVisible = false
     @State private var contactToastToken = UUID()
+    private let developerPageURL = URL(string: "https://apps.apple.com/developer/%E8%A3%95%E9%87%91-%E6%9C%B1/id1888184686")
 
     var showsDoneButton = false
+    private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
 
     var body: some View {
         NavigationStack {
@@ -117,7 +119,7 @@ struct SettingsView: View {
                     ForEach(AppLanguage.allCases) { language in
                         chip(language.title, isSelected: appLanguageRawValue == language.rawValue) {
                             appLanguageRawValue = language.rawValue
-                            WidgetSyncService.sync(items: items)
+                            WidgetSyncService.sync(items: activeItems)
                         }
                     }
                 }
@@ -434,12 +436,37 @@ struct SettingsView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text("v1.0.4 · \(appLanguage.text("慢慢存，轻轻买"))")
+                    Text("v1.0.5 · \(appLanguage.text("慢慢存，轻轻买"))")
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }
 
                 Spacer(minLength: 0)
+            }
+
+            if let developerPageURL {
+                Link(destination: developerPageURL) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "square.grid.2x2")
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(HWTheme.freshGreen)
+                            .frame(width: 24, height: 24)
+
+                        Text(appLanguage.text("更多我的应用"))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(HWTheme.primaryText)
+
+                        Spacer()
+
+                        Image(systemName: "arrow.up.right")
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundStyle(HWTheme.tertiaryText)
+                    }
+                    .padding(10)
+                    .background(HWTheme.fieldBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
         }
         .softCard()
@@ -540,7 +567,7 @@ struct SettingsView: View {
     }
 
     private func makeExportFile() -> URL? {
-        let exportItems = items.map(WishItemExport.init)
+        let exportItems = activeItems.map(WishItemExport.init)
 
         do {
             let data = try JSONEncoder.prettyPrinted.encode(exportItems)
@@ -616,6 +643,7 @@ private struct WishItemExport: Codable {
         item.sortIndex = sortIndex
         item.createdAt = createdAt
         item.updatedAt = updatedAt
+        item.trashedAt = nil
     }
 
     private var trimmedTitle: String {

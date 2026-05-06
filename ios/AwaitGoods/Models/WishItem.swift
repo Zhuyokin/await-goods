@@ -19,6 +19,7 @@ final class WishItem {
     var targetDate: Date?
     var notifyEnabled: Bool
     var savedAmount: Double?
+    var trashedAt: Date?
 
     init(
         id: UUID = UUID(),
@@ -36,7 +37,8 @@ final class WishItem {
         waitUntil: Date? = nil,
         targetDate: Date? = nil,
         notifyEnabled: Bool = false,
-        savedAmount: Double? = nil
+        savedAmount: Double? = nil,
+        trashedAt: Date? = nil
     ) {
         self.id = id
         self.title = title
@@ -54,6 +56,7 @@ final class WishItem {
         self.targetDate = targetDate
         self.notifyEnabled = notifyEnabled
         self.savedAmount = savedAmount
+        self.trashedAt = trashedAt
     }
 
     var status: WishItemStatus {
@@ -78,6 +81,21 @@ final class WishItem {
             markColorRawValue = newValue.rawValue
             updatedAt = Date()
         }
+    }
+
+    var isTrashed: Bool {
+        trashedAt != nil
+    }
+
+    func moveToTrash(at date: Date = Date()) {
+        trashedAt = date
+        notifyEnabled = false
+        updatedAt = date
+    }
+
+    func restoreFromTrash(at date: Date = Date()) {
+        trashedAt = nil
+        updatedAt = date
     }
 
     var linkURL: URL? {
