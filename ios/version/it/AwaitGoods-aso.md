@@ -19,7 +19,7 @@ wishlist,lista desideri,lista acquisti,desideri,risparmio,budget,comprare,minima
 
 ## Testo promozionale
 
-AwaitGoods è una wishlist minimale per salvare i tuoi desideri prima dell’acquisto. Salva prezzo, risparmio, categoria, link e note, segui il tuo progresso e decidi con calma.
+AwaitGoods è una wishlist minimale per salvare desideri prima dell’acquisto. Salva prezzo, risparmio, categoria, link e note, segui il progresso e decidi con calma.
 
 ## Descrizione
 
