@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		007348111EE05520A1EBF50B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1F63F0A2808DAB7012964E /* StatsView.swift */; };
 		1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BFD927CCD956A68378D2F1 /* OnboardingView.swift */; };
 		1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3A086528642C745606CD7EAC /* InfoPlist.strings */; };
 		29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EE328A30A60851158B84DC /* MainTabView.swift */; };
@@ -99,8 +100,9 @@
 		C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5287735703579D6E51D6BAC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
-		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB922D7306202AE976DE4560 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		DD1F63F0A2808DAB7012964E /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		E2653E608D5681E19C79E2CC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsApp.swift; sourceTree = "<group>"; };
 		EF262B512826CB029A457C94 /* WishDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishDetailView.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 				52EE328A30A60851158B84DC /* MainTabView.swift */,
 				44BFD927CCD956A68378D2F1 /* OnboardingView.swift */,
 				E2653E608D5681E19C79E2CC /* SettingsView.swift */,
+				DD1F63F0A2808DAB7012964E /* StatsView.swift */,
 				EF262B512826CB029A457C94 /* WishDetailView.swift */,
 				0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */,
 				3E8C33675EC2CB045CBCF087 /* WishListView.swift */,
@@ -346,6 +349,7 @@
 				1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */,
 				A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */,
 				3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */,
+				007348111EE05520A1EBF50B /* StatsView.swift in Sources */,
 				CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */,
 				2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */,
 				A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */,
@@ -436,7 +440,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -449,7 +453,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -493,7 +497,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AwaitGoods;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -542,7 +545,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -561,7 +564,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.5;
+				MARKETING_VERSION = 1.0.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -606,7 +609,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				INFOPLIST_FILE = AwaitGoodsWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = AwaitGoods;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

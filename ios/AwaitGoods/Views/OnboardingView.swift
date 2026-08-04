@@ -55,7 +55,7 @@ struct OnboardingView: View {
                 .frame(height: 248)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(appLanguage.text("给心愿一点等待的形状"))
+                Text(appLanguage.text("极简愿望清单与购物清单"))
                     .font(.system(size: 31, weight: .semibold, design: .serif))
                     .foregroundStyle(HWTheme.primaryText)
                     .fixedSize(horizontal: false, vertical: true)

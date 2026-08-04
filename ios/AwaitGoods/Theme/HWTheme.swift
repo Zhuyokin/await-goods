@@ -51,6 +51,16 @@ enum HWTheme {
     static var lavender: Color { softBlueGray }
     static var leafGreen: Color { freshGreen }
 
+    static func savingsProgressColor(_ progress: Double, isComplete: Bool = false) -> Color {
+        if isComplete { return softBlueGray }
+
+        switch min(max(progress, 0), 1) {
+        case ..<0.3: return tertiaryText
+        case ..<0.7: return apricot
+        default: return freshGreen
+        }
+    }
+
     static func markColor(_ markColor: MarkColor) -> Color {
         switch markColor {
         case .none: return fieldBackground

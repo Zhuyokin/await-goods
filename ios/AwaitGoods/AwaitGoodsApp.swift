@@ -23,6 +23,10 @@ struct AwaitGoodsApp: App {
         }
     }()
 
+    init() {
+        NotificationScheduler.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {

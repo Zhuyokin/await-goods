@@ -17,26 +17,29 @@ struct SettingsView: View {
     @State private var showingImporter = false
     @State private var showingClearConfirmation = false
     @State private var dataTransferMessage: DataTransferMessage?
-    @State private var wechatIDCopied = false
+    @State private var emailCopied = false
     @State private var contactToastVisible = false
     @State private var contactToastToken = UUID()
+    private let supportEmail = "yokinzhu@gmail.com"
     private let developerPageURL = URL(string: "https://apps.apple.com/developer/%E8%A3%95%E9%87%91-%E6%9C%B1/id1888184686")
 
     var showsDoneButton = false
     private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
+    private var currentLanguage: AppLanguage { AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans }
+    private var currentAppearanceMode: AppAppearanceMode { AppAppearanceMode(rawValue: appearanceMode) ?? .system }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    settingsSection(appLanguage.text("日常偏好"), subtitle: appLanguage.text("默认值轻一点，记录就不会有负担")) {
+                    settingsSection(appLanguage.text("通用与偏好"), subtitle: appLanguage.text("当前选择一目了然，需要时再进入调整")) {
                         languageSelector
                         appearanceSelector
                         themeSelector
                         widgetCounter
                     }
 
-                    settingsSection(appLanguage.text("数据"), subtitle: appLanguage.text("留一份记录，也可以随时清空")) {
+                    settingsSection(appLanguage.text("数据与安全"), subtitle: appLanguage.text("留一份记录，也可以随时清空")) {
                         settingsActionRow(appLanguage.text("导入备份文件"), subtitle: appLanguage.text("从 JSON 恢复或合并候物"), icon: "square.and.arrow.down", color: HWTheme.freshGreen) {
                             showingImporter = true
                         }
@@ -111,20 +114,16 @@ struct SettingsView: View {
     }
 
     private var languageSelector: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            rowTitle(appLanguage.text("语言"), icon: "globe.asia.australia")
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(AppLanguage.allCases) { language in
-                        chip(language.title, isSelected: appLanguageRawValue == language.rawValue) {
-                            appLanguageRawValue = language.rawValue
-                            WidgetSyncService.sync(items: activeItems)
-                        }
-                    }
-                }
-            }
+        NavigationLink {
+            languageSelectionPage
+        } label: {
+            settingsNavigationLabel(
+                appLanguage.text("语言"),
+                icon: "globe.asia.australia",
+                value: currentLanguage.title
+            )
         }
+        .buttonStyle(.plain)
     }
 
     private func settingsSection<Content: View>(_ title: String, subtitle: String, @ViewBuilder content: () -> Content) -> some View {
@@ -141,21 +140,69 @@ struct SettingsView: View {
 
             content()
         }
-        .softCard()
+        .settingsGroup()
+    }
+
+    @ViewBuilder
+    private var contactToast: some View {
+        if contactToastVisible {
+            Label(appLanguage.text("邮箱地址已复制"), systemImage: "checkmark.circle.fill")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(HWTheme.cardBackground)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(HWTheme.primaryText.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
+                .padding(.bottom, 18)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 
     private var appearanceSelector: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            rowTitle(appLanguage.text("外观模式"), icon: "sparkles")
+        NavigationLink {
+            appearanceSelectionPage
+        } label: {
+            settingsNavigationLabel(
+                appLanguage.text("外观模式"),
+                icon: "sparkles",
+                value: appLanguage.text(currentAppearanceMode.title)
+            )
+        }
+        .buttonStyle(.plain)
+    }
 
-            HStack(spacing: 6) {
+    private var languageSelectionPage: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                ForEach(AppLanguage.allCases) { language in
+                    selectionRow(language.title, isSelected: appLanguageRawValue == language.rawValue) {
+                        appLanguageRawValue = language.rawValue
+                        WidgetSyncService.sync(items: activeItems)
+                    }
+                }
+            }
+            .padding(14)
+        }
+        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .navigationTitle(appLanguage.text("语言"))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var appearanceSelectionPage: some View {
+        ScrollView {
+            VStack(spacing: 8) {
                 ForEach(AppAppearanceMode.allCases) { mode in
-                    chip(appLanguage.text(mode.title), isSelected: appearanceMode == mode.rawValue) {
+                    selectionRow(appLanguage.text(mode.title), isSelected: appearanceMode == mode.rawValue) {
                         appearanceMode = mode.rawValue
                     }
                 }
             }
+            .padding(14)
         }
+        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .navigationTitle(appLanguage.text("外观模式"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var themeSelector: some View {
@@ -293,6 +340,56 @@ struct SettingsView: View {
         }
     }
 
+    private func settingsNavigationLabel(_ title: String, icon: String, value: String) -> some View {
+        HStack(spacing: 10) {
+            rowIcon(icon)
+
+            Text(title)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(HWTheme.primaryText)
+
+            Spacer()
+
+            Text(value)
+                .font(.system(size: 13))
+                .foregroundStyle(HWTheme.secondaryText)
+                .lineLimit(1)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(HWTheme.tertiaryText)
+        }
+        .padding(10)
+        .background(HWTheme.fieldBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func selectionRow(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Text(title)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(HWTheme.primaryText)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(HWTheme.freshGreen)
+                }
+            }
+            .padding(14)
+            .background(HWTheme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.46) : HWTheme.cardBorder.opacity(0.44), lineWidth: 0.8)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
     private func rowIcon(_ icon: String) -> some View {
         Image(systemName: icon)
             .font(.system(size: 14, weight: .regular))
@@ -343,6 +440,10 @@ struct SettingsView: View {
                 }
 
                 Spacer()
+
+                Image(systemName: isDestructive ? "exclamationmark.circle" : "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(isDestructive ? HWTheme.dangerRed : HWTheme.tertiaryText)
             }
             .padding(10)
             .background(HWTheme.fieldBackground)
@@ -362,59 +463,53 @@ struct SettingsView: View {
                     .foregroundStyle(HWTheme.secondaryText)
             }
 
-            Button {
-                UIPasteboard.general.string = "Zhuyokin"
-                wechatIDCopied = true
-                showContactToast()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    wechatIDCopied = false
-                }
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "message.fill")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(HWTheme.freshGreen)
-                        .frame(width: 24, height: 24)
+            HStack(spacing: 8) {
+                if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
+                    Link(destination: supportEmailURL) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "envelope.fill")
+                                .font(.system(size: 14, weight: .regular))
+                                .foregroundStyle(HWTheme.freshGreen)
+                                .frame(width: 24, height: 24)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(appLanguage.text("微信"))
-                            .font(.system(size: 12))
-                            .foregroundStyle(HWTheme.secondaryText)
-                        Text("Zhuyokin")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(HWTheme.primaryText)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(appLanguage.text("邮箱支持"))
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(HWTheme.secondaryText)
+                                Text(supportEmail)
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundStyle(HWTheme.primaryText)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.82)
+                            }
+
+                            Spacer(minLength: 4)
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(HWTheme.tertiaryText)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-
-                    Spacer()
-
-                    Text(wechatIDCopied ? appLanguage.text("已复制") : appLanguage.text("点击复制"))
-                        .font(.system(size: 12))
-                        .foregroundStyle(wechatIDCopied ? HWTheme.freshGreen : HWTheme.tertiaryText)
-                        .animation(.easeInOut(duration: 0.2), value: wechatIDCopied)
+                    .buttonStyle(.plain)
                 }
-                .padding(10)
-                .background(HWTheme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .buttonStyle(.plain)
-        }
-        .softCard()
-    }
 
-    @ViewBuilder
-    private var contactToast: some View {
-        if contactToastVisible {
-            Label(appLanguage.text("微信号已复制"), systemImage: "checkmark.circle.fill")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(HWTheme.cardBackground)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(HWTheme.primaryText.opacity(0.9))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
-                .padding(.bottom, 18)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                Button(action: copySupportEmail) {
+                    Image(systemName: emailCopied ? "checkmark" : "doc.on.doc")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(emailCopied ? HWTheme.freshGreen : HWTheme.tertiaryText)
+                        .frame(width: 32, height: 32)
+                        .background(HWTheme.fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(appLanguage.text("复制邮箱"))
+            }
+            .padding(10)
+            .background(HWTheme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
+        .settingsGroup()
     }
 
     private var appInfoCard: some View {
@@ -436,7 +531,7 @@ struct SettingsView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(HWTheme.primaryText)
 
-                    Text("v1.0.5 · \(appLanguage.text("慢慢存，轻轻买"))")
+                    Text("v1.0.6 · \(appLanguage.text("极简愿望清单与购物清单"))")
                         .font(.system(size: 13))
                         .foregroundStyle(HWTheme.secondaryText)
                 }
@@ -469,7 +564,7 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
             }
         }
-        .softCard()
+        .settingsGroup()
     }
 
     private func clearAll() {
@@ -477,6 +572,16 @@ struct SettingsView: View {
         items.forEach { modelContext.delete($0) }
         try? modelContext.save()
         onChange()
+    }
+
+    private func copySupportEmail() {
+        UIPasteboard.general.string = supportEmail
+        emailCopied = true
+        showContactToast()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            emailCopied = false
+        }
     }
 
     private func showContactToast() {
@@ -562,6 +667,7 @@ struct SettingsView: View {
         }
 
         try modelContext.save()
+        Task { await NotificationScheduler.synchronize(items: Array(existingItemsByID.values)) }
         onChange()
         return (inserted, updated)
     }
@@ -591,6 +697,8 @@ private struct WishItemExport: Codable {
     let status: String
     let markColor: String
     let savedAmount: Double
+    let reminderDate: Date?
+    let notifyEnabled: Bool?
     let sortIndex: Int
     let createdAt: Date
     let updatedAt: Date
@@ -606,6 +714,8 @@ private struct WishItemExport: Codable {
         status = item.status.rawValue
         markColor = item.markColor.rawValue
         savedAmount = item.savedAmountValue
+        reminderDate = item.targetDate ?? item.waitUntil
+        notifyEnabled = item.notifyEnabled
         sortIndex = item.sortIndex
         createdAt = item.createdAt
         updatedAt = item.updatedAt
@@ -625,7 +735,8 @@ private struct WishItemExport: Codable {
             sortIndex: sortIndex,
             createdAt: createdAt,
             updatedAt: updatedAt,
-            notifyEnabled: false,
+            targetDate: reminderDate,
+            notifyEnabled: notifyEnabled == true && reminderDate != nil && WishItemStatus.fromBackupValue(status) == .waiting,
             savedAmount: normalizedSavedAmount
         )
     }
@@ -640,6 +751,9 @@ private struct WishItemExport: Codable {
         item.status = WishItemStatus.fromBackupValue(status)
         item.markColor = MarkColor.fromBackupValue(markColor)
         item.savedAmountValue = normalizedSavedAmount
+        item.waitUntil = nil
+        item.targetDate = reminderDate
+        item.notifyEnabled = notifyEnabled == true && reminderDate != nil && item.status == .waiting
         item.sortIndex = sortIndex
         item.createdAt = createdAt
         item.updatedAt = updatedAt
@@ -665,6 +779,19 @@ private struct DataTransferMessage: Identifiable {
     let id = UUID()
     let title: String
     let message: String
+}
+
+private extension View {
+    func settingsGroup() -> some View {
+        frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(HWTheme.cardBackground.opacity(0.72))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(HWTheme.cardBorder.opacity(0.44), lineWidth: 0.8)
+            )
+    }
 }
 
 private enum BackupImportError: Error {

@@ -26,7 +26,7 @@
 - 產品名稱：候物 AwaitGoods
 - 平台：iPhone 與 iPad
 - 系統要求：iOS 17.0 及以上
-- 目前版本：1.0.5
+- 目前版本：1.0.6
 - 支援語言：簡體中文、繁體中文、English、日本語、Français、Deutsch、Italiano、한국어
 
 ## 4. 常見問題

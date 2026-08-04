@@ -17,6 +17,11 @@ struct MainTabView: View {
                     Label(appLanguage.text("候物"), systemImage: "bag")
                 }
 
+            StatsView()
+                .tabItem {
+                    Label(appLanguage.text("统计"), systemImage: "chart.bar.xaxis")
+                }
+
             SettingsView(items: items) {
                 WidgetSyncService.sync(items: items)
             }
@@ -32,12 +37,17 @@ struct MainTabView: View {
         .animation(.easeInOut(duration: 0.2), value: appThemeRawValue)
         .onAppear {
             WidgetSyncService.sync(items: items)
+            Task { await NotificationScheduler.synchronize(items: items) }
         }
         .onChange(of: widgetSyncSignature) { _, _ in
             WidgetSyncService.sync(items: items)
         }
         .onChange(of: appLanguageRawValue) { _, _ in
             WidgetSyncService.sync(items: items)
+            Task { await NotificationScheduler.synchronize(items: items) }
+        }
+        .onChange(of: notificationSyncSignature) { _, _ in
+            Task { await NotificationScheduler.synchronize(items: items) }
         }
     }
 
@@ -51,6 +61,24 @@ struct MainTabView: View {
                 String(item.price ?? 0),
                 String(item.savedAmountValue),
                 String(item.updatedAt.timeIntervalSince1970)
+            ].joined(separator: "|")
+        }
+    }
+
+    private var notificationSyncSignature: [String] {
+        items.map { item in
+            [
+                item.id.uuidString,
+                item.title,
+                item.category,
+                String(item.priorityRawValue),
+                item.statusRawValue,
+                String(item.price ?? 0),
+                String(item.savedAmountValue),
+                String(item.notifyEnabled),
+                String(item.targetDate?.timeIntervalSince1970 ?? 0),
+                String(item.waitUntil?.timeIntervalSince1970 ?? 0),
+                String(item.isTrashed)
             ].joined(separator: "|")
         }
     }

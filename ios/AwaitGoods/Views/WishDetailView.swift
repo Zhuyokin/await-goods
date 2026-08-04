@@ -133,7 +133,7 @@ struct WishDetailView: View {
                             .fill(HWTheme.fieldBackground)
 
                         Capsule()
-                            .fill(item.isSavingsComplete ? HWTheme.softBlueGray : HWTheme.freshGreen.opacity(0.72))
+                            .fill(HWTheme.savingsProgressColor(item.savingsProgress, isComplete: item.isSavingsComplete))
                             .frame(width: proxy.size.width * item.savingsProgress)
                     }
                 }
@@ -389,6 +389,7 @@ struct WishDetailView: View {
 
     private func persistChanges() {
         try? modelContext.save()
+        Task { await NotificationScheduler.schedule(for: item) }
         onChange()
     }
 

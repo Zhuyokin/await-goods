@@ -14,7 +14,7 @@ struct EmptyStateView: View {
                 .font(.system(size: 18, weight: .medium))
                 .foregroundStyle(HWTheme.primaryText)
 
-            Text(appLanguage.text("慢慢存，轻轻买"))
+            Text(appLanguage.text("极简愿望清单与购物清单"))
                 .font(.system(size: 13))
                 .foregroundStyle(HWTheme.tertiaryText)
         }

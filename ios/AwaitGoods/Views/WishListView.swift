@@ -17,7 +17,7 @@ struct WishListView: View {
 
     @State private var searchText = ""
     @State private var isSearchPresented = false
-    @State private var selectedStatus: WishItemStatus? = .waiting
+    @State private var selectedStatus: WishItemStatus?
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
     @State private var selectedIDs = Set<UUID>()
@@ -82,7 +82,6 @@ struct WishListView: View {
             Text(appLanguage.text("删除会先放进回收站"))
         }
         .onAppear {
-            NotificationScheduler.cancelAllWishNotifications()
             WidgetSyncService.sync(items: activeItems)
         }
     }
@@ -184,12 +183,12 @@ struct WishListView: View {
                             .minimumScaleFactor(0.82)
                             .allowsTightening(true)
 
-                        Text(summaryText)
+                        Text(appLanguage.text("极简愿望清单与购物清单"))
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.secondaryText)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.84)
-                            .truncationMode(.tail)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.82)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -206,6 +205,9 @@ struct WishListView: View {
                         Section(appLanguage.text("批量")) {
                             Button(isEditing ? appLanguage.text("完成整理") : appLanguage.text("整理清单")) { toggleEditing() }
                                 .disabled(activeItems.isEmpty && !isEditing)
+                        }
+                        Section {
+                            Button("\(appLanguage.text("回收站")) · \(trashedItems.count)") { showingTrash = true }
                         }
                     } label: {
                         Image(systemName: "slider.horizontal.3")
@@ -263,10 +265,10 @@ struct WishListView: View {
     private var statusChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
+                statusChip(title: appLanguage.text("全部"), count: activeItems.count, status: nil)
                 ForEach(WishItemStatus.allCases) { status in
                     statusChip(title: appLanguage.text(status.title), count: activeItems.filter { $0.status == status }.count, status: status)
                 }
-                statusChip(title: appLanguage.text("全部"), count: activeItems.count, status: nil)
             }
             .padding(.vertical, 2)
         }
@@ -305,7 +307,7 @@ struct WishListView: View {
     private var floatingAccessoryButtons: some View {
         if !isEditing {
             HStack(alignment: .bottom) {
-                floatingTrashButton
+                floatingBatchButton
 
                 Spacer(minLength: 0)
 
@@ -317,26 +319,17 @@ struct WishListView: View {
         }
     }
 
-    private var floatingTrashButton: some View {
+    private var floatingBatchButton: some View {
         Button {
-            showingTrash = true
+            toggleEditing()
         } label: {
-            ZStack(alignment: .topTrailing) {
-                Image(systemName: "trash")
-
-                if !trashedItems.isEmpty {
-                    Text("\(min(trashedItems.count, 99))")
-                        .font(.system(size: 10, weight: .semibold).monospacedDigit())
-                        .foregroundStyle(HWTheme.cardBackground)
-                        .frame(minWidth: 17, minHeight: 17)
-                        .background(HWTheme.dangerRed)
-                        .clipShape(Capsule())
-                        .offset(x: 8, y: -8)
-                }
+            HStack(spacing: 7) {
+                Image(systemName: "checklist")
+                Text(appLanguage.text("批量管理"))
             }
         }
-        .buttonStyle(FloatingTrashButtonStyle())
-        .accessibilityLabel(appLanguage.text("回收站"))
+        .buttonStyle(FloatingBatchButtonStyle())
+        .disabled(activeItems.isEmpty)
     }
 
     private var floatingAddButton: some View {
@@ -346,7 +339,10 @@ struct WishListView: View {
                 showingQuickAddSheet = true
             }
         } label: {
-            Image(systemName: "plus")
+            HStack(spacing: 7) {
+                Image(systemName: "plus")
+                Text(appLanguage.text("添加新物品"))
+            }
         }
         .buttonStyle(FloatingAddButtonStyle())
         .accessibilityLabel(appLanguage.text("新增候物"))
@@ -607,13 +603,6 @@ struct WishListView: View {
         displayedItems.map(\.id)
     }
 
-    private var summaryText: String {
-        let waitingCount = activeItems.filter { $0.status == .waiting }.count
-        if activeItems.isEmpty { return appLanguage.text("先记下心动，给预算一点空间") }
-        if waitingCount == 0 { return appLanguage.text("清单很轻，今天也很清爽") }
-        return String(format: appLanguage.text("还有 %d 件想买的东西"), waitingCount)
-    }
-
     private var trimmedQuickAddTitle: String {
         quickAddTitle.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -785,7 +774,7 @@ struct WishListView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
             withAnimation(.spring(response: 0.34, dampingFraction: 0.82)) {
                 itemsToTrash.forEach { item in
-                    Task { await NotificationScheduler.cancel(for: item) }
+                    NotificationScheduler.cancel(for: item)
                     item.moveToTrash()
                 }
             }
@@ -968,29 +957,31 @@ private struct HeaderIconButtonStyle: ButtonStyle {
 private struct FloatingAddButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 20, weight: .bold))
+            .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(HWTheme.cardBackground)
-            .frame(width: 58, height: 58)
+            .padding(.horizontal, 18)
+            .frame(height: 52)
             .background(configuration.isPressed ? HWTheme.apricot : HWTheme.freshGreen)
-            .clipShape(Circle())
+            .clipShape(Capsule())
             .overlay(
-                Circle()
+                Capsule()
                     .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 2)
             )
             .shadow(color: HWTheme.freshGreen.opacity(configuration.isPressed ? 0.10 : 0.24), radius: 10, x: 0, y: 5)
     }
 }
 
-private struct FloatingTrashButtonStyle: ButtonStyle {
+private struct FloatingBatchButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 18, weight: .semibold))
-            .foregroundStyle(configuration.isPressed ? HWTheme.cardBackground : HWTheme.dangerRed)
-            .frame(width: 52, height: 52)
-            .background(configuration.isPressed ? HWTheme.dangerRed : HWTheme.cardBackground.opacity(0.96))
-            .clipShape(Circle())
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(configuration.isPressed ? HWTheme.cardBackground : HWTheme.primaryText)
+            .padding(.horizontal, 16)
+            .frame(height: 48)
+            .background(configuration.isPressed ? HWTheme.primaryText : HWTheme.cardBackground.opacity(0.96))
+            .clipShape(Capsule())
             .overlay(
-                Circle()
+                Capsule()
                     .stroke(HWTheme.cardBorder.opacity(0.62), lineWidth: 0.8)
             )
             .shadow(color: HWTheme.softShadow, radius: 9, x: 0, y: 5)
