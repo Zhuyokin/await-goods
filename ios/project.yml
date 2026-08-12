@@ -55,6 +55,8 @@ targets:
     entitlements:
       path: AwaitGoods/AwaitGoods.entitlements
       properties:
+        com.apple.developer.associated-domains:
+          - applinks:app-privacy-support.pages.dev
         com.apple.security.application-groups:
           - group.com.awaitgoods
     settings:
