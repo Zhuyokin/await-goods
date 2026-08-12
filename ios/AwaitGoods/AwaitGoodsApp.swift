@@ -67,7 +67,9 @@ struct AwaitGoodsApp: App {
         let path = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
         switch path {
-        case "AwaitGoods/data-static", "AwaitGoods/data-static-act":
+        case "AwaitGoods/data-static",
+             "AwaitGoods/data-static-act",
+             "AwaitGoods/data-static-activity":
             selectedTab = .statistics
         default:
             break
