@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @Binding var selection: MainTab
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
@@ -52,6 +53,13 @@ struct MainTabView: View {
         }
         .onChange(of: notificationSyncSignature) { _, _ in
             Task { await NotificationScheduler.synchronize(items: items) }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await NotificationScheduler.synchronize(items: items) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openAwaitGoodsWishList)) { _ in
+            selection = .wishList
         }
     }
 

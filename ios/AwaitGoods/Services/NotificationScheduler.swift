@@ -1,6 +1,10 @@
 import Foundation
 import UserNotifications
 
+extension Notification.Name {
+    static let openAwaitGoodsWishList = Notification.Name("openAwaitGoodsWishList")
+}
+
 enum NotificationScheduler {
     private static let center = UNUserNotificationCenter.current()
     private static let maximumPendingWishReminders = 64
@@ -110,47 +114,23 @@ enum NotificationScheduler {
 
     private static func notificationContent(for item: WishItem) -> UNMutableNotificationContent {
         let language = currentAppLanguage
+        let message = WishReminderMessageBuilder.make(
+            title: item.title,
+            priority: item.priority,
+            category: item.category,
+            savedAmount: item.savedAmountValue,
+            targetAmount: item.savingsTarget,
+            language: language
+        )
         let content = UNMutableNotificationContent()
-        content.title = notificationTitle(for: item, language: language)
-        content.body = notificationBody(for: item, language: language)
+        content.title = message.title
+        content.body = message.body
         content.sound = .default
-        content.userInfo = ["wishItemID": item.id.uuidString]
+        content.userInfo = [
+            "destination": "wishList",
+            "wishItemID": item.id.uuidString
+        ]
         return content
-    }
-
-    private static func notificationTitle(for item: WishItem, language: AppLanguage) -> String {
-        if item.priority == .high {
-            return String(format: language.text("高优先级候物：%@"), item.title)
-        }
-
-        if item.savingsProgress >= 0.8, !item.isSavingsComplete {
-            return String(format: language.text("快存到了：%@"), item.title)
-        }
-
-        return String(format: language.text("「%@」还在你的候物清单里"), item.title)
-    }
-
-    private static func notificationBody(for item: WishItem, language: AppLanguage) -> String {
-        let priorityText = String(format: language.text("%@优先级"), language.text(item.priority.title))
-        let metadata = [priorityText, item.category.trimmingCharacters(in: .whitespacesAndNewlines)]
-            .filter { !$0.isEmpty }
-            .joined(separator: " · ")
-        let usesCJKPunctuation = language == .zhHans || language == .zhHant || language == .ja
-        let sentenceEnd = usesCJKPunctuation ? "。" : "."
-        let sentenceSpacing = usesCJKPunctuation ? "" : " "
-
-        if let price = item.savingsTarget {
-            let progressText = String(
-                format: language.text("已存 %@ / %@（%d%%），还差 %@。"),
-                moneyText(item.savedAmountValue),
-                moneyText(price),
-                Int((item.savingsProgress * 100).rounded()),
-                moneyText(item.remainingSavingsAmount ?? 0)
-            )
-            return "\(progressText)\(sentenceSpacing)\(metadata)\(sentenceEnd)\(sentenceSpacing)\(language.text("再看一眼，它现在仍值得买吗？"))"
-        }
-
-        return "\(metadata)\(sentenceEnd)\(sentenceSpacing)\(language.text("回来看一眼，确认它是否仍值得留在清单里。"))"
     }
 
     private static var currentAppLanguage: AppLanguage {
@@ -170,9 +150,6 @@ enum NotificationScheduler {
             .first
     }
 
-    private static func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
-    }
 }
 
 private final class WishNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
@@ -184,5 +161,16 @@ private final class WishNotificationDelegate: NSObject, UNUserNotificationCenter
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .list, .sound])
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .openAwaitGoodsWishList, object: nil)
+        }
+        completionHandler()
     }
 }

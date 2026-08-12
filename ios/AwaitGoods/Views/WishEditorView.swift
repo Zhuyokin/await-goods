@@ -523,7 +523,7 @@ struct WishEditorView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(HWTheme.primaryText)
 
-                        Text(appLanguage.text("到点后回来看一眼"))
+                        Text(appLanguage.text("无需网络，到点仅提醒一次"))
                             .font(.system(size: 12))
                             .foregroundStyle(HWTheme.secondaryText)
                     }

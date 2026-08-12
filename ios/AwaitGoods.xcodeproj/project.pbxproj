@@ -12,6 +12,7 @@
 		1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3A086528642C745606CD7EAC /* InfoPlist.strings */; };
 		29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EE328A30A60851158B84DC /* MainTabView.swift */; };
 		2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */; };
+		F10700000000000000000002 /* WishReminderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10700000000000000000001 /* WishReminderMessage.swift */; };
 		2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */; };
 		30B7FFCAE9CE42716427F35C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5D56B18AE13651F8167A705 /* Localizable.strings */; };
 		3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2653E608D5681E19C79E2CC /* SettingsView.swift */; };
@@ -90,6 +91,7 @@
 		83F51BB09909F523764B4634 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		8417533398FE2DB01C3EA65F /* WishPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishPriority.swift; sourceTree = "<group>"; };
 		84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		F10700000000000000000001 /* WishReminderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishReminderMessage.swift; sourceTree = "<group>"; };
 		900A7A734584BB47390FDEE2 /* AwaitGoods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoods.entitlements; sourceTree = "<group>"; };
 		927A5C55ADED2249C0FB071C /* WishItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItem.swift; sourceTree = "<group>"; };
 		9FD3B79C081515AF09D85D10 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 			children = (
 				84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */,
 				03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */,
+				F10700000000000000000001 /* WishReminderMessage.swift */,
 				2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */,
 			);
 			path = Services;
@@ -348,6 +351,7 @@
 				2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */,
 				1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */,
 				A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */,
+				F10700000000000000000002 /* WishReminderMessage.swift in Sources */,
 				3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */,
 				007348111EE05520A1EBF50B /* StatsView.swift in Sources */,
 				CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */,
