@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct MainTabView: View {
+    @Binding var selection: MainTab
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
@@ -11,16 +12,18 @@ struct MainTabView: View {
     }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selection) {
             WishListView()
                 .tabItem {
                     Label(appLanguage.text("候物"), systemImage: "bag")
                 }
+                .tag(MainTab.wishList)
 
             StatsView()
                 .tabItem {
                     Label(appLanguage.text("统计"), systemImage: "chart.bar.xaxis")
                 }
+                .tag(MainTab.statistics)
 
             SettingsView(items: items) {
                 WidgetSyncService.sync(items: items)
@@ -28,6 +31,7 @@ struct MainTabView: View {
             .tabItem {
                 Label(appLanguage.text("设置"), systemImage: "gearshape")
             }
+            .tag(MainTab.settings)
         }
         .environment(\.appLanguage, appLanguage)
         .tint(HWTheme.freshGreen)
