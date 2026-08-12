@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */; };
 		007348111EE05520A1EBF50B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1F63F0A2808DAB7012964E /* StatsView.swift */; };
 		1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BFD927CCD956A68378D2F1 /* OnboardingView.swift */; };
 		1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3A086528642C745606CD7EAC /* InfoPlist.strings */; };
@@ -22,12 +23,14 @@
 		52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5C55ADED2249C0FB071C /* WishItem.swift */; };
 		54716D683573B89F8270A22B /* MarkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708A78E8FDF0E2F171E13882 /* MarkColor.swift */; };
 		6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */; };
+		790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */; };
 		702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00133B432093F41F0FC4B014 /* EmptyStateView.swift */; };
 		843235594D7CBAE172C31250 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */; };
 		85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8417533398FE2DB01C3EA65F /* WishPriority.swift */; };
 		8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
 		9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */; };
 		9F9D3DAD43A518783D42C0D6 /* AwaitGoodsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A26F543F1702E01D6CEFA9A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 786489027F0F1B71F922271A /* Assets.xcassets */; };
 		A31A090FB2553369506A0C6A /* HWTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385568F103509773D3A07A67 /* HWTheme.swift */; };
 		A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF262B512826CB029A457C94 /* WishDetailView.swift */; };
 		A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */; };
@@ -80,11 +83,13 @@
 		446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWidget.swift; sourceTree = "<group>"; };
 		44BFD927CCD956A68378D2F1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreLinks.swift; sourceTree = "<group>"; };
 		51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxButton.swift; sourceTree = "<group>"; };
 		52EE328A30A60851158B84DC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		598489FCE453058291FD72FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		61E4D95575BCE5B2F683F77F /* AwaitGoodsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoodsWidget.entitlements; sourceTree = "<group>"; };
 		708A78E8FDF0E2F171E13882 /* MarkColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkColor.swift; sourceTree = "<group>"; };
+		786489027F0F1B71F922271A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWaitPeriod.swift; sourceTree = "<group>"; };
 		7B3BA0C7DCF4FFE9D3E95506 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		7F9D30342D0BC5C3F48A78F9 /* 候物.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,6 +113,7 @@
 		E2653E608D5681E19C79E2CC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsApp.swift; sourceTree = "<group>"; };
 		EF262B512826CB029A457C94 /* WishDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishDetailView.swift; sourceTree = "<group>"; };
+		F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSortIndexPolicy.swift; sourceTree = "<group>"; };
 		F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogoMark.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -174,6 +180,7 @@
 		9DDD83468F435680B473E561 /* AwaitGoodsWidget */ = {
 			isa = PBXGroup;
 			children = (
+				786489027F0F1B71F922271A /* Assets.xcassets */,
 				61E4D95575BCE5B2F683F77F /* AwaitGoodsWidget.entitlements */,
 				446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */,
 				598489FCE453058291FD72FB /* Info.plist */,
@@ -199,10 +206,12 @@
 			children = (
 				CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */,
 				00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */,
+				4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */,
 				4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */,
 				78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */,
 				708A78E8FDF0E2F171E13882 /* MarkColor.swift */,
 				927A5C55ADED2249C0FB071C /* WishItem.swift */,
+				F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */,
 				C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */,
 				8417533398FE2DB01C3EA65F /* WishPriority.swift */,
 			);
@@ -316,6 +325,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A26F543F1702E01D6CEFA9A2 /* Assets.xcassets in Resources */,
 				1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */,
 				30B7FFCAE9CE42716427F35C /* Localizable.strings in Resources */,
 			);
@@ -340,6 +350,7 @@
 				BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */,
 				458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */,
 				CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */,
+				790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */,
 				4AE07D9F619E17919342E861 /* AppTheme.swift in Sources */,
 				D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */,
 				6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */,
@@ -359,6 +370,7 @@
 				A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */,
 				9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */,
 				52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */,
+				01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */,
 				B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */,
 				E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */,
 				85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */,

@@ -17,29 +17,28 @@ struct SettingsView: View {
     @State private var showingImporter = false
     @State private var showingClearConfirmation = false
     @State private var dataTransferMessage: DataTransferMessage?
-    @State private var emailCopied = false
-    @State private var contactToastVisible = false
-    @State private var contactToastToken = UUID()
     private let supportEmail = "yokinzhu@gmail.com"
-    private let developerPageURL = URL(string: "https://apps.apple.com/developer/%E8%A3%95%E9%87%91-%E6%9C%B1/id1888184686")
 
     var showsDoneButton = false
     private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
     private var currentLanguage: AppLanguage { AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans }
     private var currentAppearanceMode: AppAppearanceMode { AppAppearanceMode(rawValue: appearanceMode) ?? .system }
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.7"
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    settingsSection(appLanguage.text("通用与偏好"), subtitle: appLanguage.text("当前选择一目了然，需要时再进入调整")) {
+                    settingsSection(appLanguage.text("设置")) {
                         languageSelector
                         appearanceSelector
                         themeSelector
                         widgetCounter
                     }
 
-                    settingsSection(appLanguage.text("数据与安全"), subtitle: appLanguage.text("留一份记录，也可以随时清空")) {
+                    settingsSection(appLanguage.text("数据与安全")) {
                         settingsActionRow(appLanguage.text("导入备份文件"), subtitle: appLanguage.text("从 JSON 恢复或合并候物"), icon: "square.and.arrow.down", color: HWTheme.freshGreen) {
                             showingImporter = true
                         }
@@ -78,7 +77,6 @@ struct SettingsView: View {
                         }
                     }
 
-                    contactCard
                     appInfoCard
                 }
                 .padding(14)
@@ -86,7 +84,6 @@ struct SettingsView: View {
                 .padding(.bottom, 18)
             }
             .background(HWTheme.pageBackground.ignoresSafeArea())
-            .overlay(alignment: .bottom) { contactToast }
             .navigationTitle(appLanguage.text("设置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -126,37 +123,15 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
-    private func settingsSection<Content: View>(_ title: String, subtitle: String, @ViewBuilder content: () -> Content) -> some View {
+    private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-
-                Text(subtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(HWTheme.secondaryText)
-            }
+            Text(title)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(HWTheme.primaryText)
 
             content()
         }
         .settingsGroup()
-    }
-
-    @ViewBuilder
-    private var contactToast: some View {
-        if contactToastVisible {
-            Label(appLanguage.text("邮箱地址已复制"), systemImage: "checkmark.circle.fill")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(HWTheme.cardBackground)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(HWTheme.primaryText.opacity(0.9))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .shadow(color: HWTheme.softShadow, radius: 8, x: 0, y: 4)
-                .padding(.bottom, 18)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
     }
 
     private var appearanceSelector: some View {
@@ -212,7 +187,7 @@ struct SettingsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 9) {
                     ForEach(AppTheme.allCases) { theme in
-                        themeCard(theme)
+                        compactThemeButton(theme)
                     }
                 }
                 .padding(.vertical, 2)
@@ -220,7 +195,7 @@ struct SettingsView: View {
         }
     }
 
-    private func themeCard(_ theme: AppTheme) -> some View {
+    private func compactThemeButton(_ theme: AppTheme) -> some View {
         let isSelected = appThemeRawValue == theme.rawValue
 
         return Button {
@@ -228,60 +203,37 @@ struct SettingsView: View {
                 appThemeRawValue = theme.rawValue
             }
         } label: {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 7) {
-                    Image(systemName: theme.icon)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.freshGreen)
-                        .frame(width: 26, height: 26)
-                        .background(isSelected ? HWTheme.freshGreen : HWTheme.cardBackground.opacity(0.92))
-                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-
-                    Spacer(minLength: 6)
-
-                    if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(HWTheme.freshGreen)
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(theme.swatchColors.first ?? HWTheme.freshGreen)
+                    .frame(width: 16, height: 16)
+                    .overlay {
+                        if isSelected {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
                     }
-                }
 
-                HStack(spacing: -3) {
-                    ForEach(Array(theme.swatchColors.enumerated()), id: \.offset) { _, color in
-                        Circle()
-                            .fill(color)
-                            .frame(width: 20, height: 20)
-                            .overlay(
-                                Circle()
-                                    .stroke(HWTheme.cardBackground.opacity(0.88), lineWidth: 1)
-                            )
-                    }
-                }
+                Text(appLanguage.text(theme.title))
+                    .font(.system(size: 12, weight: .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(appLanguage.text(theme.title))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(HWTheme.primaryText)
-                        .lineLimit(1)
-
-                    Text(appLanguage.text(theme.subtitle))
-                        .font(.system(size: 11))
-                        .foregroundStyle(HWTheme.secondaryText)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
             }
-            .padding(11)
-            .frame(width: 154, alignment: .topLeading)
-            .frame(minHeight: 118, alignment: .topLeading)
-            .background(isSelected ? HWTheme.mint.opacity(0.25) : HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .foregroundStyle(isSelected ? HWTheme.primaryText : HWTheme.secondaryText)
+            .padding(.horizontal, 10)
+            .frame(minWidth: 92, maxWidth: 124, alignment: .leading)
+            .frame(height: 36)
+            .background(isSelected ? HWTheme.mint.opacity(0.28) : HWTheme.fieldBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.58) : HWTheme.cardBorder.opacity(0.56), lineWidth: 0.9)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.65) : HWTheme.cardBorder.opacity(0.5), lineWidth: isSelected ? 1.1 : 0.8)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var widgetCounter: some View {
@@ -452,58 +404,55 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
-    private var contactCard: some View {
+    private var appInfoCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(appLanguage.text("联系客服"))
-                    .font(.system(size: 17, weight: .medium))
+            Text(appLanguage.text("关于 App"))
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(HWTheme.primaryText)
+
+            HStack(spacing: 10) {
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+
+                Text(appLanguage.text("候物 AwaitGoods"))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
-                Text(appLanguage.text("有任何问题或建议，欢迎联系我们。"))
-                    .font(.system(size: 13))
-                    .foregroundStyle(HWTheme.secondaryText)
+
+                Spacer(minLength: 0)
             }
 
-            HStack(spacing: 8) {
-                if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
-                    Link(destination: supportEmailURL) {
-                        HStack(spacing: 10) {
-                            Image(systemName: "envelope.fill")
-                                .font(.system(size: 14, weight: .regular))
-                                .foregroundStyle(HWTheme.freshGreen)
-                                .frame(width: 24, height: 24)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(appLanguage.text("邮箱支持"))
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(HWTheme.secondaryText)
-                                Text(supportEmail)
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundStyle(HWTheme.primaryText)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.82)
-                            }
-
-                            Spacer(minLength: 4)
-
-                            Image(systemName: "arrow.up.right")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(HWTheme.tertiaryText)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Button(action: copySupportEmail) {
-                    Image(systemName: emailCopied ? "checkmark" : "doc.on.doc")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(emailCopied ? HWTheme.freshGreen : HWTheme.tertiaryText)
-                        .frame(width: 32, height: 32)
-                        .background(HWTheme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
+                Link(destination: supportEmailURL) {
+                    settingsExternalLinkLabel(appLanguage.text("联系客服"), value: supportEmail, icon: "envelope")
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(appLanguage.text("复制邮箱"))
+            }
+
+            Link(destination: AppStoreLinks.reviewURL) {
+                settingsExternalLinkLabel(appLanguage.text("去评分"), value: "App Store", icon: "star")
+            }
+            .buttonStyle(.plain)
+
+            Link(destination: AppStoreLinks.developerPageURL) {
+                settingsExternalLinkLabel(appLanguage.text("更多我的应用"), value: "App Store", icon: "square.grid.2x2")
+            }
+            .buttonStyle(.plain)
+
+            HStack(spacing: 10) {
+                rowIcon("number")
+
+                Text(appLanguage.text("版本"))
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(HWTheme.primaryText)
+
+                Spacer()
+
+                Text(appVersion)
+                    .font(.system(size: 13).monospacedDigit())
+                    .foregroundStyle(HWTheme.secondaryText)
             }
             .padding(10)
             .background(HWTheme.fieldBackground)
@@ -512,59 +461,29 @@ struct SettingsView: View {
         .settingsGroup()
     }
 
-    private var appInfoCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(appLanguage.text("关于 App"))
-                .font(.system(size: 17, weight: .medium))
+    private func settingsExternalLinkLabel(_ title: String, value: String, icon: String) -> some View {
+        HStack(spacing: 10) {
+            rowIcon(icon)
+
+            Text(title)
+                .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(HWTheme.primaryText)
 
-            HStack(spacing: 10) {
-                Image(systemName: "bag")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(HWTheme.freshGreen)
-                    .frame(width: 40, height: 40)
-                    .background(HWTheme.mint.opacity(0.22))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            Spacer(minLength: 8)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(appLanguage.text("候物 AwaitGoods"))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(HWTheme.primaryText)
+            Text(value)
+                .font(.system(size: 12))
+                .foregroundStyle(HWTheme.secondaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
 
-                    Text("v1.0.6 · \(appLanguage.text("极简愿望清单与购物清单"))")
-                        .font(.system(size: 13))
-                        .foregroundStyle(HWTheme.secondaryText)
-                }
-
-                Spacer(minLength: 0)
-            }
-
-            if let developerPageURL {
-                Link(destination: developerPageURL) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "square.grid.2x2")
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(HWTheme.freshGreen)
-                            .frame(width: 24, height: 24)
-
-                        Text(appLanguage.text("更多我的应用"))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(HWTheme.primaryText)
-
-                        Spacer()
-
-                        Image(systemName: "arrow.up.right")
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundStyle(HWTheme.tertiaryText)
-                    }
-                    .padding(10)
-                    .background(HWTheme.fieldBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                }
-                .buttonStyle(.plain)
-            }
+            Image(systemName: "arrow.up.right")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(HWTheme.tertiaryText)
         }
-        .settingsGroup()
+        .padding(10)
+        .background(HWTheme.fieldBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func clearAll() {
@@ -572,32 +491,6 @@ struct SettingsView: View {
         items.forEach { modelContext.delete($0) }
         try? modelContext.save()
         onChange()
-    }
-
-    private func copySupportEmail() {
-        UIPasteboard.general.string = supportEmail
-        emailCopied = true
-        showContactToast()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            emailCopied = false
-        }
-    }
-
-    private func showContactToast() {
-        let toastToken = UUID()
-        contactToastToken = toastToken
-
-        withAnimation(.easeInOut(duration: 0.18)) {
-            contactToastVisible = true
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-            guard contactToastToken == toastToken else { return }
-            withAnimation(.easeInOut(duration: 0.18)) {
-                contactToastVisible = false
-            }
-        }
     }
 
     private func handleImportSelection(_ result: Result<[URL], Error>) {

@@ -135,7 +135,13 @@ struct WishListView: View {
     }
 
     private var editorSheet: some View {
-        WishEditorView(item: editingItem, existingItems: activeItems) { _ in
+        let isCreatingItem = editingItem == nil
+
+        return WishEditorView(item: editingItem, existingItems: activeItems) { _ in
+            if isCreatingItem {
+                selectedStatus = .waiting
+                sortMode = .manual
+            }
             persistChanges()
         }
     }
@@ -859,7 +865,7 @@ struct WishListView: View {
 
     private func quickAdd() {
         guard canQuickAdd else { return }
-        let nextIndex = (activeItems.map(\.sortIndex).max() ?? -1) + 1
+        let nextIndex = WishSortIndexPolicy.prepareForNewItem(existingItems: activeItems)
         let newItem = WishItem(
             title: trimmedQuickAddTitle,
             price: quickAddParsedPrice,
@@ -875,6 +881,7 @@ struct WishListView: View {
         newItem.reconcileSavingsStatus()
         modelContext.insert(newItem)
         selectedStatus = .waiting
+        sortMode = .manual
         persistChanges()
         closeQuickAddSheet()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()

@@ -691,7 +691,7 @@ struct WishEditorView: View {
             item.updatedAt = Date()
             savedItem = item
         } else {
-            let nextIndex = (existingItems.map(\.sortIndex).max() ?? -1) + 1
+            let nextIndex = WishSortIndexPolicy.prepareForNewItem(existingItems: existingItems)
             let newItem = WishItem(
                 title: trimmedTitle,
                 price: parsedPrice,

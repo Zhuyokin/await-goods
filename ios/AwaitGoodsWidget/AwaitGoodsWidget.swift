@@ -128,9 +128,11 @@ struct AwaitGoodsWidgetView: View {
 
     private func widgetHeader(compact: Bool) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "bag")
-                .font(.system(size: compact ? 13 : 14, weight: .regular))
-                .foregroundStyle(WidgetPalette.green)
+            Image("WidgetAppIcon")
+                .resizable()
+                .scaledToFit()
+                .frame(width: compact ? 18 : 20, height: compact ? 18 : 20)
+                .clipShape(RoundedRectangle(cornerRadius: compact ? 4 : 5, style: .continuous))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(copy.appName)
