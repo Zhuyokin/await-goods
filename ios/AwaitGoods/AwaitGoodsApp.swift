@@ -32,6 +32,7 @@ struct AwaitGoodsApp: App {
 
     init() {
         NotificationScheduler.configure()
+        WatchSyncService.shared.configure(modelContainer: modelContainer)
     }
 
     var body: some Scene {

@@ -3,6 +3,8 @@ import WidgetKit
 
 enum WidgetSyncService {
     static func sync(items: [WishItem], limit: Int = 5) {
+        WatchSyncService.shared.sync(items: items)
+
         let snapshots = items
             .filter { !$0.isTrashed && $0.status == .waiting }
             .sorted { lhs, rhs in

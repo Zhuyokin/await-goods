@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */; };
 		007348111EE05520A1EBF50B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1F63F0A2808DAB7012964E /* StatsView.swift */; };
+		01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */; };
 		1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BFD927CCD956A68378D2F1 /* OnboardingView.swift */; };
 		1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3A086528642C745606CD7EAC /* InfoPlist.strings */; };
+		26F4888BF50E347A9A6A378A /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9BC5E1F37B8597DCA6B146 /* WatchSyncService.swift */; };
 		29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EE328A30A60851158B84DC /* MainTabView.swift */; };
 		2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */; };
-		F10700000000000000000002 /* WishReminderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10700000000000000000001 /* WishReminderMessage.swift */; };
 		2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */; };
 		30B7FFCAE9CE42716427F35C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5D56B18AE13651F8167A705 /* Localizable.strings */; };
 		3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2653E608D5681E19C79E2CC /* SettingsView.swift */; };
@@ -22,18 +22,25 @@
 		4AE07D9F619E17919342E861 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */; };
 		52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5C55ADED2249C0FB071C /* WishItem.swift */; };
 		54716D683573B89F8270A22B /* MarkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708A78E8FDF0E2F171E13882 /* MarkColor.swift */; };
+		6081F9322A1AD33252EA1984 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 105FFB82FAC21E492C9D7BA7 /* WatchSessionManager.swift */; };
+		659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005C425381D5357BFC1BB1BC /* WatchHomeView.swift */; };
 		6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */; };
-		790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */; };
+		6F2FB72D0B0CFBA1B23E4503 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
 		702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00133B432093F41F0FC4B014 /* EmptyStateView.swift */; };
+		746632869F5D2CE56A532969 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
+		790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */; };
 		843235594D7CBAE172C31250 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */; };
 		85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8417533398FE2DB01C3EA65F /* WishPriority.swift */; };
 		8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
+		96975D4B7120CFF47F6D04E4 /* AwaitGoodsWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1875F62F091465AAED568 /* AwaitGoodsWatchApp.swift */; };
+		9B25F6D65FB9AEC21695F4AD /* 候物.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3F5B1D70B08DD2BD619CDA70 /* 候物.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */; };
 		9F9D3DAD43A518783D42C0D6 /* AwaitGoodsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A26F543F1702E01D6CEFA9A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 786489027F0F1B71F922271A /* Assets.xcassets */; };
 		A31A090FB2553369506A0C6A /* HWTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385568F103509773D3A07A67 /* HWTheme.swift */; };
 		A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF262B512826CB029A457C94 /* WishDetailView.swift */; };
 		A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */; };
+		B06760D4F2A223538954E4DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */; };
 		B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */; };
 		BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */; };
 		C0366C5697BE19B915941584 /* WishRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB35C22516A74C1F747CD7F /* WishRowView.swift */; };
@@ -43,10 +50,19 @@
 		E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
 		E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */; };
 		E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E8C33675EC2CB045CBCF087 /* WishListView.swift */; };
+		EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
+		F66885F7D60E4137E6D9A734 /* WishReminderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C43882A59B65025564BC78 /* WishReminderMessage.swift */; };
 		F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		6269E2BF01D86A163B2FA553 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68CB02E782CC70D322B849AC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 082DDED0EFEFF06B5720B382;
+			remoteInfo = AwaitGoodsWatch;
+		};
 		F955F6CDF833FE078E85F327 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 68CB02E782CC70D322B849AC /* Project object */;
@@ -68,18 +84,33 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D96F47A9628EB57AF2C42F2E /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				9B25F6D65FB9AEC21695F4AD /* 候物.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00133B432093F41F0FC4B014 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		005C425381D5357BFC1BB1BC /* WatchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeView.swift; sourceTree = "<group>"; };
 		00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
 		03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSeedService.swift; sourceTree = "<group>"; };
 		0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishEditorView.swift; sourceTree = "<group>"; };
 		0AB35C22516A74C1F747CD7F /* WishRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishRowView.swift; sourceTree = "<group>"; };
+		105FFB82FAC21E492C9D7BA7 /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
 		183643EAFFF7A43F3C1BF584 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncService.swift; sourceTree = "<group>"; };
 		385568F103509773D3A07A67 /* HWTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HWTheme.swift; sourceTree = "<group>"; };
+		3D9BC5E1F37B8597DCA6B146 /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
 		3E8C33675EC2CB045CBCF087 /* WishListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishListView.swift; sourceTree = "<group>"; };
+		3F5B1D70B08DD2BD619CDA70 /* 候物.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWidget.swift; sourceTree = "<group>"; };
 		44BFD927CCD956A68378D2F1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
@@ -88,15 +119,17 @@
 		52EE328A30A60851158B84DC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		598489FCE453058291FD72FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		61E4D95575BCE5B2F683F77F /* AwaitGoodsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoodsWidget.entitlements; sourceTree = "<group>"; };
+		66C43882A59B65025564BC78 /* WishReminderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishReminderMessage.swift; sourceTree = "<group>"; };
 		708A78E8FDF0E2F171E13882 /* MarkColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkColor.swift; sourceTree = "<group>"; };
+		727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		786489027F0F1B71F922271A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWaitPeriod.swift; sourceTree = "<group>"; };
 		7B3BA0C7DCF4FFE9D3E95506 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
-		7F9D30342D0BC5C3F48A78F9 /* 候物.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7F9D30342D0BC5C3F48A78F9 /* 候物.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		83F51BB09909F523764B4634 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		8417533398FE2DB01C3EA65F /* WishPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishPriority.swift; sourceTree = "<group>"; };
 		84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
-		F10700000000000000000001 /* WishReminderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishReminderMessage.swift; sourceTree = "<group>"; };
+		87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWishSnapshot.swift; sourceTree = "<group>"; };
 		900A7A734584BB47390FDEE2 /* AwaitGoods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoods.entitlements; sourceTree = "<group>"; };
 		927A5C55ADED2249C0FB071C /* WishItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItem.swift; sourceTree = "<group>"; };
 		9FD3B79C081515AF09D85D10 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -107,7 +140,9 @@
 		C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5287735703579D6E51D6BAC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
+		CDD1875F62F091465AAED568 /* AwaitGoodsWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWatchApp.swift; sourceTree = "<group>"; };
 		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5B353EBF6ED4DA3E4377701 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DB922D7306202AE976DE4560 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DD1F63F0A2808DAB7012964E /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		E2653E608D5681E19C79E2CC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -130,15 +165,29 @@
 		21E649D51EFD8A4804667F39 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */,
 				AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		2CEE4043AB276607C5AEA216 /* AwaitGoodsWatch */ = {
+			isa = PBXGroup;
+			children = (
+				727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */,
+				CDD1875F62F091465AAED568 /* AwaitGoodsWatchApp.swift */,
+				D5B353EBF6ED4DA3E4377701 /* Info.plist */,
+				005C425381D5357BFC1BB1BC /* WatchHomeView.swift */,
+				105FFB82FAC21E492C9D7BA7 /* WatchSessionManager.swift */,
+			);
+			path = AwaitGoodsWatch;
 			sourceTree = "<group>";
 		};
 		30725060956A3B3EBDE6BBCD = {
 			isa = PBXGroup;
 			children = (
 				3A05756FFB906584B4D79286 /* AwaitGoods */,
+				2CEE4043AB276607C5AEA216 /* AwaitGoodsWatch */,
 				9DDD83468F435680B473E561 /* AwaitGoodsWidget */,
 				21E649D51EFD8A4804667F39 /* Shared */,
 				F44BDB8A4230ED0EE4C14F19 /* Products */,
@@ -195,8 +244,9 @@
 			children = (
 				84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */,
 				03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */,
-				F10700000000000000000001 /* WishReminderMessage.swift */,
+				3D9BC5E1F37B8597DCA6B146 /* WatchSyncService.swift */,
 				2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */,
+				66C43882A59B65025564BC78 /* WishReminderMessage.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -211,9 +261,9 @@
 				78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */,
 				708A78E8FDF0E2F171E13882 /* MarkColor.swift */,
 				927A5C55ADED2249C0FB071C /* WishItem.swift */,
-				F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */,
 				C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */,
 				8417533398FE2DB01C3EA65F /* WishPriority.swift */,
+				F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -233,6 +283,7 @@
 			isa = PBXGroup;
 			children = (
 				7F9D30342D0BC5C3F48A78F9 /* 候物.app */,
+				3F5B1D70B08DD2BD619CDA70 /* 候物.app */,
 				D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */,
 			);
 			name = Products;
@@ -241,6 +292,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		082DDED0EFEFF06B5720B382 /* AwaitGoodsWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2C9EB7001FEEAA983D3CDEC /* Build configuration list for PBXNativeTarget "AwaitGoodsWatch" */;
+			buildPhases = (
+				DEFE7A6D93CF6168E7756CEE /* Sources */,
+				D04B60ECBAE28E7E7A63D8F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AwaitGoodsWatch;
+			packageProductDependencies = (
+			);
+			productName = AwaitGoodsWatch;
+			productReference = 3F5B1D70B08DD2BD619CDA70 /* 候物.app */;
+			productType = "com.apple.product-type.application";
+		};
 		AB2BD341F07B30547403BE4A /* AwaitGoodsWidgetExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 50C61A6281A4766A0801FE23 /* Build configuration list for PBXNativeTarget "AwaitGoodsWidgetExtension" */;
@@ -266,11 +335,13 @@
 				80C751AA7745E468CB1A8B25 /* Sources */,
 				97A0F57D36184A9D1E43A85C /* Resources */,
 				20059205C643A3536646BAA0 /* Embed Foundation Extensions */,
+				D96F47A9628EB57AF2C42F2E /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				BF242FFECA643EE283244D46 /* PBXTargetDependency */,
+				1C7168E370C55CDABF6FE0A1 /* PBXTargetDependency */,
 			);
 			name = AwaitGoods;
 			packageProductDependencies = (
@@ -288,6 +359,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					082DDED0EFEFF06B5720B382 = {
+						DevelopmentTeam = 96DQ7VQS3P;
+						ProvisioningStyle = Automatic;
+					};
 					AB2BD341F07B30547403BE4A = {
 						DevelopmentTeam = 96DQ7VQS3P;
 						ProvisioningStyle = Automatic;
@@ -315,6 +390,7 @@
 			projectRoot = "";
 			targets = (
 				BB9465ECF6E5C882A69DA8AD /* AwaitGoods */,
+				082DDED0EFEFF06B5720B382 /* AwaitGoodsWatch */,
 				AB2BD341F07B30547403BE4A /* AwaitGoodsWidgetExtension */,
 			);
 		};
@@ -340,6 +416,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D04B60ECBAE28E7E7A63D8F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B06760D4F2A223538954E4DC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -362,20 +446,22 @@
 				2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */,
 				1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */,
 				A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */,
-				F10700000000000000000002 /* WishReminderMessage.swift in Sources */,
 				3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */,
 				007348111EE05520A1EBF50B /* StatsView.swift in Sources */,
 				CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */,
+				26F4888BF50E347A9A6A378A /* WatchSyncService.swift in Sources */,
+				746632869F5D2CE56A532969 /* WatchWishSnapshot.swift in Sources */,
 				2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */,
 				A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */,
 				9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */,
 				52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */,
-				01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */,
 				B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */,
 				E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */,
 				85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */,
+				F66885F7D60E4137E6D9A734 /* WishReminderMessage.swift in Sources */,
 				C0366C5697BE19B915941584 /* WishRowView.swift in Sources */,
 				E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */,
+				01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,13 +470,30 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */,
+				EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */,
 				8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEFE7A6D93CF6168E7756CEE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96975D4B7120CFF47F6D04E4 /* AwaitGoodsWatchApp.swift in Sources */,
+				659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */,
+				6081F9322A1AD33252EA1984 /* WatchSessionManager.swift in Sources */,
+				6F2FB72D0B0CFBA1B23E4503 /* WatchWishSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1C7168E370C55CDABF6FE0A1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 082DDED0EFEFF06B5720B382 /* AwaitGoodsWatch */;
+			targetProxy = 6269E2BF01D86A163B2FA553 /* PBXContainerItemProxy */;
+		};
 		BF242FFECA643EE283244D46 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB2BD341F07B30547403BE4A /* AwaitGoodsWidgetExtension */;
@@ -473,12 +576,34 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
+		};
+		29E187B2AAD62ADDBB727C02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = AwaitGoodsWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app.watchkitapp;
+				PRODUCT_NAME = "候物";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
 		};
 		330FBB6AB7D0C03DFF9FF6F4 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -490,8 +615,6 @@
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoods/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "候物";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -587,10 +710,10 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
 		};
@@ -604,8 +727,6 @@
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoods/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "候物";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -643,6 +764,28 @@
 			};
 			name = Debug;
 		};
+		FC9737CB4AD9E65B0D606340 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 96DQ7VQS3P;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = AwaitGoodsWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app.watchkitapp;
+				PRODUCT_NAME = "候物";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -669,6 +812,15 @@
 			buildConfigurations = (
 				46252093B1B57791E71903FF /* Debug */,
 				2752A87FD7F93C16818A2F20 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E2C9EB7001FEEAA983D3CDEC /* Build configuration list for PBXNativeTarget "AwaitGoodsWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				29E187B2AAD62ADDBB727C02 /* Debug */,
+				FC9737CB4AD9E65B0D606340 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
