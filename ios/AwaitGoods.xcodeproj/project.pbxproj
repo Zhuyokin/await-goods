@@ -47,6 +47,7 @@
 		CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F51BB09909F523764B4634 /* StatusBadge.swift */; };
 		CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */; };
 		D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */; };
+		D744EAEA11AC5C74A792771E /* DebugSeedImages in Resources */ = {isa = PBXBuildFile; fileRef = 7AB269B8B344BD3D5B0E18EE /* DebugSeedImages */; };
 		E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
 		E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */; };
 		E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E8C33675EC2CB045CBCF087 /* WishListView.swift */; };
@@ -124,6 +125,7 @@
 		727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		786489027F0F1B71F922271A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWaitPeriod.swift; sourceTree = "<group>"; };
+		7AB269B8B344BD3D5B0E18EE /* DebugSeedImages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DebugSeedImages; sourceTree = SOURCE_ROOT; };
 		7B3BA0C7DCF4FFE9D3E95506 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		7F9D30342D0BC5C3F48A78F9 /* 候物.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		83F51BB09909F523764B4634 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 		30725060956A3B3EBDE6BBCD = {
 			isa = PBXGroup;
 			children = (
+				7AB269B8B344BD3D5B0E18EE /* DebugSeedImages */,
 				3A05756FFB906584B4D79286 /* AwaitGoods */,
 				2CEE4043AB276607C5AEA216 /* AwaitGoodsWatch */,
 				9DDD83468F435680B473E561 /* AwaitGoodsWidget */,
@@ -412,6 +415,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */,
+				D744EAEA11AC5C74A792771E /* DebugSeedImages in Resources */,
 				843235594D7CBAE172C31250 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -572,7 +576,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 1.0.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -705,7 +709,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 1.0.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -726,6 +730,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = "$(inherited) DebugSeedImages";
 				INFOPLIST_FILE = AwaitGoods/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
