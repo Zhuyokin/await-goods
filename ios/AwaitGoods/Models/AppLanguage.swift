@@ -35,6 +35,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     private static let translations: [String: [String: String]] = [
         "zhHant": [
+            "添加商品图片": "新增商品圖片",
+            "更换商品图片": "更換商品圖片",
+            "无法读取图片，请重试": "無法讀取圖片，請重試",
             "极简愿望清单与购物清单": "極簡願望清單與購物清單",
             "本地提醒": "本機提醒",
             "提醒我再做决定": "提醒我再做決定",
@@ -238,6 +241,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日先不急著擁有"
         ],
         "en": [
+            "添加商品图片": "Add product photo",
+            "更换商品图片": "Change product photo",
+            "无法读取图片，请重试": "Unable to load photo. Please try again.",
             "极简愿望清单与购物清单": "Minimal wish & shopping lists",
             "本地提醒": "Local reminder",
             "提醒我再做决定": "Remind me to decide",
@@ -461,6 +467,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "No need to own it today"
         ],
         "ja": [
+            "添加商品图片": "商品写真を追加",
+            "更换商品图片": "商品写真を変更",
+            "无法读取图片，请重试": "写真を読み込めません。もう一度お試しください。",
             "极简愿望清单与购物清单": "ミニマルな欲しいもの・買い物リスト",
             "本地提醒": "ローカル通知",
             "提醒我再做决定": "もう一度考える時間を通知",
@@ -630,6 +639,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日はまだ所有を急がない"
         ],
         "fr": [
+            "添加商品图片": "Ajouter une photo",
+            "更换商品图片": "Changer la photo",
+            "无法读取图片，请重试": "Impossible de charger la photo. Réessayez.",
             "极简愿望清单与购物清单": "Listes minimalistes de souhaits et d’achats",
             "本地提醒": "Rappel local",
             "提醒我再做决定": "Me rappeler de décider",
@@ -803,6 +815,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Pas besoin de posséder aujourd’hui"
         ],
         "de": [
+            "添加商品图片": "Produktfotos hinzufügen",
+            "更换商品图片": "Produktfoto ändern",
+            "无法读取图片，请重试": "Foto konnte nicht geladen werden. Bitte erneut versuchen.",
             "极简愿望清单与购物清单": "Minimalistische Wunsch- und Einkaufslisten",
             "本地提醒": "Lokale Erinnerung",
             "提醒我再做决定": "An die Entscheidung erinnern",
@@ -976,6 +991,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Heute muss es nicht sofort Ihnen gehören"
         ],
         "it": [
+            "添加商品图片": "Aggiungi foto prodotto",
+            "更换商品图片": "Cambia foto prodotto",
+            "无法读取图片，请重试": "Impossibile caricare la foto. Riprova.",
             "极简愿望清单与购物清单": "Liste minimaliste dei desideri e degli acquisti",
             "本地提醒": "Promemoria locale",
             "提醒我再做决定": "Ricordami di decidere",
@@ -1149,6 +1167,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Oggi non serve possederlo subito"
         ],
         "ko": [
+            "添加商品图片": "상품 사진 추가",
+            "更换商品图片": "상품 사진 변경",
+            "无法读取图片，请重试": "사진을 불러올 수 없습니다. 다시 시도해 주세요.",
             "极简愿望清单与购物清单": "미니멀 위시리스트와 쇼핑 목록",
             "本地提醒": "로컬 알림",
             "提醒我再做决定": "다시 결정하도록 알림",

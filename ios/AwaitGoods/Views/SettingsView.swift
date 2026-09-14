@@ -590,6 +590,7 @@ private struct WishItemExport: Codable {
     let status: String
     let markColor: String
     let savedAmount: Double
+    let photoData: Data?
     let reminderDate: Date?
     let notifyEnabled: Bool?
     let sortIndex: Int
@@ -606,6 +607,7 @@ private struct WishItemExport: Codable {
         priority = String(item.priority.rawValue)
         status = item.status.rawValue
         markColor = item.markColor.rawValue
+        photoData = item.photoData
         savedAmount = item.savedAmountValue
         reminderDate = item.targetDate ?? item.waitUntil
         notifyEnabled = item.notifyEnabled
@@ -630,7 +632,8 @@ private struct WishItemExport: Codable {
             updatedAt: updatedAt,
             targetDate: reminderDate,
             notifyEnabled: notifyEnabled == true && reminderDate != nil && WishItemStatus.fromBackupValue(status) == .waiting,
-            savedAmount: normalizedSavedAmount
+            savedAmount: normalizedSavedAmount,
+            photoData: photoData
         )
     }
 
@@ -643,6 +646,7 @@ private struct WishItemExport: Codable {
         item.priority = WishPriority.fromBackupValue(priority)
         item.status = WishItemStatus.fromBackupValue(status)
         item.markColor = MarkColor.fromBackupValue(markColor)
+        item.photoData = photoData
         item.savedAmountValue = normalizedSavedAmount
         item.waitUntil = nil
         item.targetDate = reminderDate

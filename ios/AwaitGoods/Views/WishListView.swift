@@ -33,6 +33,8 @@ struct WishListView: View {
     @State private var linkCopiedToastToken = UUID()
     @State private var changeEffect: WishChangeEffect?
     @State private var changeEffectToken = UUID()
+    @State private var quickAddPhotoData: Data?
+    @State private var isQuickAddPhotoLoading = false
     @State private var quickAddTitle = ""
     @State private var quickAddPriceText = ""
     @State private var quickAddSavedText = ""
@@ -492,6 +494,8 @@ struct WishListView: View {
                             .submitLabel(.done)
                     }
 
+                    WishPhotoPicker(photoData: $quickAddPhotoData, isLoading: $isQuickAddPhotoLoading)
+
                     quickCategorySuggestions
 
                     if let quickAddValidationMessage {
@@ -509,7 +513,7 @@ struct WishListView: View {
                             .background(canQuickAdd ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.72))
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    .disabled(!canQuickAdd)
+                    .disabled(!canQuickAdd || isQuickAddPhotoLoading)
                     .buttonStyle(.plain)
                 }
                 .padding(18)
@@ -864,7 +868,7 @@ struct WishListView: View {
     }
 
     private func quickAdd() {
-        guard canQuickAdd else { return }
+        guard canQuickAdd && !isQuickAddPhotoLoading else { return }
         let nextIndex = WishSortIndexPolicy.prepareForNewItem(existingItems: activeItems)
         let newItem = WishItem(
             title: trimmedQuickAddTitle,
@@ -876,7 +880,8 @@ struct WishListView: View {
             markColor: .none,
             sortIndex: nextIndex,
             notifyEnabled: false,
-            savedAmount: quickAddParsedSavedAmount
+            savedAmount: quickAddParsedSavedAmount,
+            photoData: quickAddPhotoData
         )
         newItem.reconcileSavingsStatus()
         modelContext.insert(newItem)
@@ -893,6 +898,8 @@ struct WishListView: View {
     }
 
     private func resetQuickAddDraft() {
+        quickAddPhotoData = nil
+        isQuickAddPhotoLoading = false
         quickAddTitle = ""
         quickAddPriceText = ""
         quickAddSavedText = ""

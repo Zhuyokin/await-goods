@@ -20,6 +20,7 @@ final class WishItem {
     var notifyEnabled: Bool
     var savedAmount: Double?
     var trashedAt: Date?
+    @Attribute(.externalStorage) var photoData: Data?
 
     init(
         id: UUID = UUID(),
@@ -38,7 +39,8 @@ final class WishItem {
         targetDate: Date? = nil,
         notifyEnabled: Bool = false,
         savedAmount: Double? = nil,
-        trashedAt: Date? = nil
+        trashedAt: Date? = nil,
+        photoData: Data? = nil
     ) {
         self.id = id
         self.title = title
@@ -57,6 +59,7 @@ final class WishItem {
         self.notifyEnabled = notifyEnabled
         self.savedAmount = savedAmount
         self.trashedAt = trashedAt
+        self.photoData = photoData
     }
 
     var status: WishItemStatus {

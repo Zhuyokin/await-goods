@@ -58,6 +58,8 @@ struct WishEditorView: View {
     let onCancel: (() -> Void)?
     let onSave: (WishItem) -> Void
 
+    @State private var photoData: Data?
+    @State private var isPhotoLoading = false
     @State private var title: String
     @State private var priceText: String
     @State private var savedText: String
@@ -88,6 +90,7 @@ struct WishEditorView: View {
         self.onCancel = onCancel
         self.onSave = onSave
 
+        _photoData = State(initialValue: item?.photoData)
         _title = State(initialValue: item?.title ?? "")
         _priceText = State(initialValue: item?.price.map { String(format: "%.2f", $0) } ?? "")
         _savedText = State(initialValue: (item?.savedAmountValue ?? 0) > 0 ? String(format: "%.2f", item?.savedAmountValue ?? 0) : "")
@@ -254,13 +257,6 @@ struct WishEditorView: View {
     private var basicInfoStep: some View {
         editorSection(appLanguage.text("基本信息"), subtitle: appLanguage.text("先把想要的东西记清楚")) {
             HStack(spacing: 12) {
-                Image(systemName: addType.icon)
-                    .font(.system(size: 28, weight: .regular))
-                    .foregroundStyle(HWTheme.freshGreen)
-                    .frame(width: 82, height: 82)
-                    .background(HWTheme.mint.opacity(0.18))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-
                 VStack(alignment: .leading, spacing: 4) {
                     Text(appLanguage.text("名称"))
                         .font(.system(size: 13, weight: .medium))
@@ -274,6 +270,8 @@ struct WishEditorView: View {
             .padding(12)
             .background(HWTheme.fieldBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            WishPhotoPicker(photoData: $photoData, isLoading: $isPhotoLoading)
 
             softTextField(appLanguage.text("链接"), placeholder: appLanguage.text("商品链接，可选"), text: $linkString, icon: "link")
                 .keyboardType(.URL)
@@ -596,7 +594,7 @@ struct WishEditorView: View {
     }
 
     private var canAdvanceCurrentStep: Bool {
-        if editorStep == basicStep { return canContinueFromBasic }
+        if editorStep == basicStep { return canContinueFromBasic && !isPhotoLoading }
         if editorStep == budgetStep { return amountValidationMessage == nil }
         return true
     }
@@ -624,7 +622,7 @@ struct WishEditorView: View {
     }
 
     private var canSave: Bool {
-        !trimmedTitle.isEmpty &&
+        !trimmedTitle.isEmpty && !isPhotoLoading &&
             amountValidationMessage == nil &&
             (!notifyEnabled || reminderDate > Date())
     }
@@ -672,6 +670,7 @@ struct WishEditorView: View {
         let savedItem: WishItem
 
         if let item {
+            item.photoData = photoData
             item.title = trimmedTitle
             item.price = parsedPrice
             item.savedAmountValue = parsedSavedAmount
@@ -703,7 +702,8 @@ struct WishEditorView: View {
                 sortIndex: nextIndex,
                 targetDate: notifyEnabled ? reminderDate : nil,
                 notifyEnabled: notifyEnabled,
-                savedAmount: parsedSavedAmount
+                savedAmount: parsedSavedAmount,
+                photoData: photoData
             )
             newItem.reconcileSavingsStatus()
             if newItem.status != .waiting {

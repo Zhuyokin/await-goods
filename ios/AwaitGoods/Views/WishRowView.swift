@@ -1,8 +1,11 @@
+import ImageIO
+import PhotosUI
 import SwiftUI
 import UIKit
 
 struct WishRowView: View {
     @Environment(\.appLanguage) private var appLanguage
+    @ScaledMetric(relativeTo: .body) private var photoWidth = 88.0
 
     let item: WishItem
     let isEditing: Bool
@@ -13,96 +16,88 @@ struct WishRowView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if item.markColor != .none {
-                Rectangle()
-                    .fill(HWTheme.markColor(item.markColor))
-                    .frame(width: 3)
+            if isEditing {
+                Button(action: onCheck) {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(isSelected ? HWTheme.freshGreen : HWTheme.tertiaryText)
+                        .frame(width: 32, height: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(appLanguage.text("整理清单"))
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
 
-            thumbnail
-
             Button(action: onOpen) {
-                HStack(alignment: .top, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(item.title)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(item.status == .released ? HWTheme.secondaryText : HWTheme.primaryText)
-                            .strikethrough(item.status == .released, color: HWTheme.secondaryText)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .top, spacing: 12) {
+                    WishPhoto(
+                        data: item.photoData,
+                        width: min(photoWidth, 112),
+                        height: 112,
+                        fallbackIcon: thumbnailIcon,
+                        fallbackColor: thumbnailColor
+                    )
+                        .accessibilityHidden(true)
 
-                        HStack(spacing: 6) {
-                            statusDot
-                            Text(subtitle)
-                                .font(.system(size: 13))
-                                .foregroundStyle(HWTheme.secondaryText)
-                                .lineLimit(1)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Text(item.title)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(HWTheme.primaryText)
+                                .strikethrough(item.status == .released, color: HWTheme.secondaryText)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            priorityBadge
                         }
 
-                        if item.savingsTarget != nil {
-                            savingsProgressSummary
-                            savingsBar
+                        Text(appLanguage.text(item.category.isEmpty ? "未分类" : item.category))
+                            .font(.system(size: 12))
+                            .foregroundStyle(HWTheme.secondaryText)
+                            .lineLimit(1)
+
+                        HStack(spacing: 8) {
+                            Text(item.price.map(moneyText) ?? appLanguage.text("目标未定"))
+                                .font(.system(size: 19, weight: .semibold).monospacedDigit())
+                                .foregroundStyle(HWTheme.primaryText)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundStyle(HWTheme.tertiaryText)
+                                .accessibilityHidden(true)
+                        }
+
+                        if let target = item.savingsTarget {
+                            Text("\(appLanguage.text("已存")) \(moneyText(item.savedAmountValue)) / \(moneyText(target))")
+                                .font(.system(size: 11).monospacedDigit())
+                                .foregroundStyle(HWTheme.secondaryText)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                            HStack(spacing: 8) {
+                                WishProgressBar(progress: item.savingsProgress)
+                                Text("\(Int((item.savingsProgress * 100).rounded()))%")
+                                    .font(.system(size: 11).monospacedDigit())
+                                    .foregroundStyle(HWTheme.secondaryText)
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-
-                    trailingMeta
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-
-            if let onMore, !isEditing {
-                Button(action: onMore) {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(HWTheme.tertiaryText)
-                        .frame(width: 32, height: 32)
-                        .background(HWTheme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                }
-                .buttonStyle(.plain)
-            }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 11)
+        .padding(12)
         .background(HWTheme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.68), lineWidth: 0.8)
-        )
-        .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
-    }
-
-    private var thumbnail: some View {
-        Button(action: onCheck) {
-            ZStack(alignment: .bottomLeading) {
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .fill(bubbleColor.opacity(0.11))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 13, style: .continuous)
-                            .stroke(bubbleColor.opacity(0.22), lineWidth: 0.8)
-                    )
-
-                Image(systemName: thumbnailIcon)
-                    .font(.system(size: 27, weight: .regular))
-                    .foregroundStyle(bubbleColor)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                Image(systemName: bubbleIcon)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(bubbleColor)
-                    .frame(width: 27, height: 27)
-                    .background(HWTheme.cardBackground)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(HWTheme.cardBorder.opacity(0.6), lineWidth: 0.7))
-                    .offset(x: -5, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .shadow(color: HWTheme.softShadow.opacity(0.5), radius: 8, x: 0, y: 3)
+        .contextMenu {
+            if let onMore, !isEditing {
+                Button(appLanguage.text("编辑"), systemImage: "pencil", action: onMore)
             }
-            .frame(width: 68, height: 76)
         }
-        .buttonStyle(.plain)
     }
 
     private var thumbnailIcon: String {
@@ -117,24 +112,8 @@ struct WishRowView: View {
         return "bag"
     }
 
-    private var bubbleIcon: String {
-        if isEditing { return isSelected ? "checkmark" : "circle" }
-        return item.status.iconName
-    }
-
-    private var bubbleColor: Color {
-        if isEditing { return isSelected ? HWTheme.freshGreen : HWTheme.tertiaryText }
+    private var thumbnailColor: Color {
         if item.markColor != .none { return HWTheme.markColor(item.markColor) }
-        return statusColor
-    }
-
-    private var statusDot: some View {
-        Image(systemName: "circle.fill")
-            .font(.system(size: 5, weight: .regular))
-            .foregroundStyle(statusColor)
-    }
-
-    private var statusColor: Color {
         switch item.status {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
@@ -144,104 +123,134 @@ struct WishRowView: View {
 
     private var priorityBadge: some View {
         HStack(spacing: 4) {
-            Circle()
-                .fill(priorityColor)
-                .frame(width: 5, height: 5)
-
+            Circle().fill(priorityColor).frame(width: 4, height: 4)
             Text(appLanguage.text(item.priority.title))
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: 10, weight: .medium))
         }
         .foregroundStyle(priorityColor)
         .padding(.horizontal, 7)
-        .padding(.vertical, 3)
-        .background(priorityColor.opacity(0.13))
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(priorityColor.opacity(0.28), lineWidth: 0.7)
-        )
-        .fixedSize(horizontal: true, vertical: false)
-        .accessibilityLabel("\(appLanguage.text(item.priority.title))\(appLanguage.text("优先级"))")
-    }
-
-    private var trailingMeta: some View {
-        VStack(alignment: .trailing, spacing: 6) {
-            priorityBadge
-
-            if let priceText {
-                Text(priceText)
-                    .font(.system(size: 17, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(HWTheme.savingsProgressColor(item.savingsProgress, isComplete: item.isSavingsComplete))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.76)
-            }
-        }
-        .frame(minWidth: 58, alignment: .topTrailing)
-        .layoutPriority(1)
+        .padding(.vertical, 4)
+        .background(priorityColor.opacity(0.10), in: Capsule())
+        .fixedSize()
+        .accessibilityLabel("\(appLanguage.text("优先级")) \(appLanguage.text(item.priority.title))")
     }
 
     private var priorityColor: Color {
         switch item.priority {
-        case .low: return HWTheme.softBlueGray
+        case .low: return HWTheme.freshGreen
         case .medium: return HWTheme.apricot
         case .high: return HWTheme.dangerRed
         }
     }
 
-    private var savingsBar: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(HWTheme.fieldBackground)
+    private func moneyText(_ value: Double) -> String {
+        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+    }
+}
 
-                Capsule()
-                    .fill(HWTheme.savingsProgressColor(item.savingsProgress, isComplete: item.isSavingsComplete))
-                    .frame(width: proxy.size.width * item.savingsProgress)
-            }
+struct WishProgressBar: View {
+    let progress: Double
+
+    var body: some View {
+        GeometryReader { geometry in
+            Capsule()
+                .fill(HWTheme.separator.opacity(0.3))
+                .overlay(alignment: .leading) {
+                    Capsule()
+                        .fill(HWTheme.freshGreen.opacity(0.8))
+                        .frame(width: geometry.size.width * min(max(progress, 0), 1))
+                }
         }
         .frame(height: 4)
-        .padding(.top, 1)
+        .accessibilityLabel(Text("\(Int((progress * 100).rounded()))%"))
     }
+}
 
-    private var savingsProgressSummary: some View {
-        HStack(spacing: 4) {
-            if let target = item.savingsTarget {
-                Text("\(appLanguage.text("已存")) \(moneyText(item.savedAmountValue)) / \(moneyText(target))")
+struct WishPhoto: View {
+    let data: Data?
+    var width: CGFloat = 82
+    var height: CGFloat = 82
+    var fallbackIcon = "photo"
+    var fallbackColor: Color = HWTheme.tertiaryText
+
+    var body: some View {
+        Group {
+            if let data, let photo = UIImage(data: data) {
+                Image(uiImage: photo)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Image(systemName: fallbackIcon)
+                    .font(.system(size: 27, weight: .regular))
+                    .foregroundStyle(fallbackColor)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(fallbackColor.opacity(0.11))
             }
-
-            Spacer(minLength: 4)
-
-            Text("\(Int((item.savingsProgress * 100).rounded()))%")
-                .fontWeight(.semibold)
-                .foregroundStyle(HWTheme.savingsProgressColor(item.savingsProgress, isComplete: item.isSavingsComplete))
         }
-        .font(.system(size: 12, weight: .regular).monospacedDigit())
-        .foregroundStyle(HWTheme.secondaryText)
-        .lineLimit(1)
-        .minimumScaleFactor(0.78)
+        .frame(width: width, height: height)
+        .background(HWTheme.fieldBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
+}
 
-    private var priceText: String? {
-        guard let price = item.price else { return nil }
-        return "$\(price.formatted(.number.precision(.fractionLength(0...2))))"
-    }
+struct WishPhotoPicker: View {
+    @Environment(\.appLanguage) private var appLanguage
+    @Binding var photoData: Data?
+    @Binding var isLoading: Bool
+    @State private var selection: PhotosPickerItem?
+    @State private var loadingRequest = UUID()
+    @State private var showingError = false
 
-    private var subtitle: String {
-        switch item.status {
-        case .bought:
-            return appLanguage.text(item.status.title)
-        case .released:
-            return appLanguage.text(item.status.title)
-        case .waiting:
-            return item.category.isEmpty ? appLanguage.text(item.status.title) : localizedCategory(item.category)
+    var body: some View {
+        HStack(spacing: 12) {
+            PhotosPicker(selection: $selection, matching: .images) {
+                HStack(spacing: 12) {
+                    WishPhoto(data: photoData, width: 64, height: 64)
+                    Text(appLanguage.text(photoData == nil ? "添加商品图片" : "更换商品图片"))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(HWTheme.freshGreen)
+                }
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 0)
+            if isLoading {
+                ProgressView()
+            } else if photoData != nil {
+                Button(appLanguage.text("删除"), role: .destructive) {
+                    selection = nil
+                    photoData = nil
+                }
+                .font(.system(size: 12))
+            }
         }
-    }
-
-    private func localizedCategory(_ category: String) -> String {
-        appLanguage.text(category)
-    }
-
-    private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        .task(id: selection) {
+            guard let selection else { return }
+            let request = UUID()
+            loadingRequest = request
+            isLoading = true
+            defer {
+                if loadingRequest == request { isLoading = false }
+            }
+            do {
+                guard let data = try await selection.loadTransferable(type: Data.self),
+                      let source = CGImageSourceCreateWithData(data as CFData, nil),
+                      let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                        kCGImageSourceCreateThumbnailFromImageAlways: true,
+                        kCGImageSourceCreateThumbnailWithTransform: true,
+                        kCGImageSourceThumbnailMaxPixelSize: 800
+                      ] as CFDictionary),
+                      let jpeg = UIImage(cgImage: thumbnail).jpegData(compressionQuality: 0.85) else {
+                    if !Task.isCancelled { showingError = true }
+                    return
+                }
+                guard !Task.isCancelled else { return }
+                photoData = jpeg
+            } catch {
+                if !Task.isCancelled { showingError = true }
+            }
+        }
+        .alert(appLanguage.text("无法读取图片，请重试"), isPresented: $showingError) {
+            Button(appLanguage.text("完成"), role: .cancel) { selection = nil }
+        }
     }
 }
