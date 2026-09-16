@@ -61,6 +61,10 @@ struct AwaitGoodsApp: App {
     }
 
     private func handleIncomingURL(_ url: URL) {
+        if url.scheme?.lowercased() == "awaitgoods", url.host?.lowercased() == "home" {
+            selectedTab = .wishList
+            return
+        }
         guard url.scheme?.lowercased() == "https",
               url.host?.lowercased() == "app-privacy-support.pages.dev"
         else { return }

@@ -24,7 +24,7 @@ struct SettingsView: View {
     private var currentLanguage: AppLanguage { AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans }
     private var currentAppearanceMode: AppAppearanceMode { AppAppearanceMode(rawValue: appearanceMode) ?? .system }
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.9"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.10"
     }
 
     var body: some View {

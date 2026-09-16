@@ -145,10 +145,12 @@ struct MainTabView: View {
             [
                 item.id.uuidString,
                 item.title,
+                item.category,
                 item.statusRawValue,
                 String(item.sortIndex),
                 String(item.price ?? 0),
                 String(item.savedAmountValue),
+                String(item.isTrashed),
                 String(item.updatedAt.timeIntervalSince1970)
             ].joined(separator: "|")
         }

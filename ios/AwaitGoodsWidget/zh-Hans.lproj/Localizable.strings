@@ -1,2 +1,8 @@
 "AwaitGoodsWidgetName" = "候物";
 "AwaitGoodsWidgetDescription" = "查看正在想买的物品。";
+"PhotoWidgetName" = "心动单品";
+"PhotoWidgetDescription" = "用商品照片和储蓄进度，记录清单中最心动的一件。";
+"SavingsWidgetName" = "心愿储蓄";
+"SavingsWidgetDescription" = "用进度圆环，看到每一份积攒离目标更近。";
+"GalleryWidgetName" = "心愿照片墙";
+"GalleryWidgetDescription" = "把心愿照片放在桌面，让期待触手可及。";

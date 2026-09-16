@@ -1,2 +1,17 @@
 "AwaitGoodsWidgetName" = "AwaitGoods";
 "AwaitGoodsWidgetDescription" = "View items you are still thinking about.";
+"PhotoWidgetName" = "In focus";
+"PhotoWidgetDescription" = "Your first wish, its photo and savings progress.";
+"SavingsWidgetName" = "Wish savings";
+"SavingsWidgetDescription" = "See how close you are to your savings goals.";
+"GalleryWidgetName" = "Wish gallery";
+"GalleryWidgetDescription" = "A photo collection of the wishes you are saving for.";
+
+"内容分组" = "Content group";
+"全部心愿" = "All wishes";
+"心愿商品" = "Wish item";
+"心愿分组" = "Wish collection";
+"独立选择这个小组件显示的内容。" = "Choose the content for this widget.";
+"心动单品" = "In focus";
+"选择分组，或指定一件商品优先展示。" = "Choose a group, or a specific item to display instead.";
+"指定商品（优先展示）" = "Specific item (takes priority)";

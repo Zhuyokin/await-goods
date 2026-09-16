@@ -1,2 +1,17 @@
 "AwaitGoodsWidgetName" = "候物";
 "AwaitGoodsWidgetDescription" = "查看正在想買的物品。";
+"PhotoWidgetName" = "心動單品";
+"PhotoWidgetDescription" = "用商品照片和儲蓄進度，記錄清單中最心動的一件。";
+"SavingsWidgetName" = "心願儲蓄";
+"SavingsWidgetDescription" = "用進度圓環，看到每一份積攢離目標更近。";
+"GalleryWidgetName" = "心願照片牆";
+"GalleryWidgetDescription" = "把心願照片放在桌面，讓期待觸手可及。";
+
+"内容分组" = "內容分組";
+"全部心愿" = "全部心願";
+"心愿商品" = "心願商品";
+"心愿分组" = "心願分組";
+"独立选择这个小组件显示的内容。" = "獨立選擇這個小組件顯示的內容。";
+"心动单品" = "心動單品";
+"选择分组，或指定一件商品优先展示。" = "選擇分組，或指定一件商品優先展示。";
+"指定商品（优先展示）" = "指定商品（優先展示）";

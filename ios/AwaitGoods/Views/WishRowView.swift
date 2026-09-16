@@ -188,8 +188,15 @@ struct WishPhoto: View {
             }
         }
         .frame(width: width, height: height)
-        .background(HWTheme.fieldBackground)
+        .background(photoBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var photoBackground: Color {
+        #if DEBUG
+        if ScreenshotSeedService.isEnabled, data != nil { return .clear }
+        #endif
+        return HWTheme.fieldBackground
     }
 }
 

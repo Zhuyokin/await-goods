@@ -6,13 +6,17 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
     let price: Double?
     let savedAmount: Double
     let sortIndex: Int
+    let photoFilename: String?
+    let groups: [String]
 
-    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int) {
+    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int, photoFilename: String? = nil, groups: [String] = []) {
         self.id = id
         self.title = title
         self.price = price
         self.savedAmount = savedAmount
         self.sortIndex = sortIndex
+        self.photoFilename = photoFilename
+        self.groups = groups
     }
 
     var savingsProgress: Double {
@@ -31,6 +35,8 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         case price
         case savedAmount
         case sortIndex
+        case photoFilename
+        case groups
     }
 
     init(from decoder: Decoder) throws {
@@ -40,6 +46,8 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         price = try container.decodeIfPresent(Double.self, forKey: .price)
         savedAmount = try container.decodeIfPresent(Double.self, forKey: .savedAmount) ?? 0
         sortIndex = try container.decode(Int.self, forKey: .sortIndex)
+        photoFilename = try container.decodeIfPresent(String.self, forKey: .photoFilename)
+        groups = try container.decodeIfPresent([String].self, forKey: .groups) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -49,6 +57,8 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         try container.encodeIfPresent(price, forKey: .price)
         try container.encode(savedAmount, forKey: .savedAmount)
         try container.encode(sortIndex, forKey: .sortIndex)
+        try container.encodeIfPresent(photoFilename, forKey: .photoFilename)
+        try container.encode(groups, forKey: .groups)
     }
 }
 
@@ -84,6 +94,16 @@ enum SharedAppGroup {
 enum WidgetSnapshotStore {
     private static let key = "awaitGoods.widgetSnapshot"
 
+    static var photoDirectory: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedAppGroup.identifier)?
+            .appendingPathComponent("WidgetPhotos", isDirectory: true)
+    }
+
+    static func photoURL(filename: String) -> URL? {
+        guard !filename.isEmpty, filename == (filename as NSString).lastPathComponent else { return nil }
+        return photoDirectory?.appendingPathComponent(filename)
+    }
+
     private static var defaults: UserDefaults {
         UserDefaults(suiteName: SharedAppGroup.identifier) ?? .standard
     }
@@ -108,5 +128,14 @@ enum WidgetSnapshotStore {
             return "zhHans"
         }
         return payload.languageCode
+    }
+}
+
+
+enum WidgetContentFilter {
+    static func select(_ items: [WishSnapshot], group: String?, itemID: UUID? = nil) -> [WishSnapshot] {
+        if let itemID { return items.filter { $0.id == itemID } }
+        guard let group else { return items }
+        return items.filter { $0.groups.contains(group) }
     }
 }
