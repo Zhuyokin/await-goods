@@ -2,6 +2,23 @@ import SwiftUI
 import WidgetKit
 import UIKit
 
+private enum WidgetImages {
+    // WidgetKit archives source pixels, regardless of the view's frame size.
+    // The header icon is at most 20 pt, so 60 px covers a 3x display.
+    static let appIcon: Image = {
+        guard let source = UIImage(named: "WidgetAppIcon") else {
+            return Image(systemName: "bag")
+        }
+        let size = CGSize(width: 60, height: 60)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let thumbnail = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            source.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return Image(uiImage: thumbnail)
+    }()
+}
+
 struct AwaitGoodsEntry: TimelineEntry {
     let date: Date
     let items: [WishSnapshot]
@@ -198,7 +215,7 @@ struct AwaitGoodsWidgetView: View {
 
     private func widgetHeader(compact: Bool) -> some View {
         HStack(spacing: 8) {
-            Image("WidgetAppIcon")
+            WidgetImages.appIcon
                 .resizable()
                 .scaledToFit()
                 .frame(width: compact ? 18 : 20, height: compact ? 18 : 20)
@@ -556,7 +573,7 @@ private struct WishShowcaseView: View {
 
     private var header: some View {
         HStack(spacing: 6) {
-            Image("WidgetAppIcon")
+            WidgetImages.appIcon
                 .resizable()
                 .frame(width: 16, height: 16)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
