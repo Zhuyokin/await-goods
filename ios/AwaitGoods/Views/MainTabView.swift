@@ -9,6 +9,8 @@ struct MainTabView: View {
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
     @State private var splitViewVisibility: NavigationSplitViewVisibility = .all
+    @State private var wishListStatus: WishItemStatus?
+    @State private var wishListNavigationID = UUID()
 
     private var appLanguage: AppLanguage {
         AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans
@@ -126,9 +128,14 @@ struct MainTabView: View {
     private func rootView(for tab: MainTab) -> some View {
         switch tab {
         case .wishList:
-            WishListView()
+            WishListView(selectedStatus: $wishListStatus)
+                .id(wishListNavigationID)
         case .statistics:
-            StatsView()
+            StatsView { status in
+                wishListStatus = status
+                wishListNavigationID = UUID()
+                selection = .wishList
+            }
         case .settings:
             SettingsView(items: items) {
                 WidgetSyncService.sync(items: items)

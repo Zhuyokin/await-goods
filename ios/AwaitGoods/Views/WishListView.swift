@@ -12,12 +12,13 @@ private enum QuickAddField: Hashable {
 
 struct WishListView: View {
     @Environment(\.appLanguage) private var appLanguage
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
 
     @State private var searchText = ""
     @State private var isSearchPresented = false
-    @State private var selectedStatus: WishItemStatus?
+    @Binding var selectedStatus: WishItemStatus?
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
     @State private var selectedIDs = Set<UUID>()
@@ -60,7 +61,7 @@ struct WishListView: View {
             itemScrollView
         }
         .toolbar(.hidden, for: .navigationBar)
-        .background { HWCreamLeafBackdrop() }
+        .background { WillowBackdrop() }
         .environment(\.editMode, $editMode)
         .safeAreaInset(edge: .bottom) { bottomBar }
         .sheet(isPresented: $showingQuickAddSheet, onDismiss: resetQuickAddDraft) { quickAddSheet }
@@ -89,22 +90,28 @@ struct WishListView: View {
     }
 
     private var itemScrollView: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                if displayedItems.isEmpty {
-                    EmptyStateView()
-                        .padding(.top, 48)
-                } else {
-                    ForEach(displayedItems) { item in
-                        rowView(for: item)
+        ZStack {
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    if displayedItems.isEmpty {
+                        EmptyStateView()
+                            .padding(.top, 48)
+                    } else {
+                        ForEach(displayedItems) { item in
+                            rowView(for: item)
+                        }
                     }
                 }
+                .padding(.top, 8)
+                .padding(.bottom, isEditing ? 82 : 118)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: displayedItemIDs)
             }
-            .padding(.top, 8)
-            .padding(.bottom, isEditing ? 82 : 118)
-            .animation(.spring(response: 0.34, dampingFraction: 0.82), value: displayedItemIDs)
+            .scrollDismissesKeyboard(.interactively)
+            .id(selectedStatus)
+            .transition(.opacity)
         }
-        .scrollDismissesKeyboard(.interactively)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.16), value: selectedStatus)
+        .transaction { if reduceMotion { $0.animation = nil } }
     }
 
     private func rowView(for item: WishItem) -> some View {
@@ -117,7 +124,7 @@ struct WishListView: View {
             onMore: { actionItem = item }
         )
         .padding(.horizontal, 14)
-        .transition(.asymmetric(insertion: .scale(scale: 0.96).combined(with: .opacity), removal: .move(edge: .trailing).combined(with: .opacity)))
+        .transition(.opacity)
         .onDrag {
             sortMode = .manual
             draggedItem = item
@@ -207,6 +214,7 @@ struct WishListView: View {
                         Image(systemName: isSearchPresented ? "xmark" : "magnifyingglass")
                     }
                     .buttonStyle(HeaderIconButtonStyle())
+                    .accessibilityLabel(appLanguage.text("搜索名称、备注或分类"))
 
                     Menu {
                         Section(appLanguage.text("排序")) { sortMenuContent }
@@ -221,6 +229,7 @@ struct WishListView: View {
                         Image(systemName: "slider.horizontal.3")
                     }
                     .buttonStyle(HeaderIconButtonStyle())
+                    .accessibilityLabel(appLanguage.text("整理清单"))
                 }
             }
 
@@ -234,7 +243,6 @@ struct WishListView: View {
         .padding(.horizontal, 18)
         .padding(.top, 24)
         .padding(.bottom, 14)
-        .background(HWTheme.listBackground.opacity(0.78).ignoresSafeArea(edges: .top))
         .animation(.easeInOut(duration: 0.18), value: isSearchPresented)
     }
 
@@ -309,6 +317,7 @@ struct WishListView: View {
             .shadow(color: isSelected ? HWTheme.freshGreen.opacity(0.12) : HWTheme.softShadow.opacity(0.45), radius: 2, x: 0, y: 1)
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     @ViewBuilder

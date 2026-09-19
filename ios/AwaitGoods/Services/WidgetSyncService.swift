@@ -25,7 +25,10 @@ enum WidgetSyncService {
         let languageCode = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.zhHans.rawValue
         let previousPhotos = WidgetSnapshotStore.load().compactMap(\.photoFilename)
         WidgetSnapshotStore.save(items: Array(snapshots), languageCode: languageCode)
-        removeUnusedPhotos(keeping: Set(previousPhotos + snapshots.compactMap(\.photoFilename)))
+        if let directory = WidgetSnapshotStore.photoDirectory {
+            WidgetSnapshotStore.removeUnusedPhotos(in: directory, previousFilenames: previousPhotos,
+                                                   currentFilenames: snapshots.compactMap(\.photoFilename))
+        }
         WidgetCenter.shared.reloadAllTimelines()
     }
 
@@ -60,15 +63,6 @@ enum WidgetSyncService {
             return filename
         } catch {
             return nil
-        }
-    }
-
-    private static func removeUnusedPhotos(keeping filenames: Set<String>) {
-        guard let directory = WidgetSnapshotStore.photoDirectory,
-              let urls = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
-        // Keep the previous snapshot's images until WidgetKit adopts the new timeline.
-        for url in urls where url.pathExtension == "png" && !filenames.contains(url.lastPathComponent) {
-            try? FileManager.default.removeItem(at: url)
         }
     }
 }

@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.appLanguage) private var appLanguage
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
@@ -23,67 +24,20 @@ struct SettingsView: View {
     private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
     private var currentLanguage: AppLanguage { AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans }
     private var currentAppearanceMode: AppAppearanceMode { AppAppearanceMode(rawValue: appearanceMode) ?? .system }
+    private var currentTheme: AppTheme { AppTheme(rawValue: appThemeRawValue) ?? .springPaper }
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.10"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.11"
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    settingsSection(appLanguage.text("设置")) {
-                        languageSelector
-                        appearanceSelector
-                        themeSelector
-                        widgetCounter
-                    }
-
-                    settingsSection(appLanguage.text("数据与安全")) {
-                        settingsActionRow(appLanguage.text("导入备份文件"), subtitle: appLanguage.text("从 JSON 恢复或合并候物"), icon: "square.and.arrow.down", color: HWTheme.freshGreen) {
-                            showingImporter = true
-                        }
-
-                        settingsActionRow(appLanguage.text("生成导出文件"), subtitle: appLanguage.text("保存为 JSON 备份"), icon: "doc.badge.arrow.up", color: HWTheme.linkBlue) {
-                            exportURL = makeExportFile()
-                        }
-
-                        if let exportURL {
-                            ShareLink(item: exportURL) {
-                                HStack(spacing: 11) {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.system(size: 15, weight: .regular))
-                                        .foregroundStyle(HWTheme.freshGreen)
-
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(appLanguage.text("分享导出文件"))
-                                            .font(.system(size: 15, weight: .medium))
-                                            .foregroundStyle(HWTheme.primaryText)
-
-                                        Text(appLanguage.text("文件已生成，可以发送或存到 iCloud"))
-                                            .font(.system(size: 12))
-                                            .foregroundStyle(HWTheme.secondaryText)
-                                    }
-
-                                    Spacer()
-                                }
-                                .padding(10)
-                                .background(HWTheme.fieldBackground)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            }
-                        }
-
-                        settingsActionRow(appLanguage.text("清空全部数据"), subtitle: appLanguage.text("会删除所有候物和存钱记录"), icon: "trash", color: HWTheme.dangerRed, isDestructive: true) {
-                            showingClearConfirmation = true
-                        }
-                    }
-
-                    appInfoCard
-                }
-                .padding(14)
-                .padding(.top, 6)
-                .padding(.bottom, 18)
+            List {
+                preferencesSection
+                backupSection
+                aboutSection
+                clearDataSection
             }
-            .background(HWTheme.pageBackground.ignoresSafeArea())
+            .settingsListStyle()
             .navigationTitle(appLanguage.text("设置"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -91,7 +45,6 @@ struct SettingsView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(appLanguage.text("完成")) { dismiss() }
                             .fontWeight(.medium)
-                            .foregroundStyle(HWTheme.freshGreen)
                     }
                 }
             }
@@ -110,46 +63,98 @@ struct SettingsView: View {
         }
     }
 
-    private var languageSelector: some View {
-        NavigationLink {
-            languageSelectionPage
-        } label: {
-            settingsNavigationLabel(
-                appLanguage.text("语言"),
-                icon: "globe.asia.australia",
-                value: currentLanguage.title
-            )
+    private var preferencesSection: some View {
+        Section {
+            NavigationLink {
+                languageSelectionPage
+            } label: {
+                settingsRow("语言", icon: "globe.asia.australia", value: currentLanguage.title)
+            }
+
+            NavigationLink {
+                appearanceSelectionPage
+            } label: {
+                settingsRow("外观模式", icon: "circle.lefthalf.filled", value: appLanguage.text(currentAppearanceMode.title))
+            }
+
+            NavigationLink {
+                themeSelectionPage
+            } label: {
+                settingsRow("主题配色", icon: "paintpalette", value: appLanguage.text(currentTheme.title))
+            }
+        } header: {
+            Text(appLanguage.text("外观与语言"))
         }
-        .buttonStyle(.plain)
+        .listRowBackground(HWTheme.cardBackground)
     }
 
-    private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
+    private var backupSection: some View {
+        Section {
+            Button {
+                showingImporter = true
+            } label: {
+                settingsRow("导入备份文件", icon: "square.and.arrow.down")
+            }
 
-            content()
+            Button {
+                exportURL = makeExportFile()
+            } label: {
+                settingsRow("生成导出文件", icon: "square.and.arrow.up")
+            }
+
+            if let exportURL {
+                ShareLink(item: exportURL) {
+                    settingsRow("分享导出文件", icon: "paperplane", value: appLanguage.text("文件已生成"))
+                }
+            }
+        } header: {
+            Text(appLanguage.text("数据与安全"))
+        } footer: {
+            Text(appLanguage.text("通过 JSON 文件备份、恢复或合并候物"))
         }
-        .settingsGroup()
+        .listRowBackground(HWTheme.cardBackground)
     }
 
-    private var appearanceSelector: some View {
-        NavigationLink {
-            appearanceSelectionPage
-        } label: {
-            settingsNavigationLabel(
-                appLanguage.text("外观模式"),
-                icon: "sparkles",
-                value: appLanguage.text(currentAppearanceMode.title)
-            )
+    private var aboutSection: some View {
+        Section(appLanguage.text("关于 App")) {
+            if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
+                Link(destination: supportEmailURL) {
+                    externalLinkRow("联系客服", icon: "envelope")
+                }
+            }
+
+            Link(destination: AppStoreLinks.reviewURL) {
+                externalLinkRow("去评分", icon: "star")
+            }
+
+            Link(destination: AppStoreLinks.developerPageURL) {
+                externalLinkRow("更多我的应用", icon: "square.grid.2x2")
+            }
         }
-        .buttonStyle(.plain)
+        .listRowBackground(HWTheme.cardBackground)
+    }
+
+    private var clearDataSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showingClearConfirmation = true
+            } label: {
+                settingsRow("清空全部数据", icon: "trash", color: HWTheme.dangerRed)
+            }
+        } footer: {
+            VStack(alignment: .leading, spacing: 24) {
+                Text(appLanguage.text("会删除所有候物和存钱记录"))
+                Text("\(appLanguage.text("候物 AwaitGoods")) · \(appVersion)")
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("\(appLanguage.text("候物 AwaitGoods"))，\(appLanguage.text("版本")) \(appVersion)")
+            }
+        }
+        .listRowBackground(HWTheme.cardBackground)
     }
 
     private var languageSelectionPage: some View {
-        ScrollView {
-            VStack(spacing: 8) {
+        List {
+            Section {
                 ForEach(AppLanguage.allCases) { language in
                     selectionRow(language.title, isSelected: appLanguageRawValue == language.rawValue) {
                         appLanguageRawValue = language.rawValue
@@ -157,333 +162,122 @@ struct SettingsView: View {
                     }
                 }
             }
-            .padding(14)
+            .listRowBackground(HWTheme.cardBackground)
         }
-        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .settingsListStyle()
         .navigationTitle(appLanguage.text("语言"))
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var appearanceSelectionPage: some View {
-        ScrollView {
-            VStack(spacing: 8) {
+        List {
+            Section {
                 ForEach(AppAppearanceMode.allCases) { mode in
                     selectionRow(appLanguage.text(mode.title), isSelected: appearanceMode == mode.rawValue) {
                         appearanceMode = mode.rawValue
                     }
                 }
             }
-            .padding(14)
+            .listRowBackground(HWTheme.cardBackground)
         }
-        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .settingsListStyle()
         .navigationTitle(appLanguage.text("外观模式"))
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var themeSelector: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            rowTitle(appLanguage.text("主题配色"), icon: "paintpalette")
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 9) {
-                    ForEach(AppTheme.allCases) { theme in
-                        compactThemeButton(theme)
-                    }
-                }
-                .padding(.vertical, 2)
-            }
-        }
-    }
-
-    private func compactThemeButton(_ theme: AppTheme) -> some View {
-        let isSelected = appThemeRawValue == theme.rawValue
-
-        return Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                appThemeRawValue = theme.rawValue
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(theme.swatchColors.first ?? HWTheme.freshGreen)
-                    .frame(width: 16, height: 16)
-                    .overlay {
-                        if isSelected {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundStyle(.white)
+    private var themeSelectionPage: some View {
+        List {
+            Section {
+                ForEach(AppTheme.allCases) { theme in
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
+                            appThemeRawValue = theme.rawValue
                         }
+                    } label: {
+                        HStack(spacing: 12) {
+                            HStack(spacing: 3) {
+                                ForEach(Array(theme.swatchColors.enumerated()), id: \.offset) { _, color in
+                                    Capsule()
+                                        .fill(color)
+                                        .frame(width: 14, height: 28)
+                                }
+                            }
+                            .accessibilityHidden(true)
+
+                            Text(appLanguage.text(theme.title))
+                                .foregroundStyle(HWTheme.primaryText)
+
+                            Spacer(minLength: 8)
+                            selectionMark(appThemeRawValue == theme.rawValue)
+                        }
+                        .contentShape(Rectangle())
                     }
-
-                Text(appLanguage.text(theme.title))
-                    .font(.system(size: 12, weight: .medium))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.72)
-
-            }
-            .foregroundStyle(isSelected ? HWTheme.primaryText : HWTheme.secondaryText)
-            .padding(.horizontal, 10)
-            .frame(minWidth: 92, maxWidth: 124, alignment: .leading)
-            .frame(height: 36)
-            .background(isSelected ? HWTheme.mint.opacity(0.28) : HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.65) : HWTheme.cardBorder.opacity(0.5), lineWidth: isSelected ? 1.1 : 0.8)
-            )
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private var widgetCounter: some View {
-        HStack(spacing: 10) {
-            rowIcon("rectangle.stack")
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(appLanguage.text("小组件展示"))
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-
-                Text(appLanguage.text("小号 1 件 · 中号 3 件 · 大号 5 件"))
-                    .font(.system(size: 12))
-                    .foregroundStyle(HWTheme.secondaryText)
-            }
-
-            Spacer()
-
-            Image(systemName: "checkmark.circle")
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(HWTheme.freshGreen)
-        }
-        .padding(10)
-        .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-
-    private func softToggle(title: String, subtitle: String, icon: String, isOn: Binding<Bool>) -> some View {
-        Toggle(isOn: isOn) {
-            HStack(spacing: 10) {
-                rowIcon(icon)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(HWTheme.primaryText)
-
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundStyle(HWTheme.secondaryText)
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(appThemeRawValue == theme.rawValue ? .isSelected : [])
                 }
             }
+            .listRowBackground(HWTheme.cardBackground)
         }
-        .tint(HWTheme.freshGreen)
-        .padding(10)
-        .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .settingsListStyle()
+        .navigationTitle(appLanguage.text("主题配色"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func rowTitle(_ title: String, icon: String) -> some View {
+    private func settingsRow(_ title: String, icon: String, value: String? = nil, color: Color? = nil) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(color ?? HWTheme.freshGreen)
+                .frame(width: 24)
+                .accessibilityHidden(true)
+
+            Text(appLanguage.text(title))
+                .foregroundStyle(color ?? HWTheme.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 8)
+
+            if let value {
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundStyle(HWTheme.secondaryText)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .contentShape(Rectangle())
+    }
+
+    private func externalLinkRow(_ title: String, icon: String) -> some View {
         HStack(spacing: 8) {
-            rowIcon(icon)
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-        }
-    }
-
-    private func settingsNavigationLabel(_ title: String, icon: String, value: String) -> some View {
-        HStack(spacing: 10) {
-            rowIcon(icon)
-
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-
-            Spacer()
-
-            Text(value)
-                .font(.system(size: 13))
-                .foregroundStyle(HWTheme.secondaryText)
-                .lineLimit(1)
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 11, weight: .semibold))
+            settingsRow(title, icon: icon)
+            Image(systemName: "arrow.up.right")
+                .font(.caption2.weight(.medium))
                 .foregroundStyle(HWTheme.tertiaryText)
+                .accessibilityHidden(true)
         }
-        .padding(10)
-        .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private func selectionRow(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Text(title)
-                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(HWTheme.primaryText)
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(HWTheme.freshGreen)
-                }
+                Spacer(minLength: 8)
+                selectionMark(isSelected)
             }
-            .padding(14)
-            .background(HWTheme.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(isSelected ? HWTheme.freshGreen.opacity(0.46) : HWTheme.cardBorder.opacity(0.44), lineWidth: 0.8)
-            )
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    private func rowIcon(_ icon: String) -> some View {
-        Image(systemName: icon)
-            .font(.system(size: 14, weight: .regular))
+    private func selectionMark(_ isSelected: Bool) -> some View {
+        Image(systemName: "checkmark")
+            .font(.body.weight(.semibold))
             .foregroundStyle(HWTheme.freshGreen)
-            .frame(width: 24, height: 24)
-    }
-
-    private func chip(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: isSelected ? .medium : .regular))
-                .foregroundStyle(isSelected ? HWTheme.cardBackground : HWTheme.secondaryText)
-                .padding(.horizontal, 11)
-                .padding(.vertical, 6)
-                .background(isSelected ? HWTheme.freshGreen.opacity(0.82) : HWTheme.fieldBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func counterButton(_ icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(HWTheme.freshGreen)
-                .frame(width: 28, height: 28)
-                .background(HWTheme.mint.opacity(0.22))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func settingsActionRow(_ title: String, subtitle: String, icon: String, color: Color, isDestructive: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .regular))
-                    .foregroundStyle(color)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(isDestructive ? HWTheme.dangerRed : HWTheme.primaryText)
-
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundStyle(HWTheme.secondaryText)
-                }
-
-                Spacer()
-
-                Image(systemName: isDestructive ? "exclamationmark.circle" : "chevron.right")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(isDestructive ? HWTheme.dangerRed : HWTheme.tertiaryText)
-            }
-            .padding(10)
-            .background(HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var appInfoCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(appLanguage.text("关于 App"))
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-
-            HStack(spacing: 10) {
-                Image("AppLogo")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 44, height: 44)
-                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
-
-                Text(appLanguage.text("候物 AwaitGoods"))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-
-                Spacer(minLength: 0)
-            }
-
-            if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
-                Link(destination: supportEmailURL) {
-                    settingsExternalLinkLabel(appLanguage.text("联系客服"), value: supportEmail, icon: "envelope")
-                }
-                .buttonStyle(.plain)
-            }
-
-            Link(destination: AppStoreLinks.reviewURL) {
-                settingsExternalLinkLabel(appLanguage.text("去评分"), value: "App Store", icon: "star")
-            }
-            .buttonStyle(.plain)
-
-            Link(destination: AppStoreLinks.developerPageURL) {
-                settingsExternalLinkLabel(appLanguage.text("更多我的应用"), value: "App Store", icon: "square.grid.2x2")
-            }
-            .buttonStyle(.plain)
-
-            HStack(spacing: 10) {
-                rowIcon("number")
-
-                Text(appLanguage.text("版本"))
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-
-                Spacer()
-
-                Text(appVersion)
-                    .font(.system(size: 13).monospacedDigit())
-                    .foregroundStyle(HWTheme.secondaryText)
-            }
-            .padding(10)
-            .background(HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-        .settingsGroup()
-    }
-
-    private func settingsExternalLinkLabel(_ title: String, value: String, icon: String) -> some View {
-        HStack(spacing: 10) {
-            rowIcon(icon)
-
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-
-            Spacer(minLength: 8)
-
-            Text(value)
-                .font(.system(size: 12))
-                .foregroundStyle(HWTheme.secondaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-
-            Image(systemName: "arrow.up.right")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(HWTheme.tertiaryText)
-        }
-        .padding(10)
-        .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .opacity(isSelected ? 1 : 0)
+            .accessibilityHidden(true)
     }
 
     private func clearAll() {
@@ -678,19 +472,6 @@ private struct DataTransferMessage: Identifiable {
     let message: String
 }
 
-private extension View {
-    func settingsGroup() -> some View {
-        frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .background(HWTheme.cardBackground.opacity(0.72))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(HWTheme.cardBorder.opacity(0.44), lineWidth: 0.8)
-            )
-    }
-}
-
 private enum BackupImportError: Error {
     case emptyBackup
 }
@@ -754,5 +535,16 @@ private extension MarkColor {
         default:
             return .none
         }
+    }
+}
+
+private extension View {
+    func settingsListStyle() -> some View {
+        listStyle(.insetGrouped)
+            .listSectionSpacing(.compact)
+            .environment(\.defaultMinListRowHeight, 52)
+            .scrollContentBackground(.hidden)
+            .background(HWTheme.pageBackground.ignoresSafeArea())
+            .tint(HWTheme.freshGreen)
     }
 }

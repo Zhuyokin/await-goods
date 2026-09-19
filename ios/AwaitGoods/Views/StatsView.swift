@@ -4,358 +4,386 @@ import SwiftUI
 
 struct StatsView: View {
     @Environment(\.appLanguage) private var appLanguage
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
 
-    private var activeItems: [WishItem] {
-        items.filter { !$0.isTrashed }
-    }
-
-    private var pricedItems: [WishItem] {
-        activeItems.filter { $0.price != nil }
-    }
-
-    private var totalBudget: Double {
-        pricedItems.reduce(0) { $0 + ($1.price ?? 0) }
-    }
-
-    private var totalSaved: Double {
-        activeItems.reduce(0) { $0 + $1.savedAmountValue }
-    }
-
-    private var completionRatio: Double {
-        guard totalBudget > 0 else { return 0 }
-        return min(max(totalSaved / totalBudget, 0), 1)
-    }
-
-    private var categoryStats: [CategoryStat] {
-        let grouped = Dictionary(grouping: activeItems) { item in
-            let value = item.category.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? appLanguage.text("未分类") : appLanguage.text(value)
-        }
-
-        return grouped
-            .map { CategoryStat(name: $0.key, count: $0.value.count, budget: $0.value.reduce(0) { $0 + ($1.price ?? 0) }) }
-            .sorted { $0.count == $1.count ? $0.name < $1.name : $0.count > $1.count }
-    }
-
-    private var priorityStats: [PriorityStat] {
-        WishPriority.allCases.reversed().map { priority in
-            let matches = activeItems.filter { $0.priority == priority }
-            return PriorityStat(
-                priority: priority,
-                count: matches.count,
-                budget: matches.reduce(0) { $0 + ($1.price ?? 0) }
-            )
-        }
-    }
-
-    private var progressStats: [ProgressStat] {
-        [
-            ProgressStat(title: appLanguage.text("已完成 100%"), count: activeItems.filter { $0.savingsProgress >= 1 }.count, color: HWTheme.freshGreen),
-            ProgressStat(title: appLanguage.text("进度 30%–99%"), count: activeItems.filter { $0.savingsProgress >= 0.3 && $0.savingsProgress < 1 }.count, color: HWTheme.apricot),
-            ProgressStat(title: appLanguage.text("进度低于 30%"), count: activeItems.filter { $0.savingsProgress < 0.3 }.count, color: HWTheme.tertiaryText)
-        ]
-    }
+    let onOpenWishList: (WishItemStatus?) -> Void
 
     var body: some View {
+        let stats = WishStatistics(items: items)
+
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    overviewHeader
-                    metricsGrid
-                    priorityOverview
-                    progressOverview
-                    statusOverview
-                    categoryOverview
-                    recentOverview
+                VStack(alignment: .leading, spacing: 24) {
+                    pageHeader
+                    if stats.activeItems.isEmpty {
+                        emptyOverview
+                    } else {
+                        savingsOverview(stats)
+                        statusOverview(stats)
+                        if !stats.waitingItems.isEmpty {
+                            categoryOverview(stats)
+                        }
+                    }
                 }
-                .padding(14)
-                .padding(.top, 6)
-                .padding(.bottom, 20)
+                .frame(maxWidth: 680)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 18)
+                .padding(.top, 24)
+                .padding(.bottom, 28)
             }
-            .background(HWTheme.pageBackground.ignoresSafeArea())
-            .navigationTitle(appLanguage.text("统计"))
-            .navigationBarTitleDisplayMode(.inline)
+            .background { WillowBackdrop(illustrationSize: 480) }
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 
-    private var overviewHeader: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(appLanguage.text("看见预算，决定节奏"))
-                .font(.system(size: 26, weight: .semibold))
+    private var pageHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(appLanguage.text("统计"))
+                .font(.largeTitle.weight(.bold))
                 .foregroundStyle(HWTheme.primaryText)
-
-            Text(String(format: appLanguage.text("共 %d 件候物，已记录的计划都在这里"), activeItems.count))
-                .font(.system(size: 14))
+            Text(appLanguage.text("你的每一个愿望，都在慢慢靠近"))
+                .font(.subheadline)
                 .foregroundStyle(HWTheme.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 6)
+        .padding(.bottom, 2)
     }
 
-    private var metricsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            metricCard(title: appLanguage.text("总预算"), value: moneyText(totalBudget), icon: "target", color: HWTheme.freshGreen)
-            metricCard(title: appLanguage.text("已存金额"), value: moneyText(totalSaved), icon: "banknote", color: HWTheme.apricot)
-            metricCard(title: appLanguage.text("完成率"), value: "\(Int((completionRatio * 100).rounded()))%", icon: "chart.line.uptrend.xyaxis", color: HWTheme.softBlueGray)
-            metricCard(title: appLanguage.text("待决定"), value: "\(activeItems.filter { $0.status == .waiting }.count)", icon: "heart", color: HWTheme.blossom)
-        }
-    }
-
-    private func metricCard(title: String, value: String, icon: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 11) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(color)
-                    .frame(width: 25, height: 25)
-                    .background(color.opacity(0.13))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(HWTheme.secondaryText)
-            }
-
-            Text(value)
-                .font(.system(size: 21, weight: .semibold).monospacedDigit())
-                .foregroundStyle(HWTheme.primaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-        }
-        .frame(maxWidth: .infinity, minHeight: 86, alignment: .leading)
-        .padding(12)
-        .background(HWTheme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.52), lineWidth: 0.8)
-        )
-    }
-
-    private var statusOverview: some View {
-        statsSection(appLanguage.text("状态概览")) {
-            ForEach(WishItemStatus.allCases) { status in
-                let count = activeItems.filter { $0.status == status }.count
-                HStack(spacing: 9) {
-                    Image(systemName: status.iconName)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(statusColor(status))
-                        .frame(width: 24, height: 24)
-
-                    Text(appLanguage.text(status.title))
-                        .font(.system(size: 14, weight: .medium))
+    private func savingsOverview(_ stats: WishStatistics) -> some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(alignment: .top, spacing: 10) {
+                badge("heart.fill", color: HWTheme.freshGreen, size: 36)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(appLanguage.text("心愿总览"))
+                        .font(.headline)
                         .foregroundStyle(HWTheme.primaryText)
-
-                    Spacer()
-
-                    Text("\(count)")
-                        .font(.system(size: 14, weight: .semibold).monospacedDigit())
+                    Text(String(format: appLanguage.text("共 %d 件候物"), stats.activeItems.count))
+                        .font(.caption)
                         .foregroundStyle(HWTheme.secondaryText)
                 }
-                .padding(.vertical, 5)
-            }
-        }
-    }
-
-    private var priorityOverview: some View {
-        statsSection(appLanguage.text("预算分布")) {
-            ForEach(priorityStats) { stat in
-                distributionRow(
-                    title: "\(appLanguage.text(stat.priority.title))\(appLanguage.text("优先级"))",
-                    value: moneyText(stat.budget),
-                    count: stat.count,
-                    share: totalBudget > 0 ? stat.budget / totalBudget : 0,
-                    color: priorityColor(stat.priority)
-                )
-            }
-        }
-    }
-
-    private var progressOverview: some View {
-        statsSection(appLanguage.text("进度分布")) {
-            ForEach(progressStats) { stat in
-                distributionRow(
-                    title: stat.title,
-                    value: "\(stat.count)",
-                    count: stat.count,
-                    share: activeItems.isEmpty ? 0 : Double(stat.count) / Double(activeItems.count),
-                    color: stat.color
-                )
-            }
-        }
-    }
-
-    private var categoryOverview: some View {
-        statsSection(appLanguage.text("分类分布")) {
-            if categoryStats.isEmpty {
-                Text(appLanguage.text("暂无可统计的候物"))
-                    .font(.system(size: 14))
-                    .foregroundStyle(HWTheme.secondaryText)
-                    .padding(.vertical, 6)
-            } else {
-                ForEach(categoryStats) { stat in
-                    VStack(alignment: .leading, spacing: 7) {
-                        HStack(spacing: 8) {
-                            Text(stat.name)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(HWTheme.primaryText)
-
-                            Spacer()
-
-                            Text("\(stat.count) · \(moneyText(stat.budget))")
-                                .font(.system(size: 13, weight: .semibold).monospacedDigit())
-                                .foregroundStyle(HWTheme.secondaryText)
-                        }
-
-                        GeometryReader { proxy in
-                            ZStack(alignment: .leading) {
-                                Capsule().fill(HWTheme.fieldBackground)
-                                Capsule()
-                                    .fill(HWTheme.freshGreen.opacity(0.76))
-                                    .frame(width: proxy.size.width * stat.share(total: activeItems.count))
-                            }
-                        }
-                        .frame(height: 6)
+                Spacer(minLength: 4)
+                Button {
+                    onOpenWishList(.waiting)
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(appLanguage.text("查看"))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
                     }
-                    .padding(.vertical, 5)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(HWTheme.freshGreen)
+                    .padding(.horizontal, 13)
+                    .frame(minHeight: 36)
+                    .background(HWTheme.mint.opacity(0.24), in: Capsule())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(appLanguage.text("查看"))\(appLanguage.text("想买"))")
             }
-        }
-    }
 
-    private var recentOverview: some View {
-        statsSection(appLanguage.text("最近添加")) {
-            if activeItems.isEmpty {
-                Text(appLanguage.text("暂无可统计的候物"))
-                    .font(.system(size: 14))
-                    .foregroundStyle(HWTheme.secondaryText)
-                    .padding(.vertical, 6)
-            } else {
-                ForEach(Array(activeItems.sorted { $0.createdAt > $1.createdAt }.prefix(3))) { item in
-                    HStack(spacing: 10) {
-                        Image(systemName: "bag")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(HWTheme.freshGreen)
-                            .frame(width: 32, height: 32)
-                            .background(HWTheme.mint.opacity(0.17))
-                            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            if stats.budget > 0 {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(appLanguage.text("还需存入"))
+                        .font(.subheadline)
+                        .foregroundStyle(HWTheme.secondaryText)
+                    Text(moneyText(stats.remaining))
+                        .font(.system(size: 36, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(HWTheme.primaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                        Text(item.title)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(HWTheme.primaryText)
-                            .lineLimit(1)
-
+                VStack(spacing: 9) {
+                    HStack {
+                        Text(appLanguage.text("存钱进度"))
                         Spacer()
+                        Text("\(Int(stats.progress * 100))%")
+                            .monospacedDigit()
+                    }
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(HWTheme.secondaryText)
+                    progressTrack(stats.progress, color: HWTheme.freshGreen, height: 6)
+                        .accessibilityLabel(appLanguage.text("存钱进度"))
+                        .accessibilityValue("\(Int(stats.progress * 100))%")
+                }
 
-                        if let price = item.price {
-                            Text(moneyText(price))
-                                .font(.system(size: 13, weight: .semibold).monospacedDigit())
-                                .foregroundStyle(HWTheme.secondaryText)
+                Divider().overlay(HWTheme.separator.opacity(0.5))
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: 12) {
+                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote")
+                        Rectangle()
+                            .fill(HWTheme.separator.opacity(0.6))
+                            .frame(width: 1, height: 40)
+                            .accessibilityHidden(true)
+                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope")
+                    }
+                    VStack(alignment: .leading, spacing: 14) {
+                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote")
+                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope")
+                    }
+                }
+                Divider().overlay(HWTheme.separator.opacity(0.5))
+
+                HStack(alignment: .top, spacing: 7) {
+                    Image(systemName: "doc.text")
+                        .foregroundStyle(HWTheme.freshGreen)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(appLanguage.text("仅统计「想买」中已填写目标价格的物品"))
+                        if stats.unpricedCount > 0 {
+                            Text(String(format: appLanguage.text("另有 %d 件尚未填写目标价格"), stats.unpricedCount))
                         }
                     }
-                    .padding(.vertical, 5)
-                }
-            }
-        }
-    }
-
-    private func distributionRow(title: String, value: String, count: Int, share: Double, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(color)
-                    .frame(width: 7, height: 7)
-
-                Text(title)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-
-                Spacer()
-
-                Text(value)
-                    .font(.system(size: 13, weight: .semibold).monospacedDigit())
                     .foregroundStyle(HWTheme.secondaryText)
-            }
-
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(HWTheme.fieldBackground)
-                    Capsule()
-                        .fill(color.opacity(0.78))
-                        .frame(width: proxy.size.width * min(max(share, 0), 1))
                 }
+                .font(.caption)
+                .fixedSize(horizontal: false, vertical: true)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(appLanguage.text(stats.waitingItems.isEmpty ? "还没有想买的物品" : "目标价格还未确定"))
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(HWTheme.primaryText)
+                    Text(appLanguage.text(stats.waitingItems.isEmpty ? "添加想买的物品后，在这里查看预算与存钱进度" : "为想买的物品填写目标价格后，即可查看还需金额与存钱进度"))
+                        .font(.subheadline)
+                        .foregroundStyle(HWTheme.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.vertical, 8)
             }
-            .frame(height: 6)
         }
-        .padding(.vertical, 5)
-        .accessibilityLabel("\(title) \(count)")
+        .padding(18)
+        .botanicalCard()
     }
 
-    private func statsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-
-            content()
+    private func amountColumn(title: String, value: Double, icon: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            badge(icon, color: HWTheme.freshGreen, size: 27)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(appLanguage.text(title))
+                    .font(.caption)
+                    .foregroundStyle(HWTheme.secondaryText)
+                Text(moneyText(value))
+                    .font(.system(size: 18, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(HWTheme.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.65)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(HWTheme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.52), lineWidth: 0.8)
-        )
+        .accessibilityElement(children: .combine)
+    }
+
+    private func statusOverview(_ stats: WishStatistics) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                sectionTitle("状态概览")
+                Spacer(minLength: 8)
+                Button {
+                    onOpenWishList(nil)
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(appLanguage.text("查看全部"))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .medium))
+                    }
+                    .font(.caption)
+                    .foregroundStyle(HWTheme.secondaryText)
+                    .frame(minHeight: 44)
+                }
+                .buttonStyle(.plain)
+            }
+
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(spacing: 10))
+                : AnyLayout(HStackLayout(alignment: .top, spacing: 9))
+            layout {
+                ForEach(WishItemStatus.allCases) { status in
+                    statusCard(status, count: stats.items(for: status).count)
+                }
+            }
+        }
+    }
+
+    private func statusCard(_ status: WishItemStatus, count: Int) -> some View {
+        Button {
+            onOpenWishList(status)
+        } label: {
+            VStack(alignment: .leading, spacing: 9) {
+                badge(status == .waiting ? "heart.fill" : status.iconName, color: statusColor(status), size: 32)
+                Text("\(count)")
+                    .font(.system(size: 29, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(HWTheme.primaryText)
+                Text(appLanguage.text(status.title))
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(HWTheme.secondaryText)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(appLanguage.text(statusCaption(status)))
+                        .font(.system(size: 10))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .medium))
+                }
+                .foregroundStyle(HWTheme.tertiaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .botanicalCard(cornerRadius: 18)
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(appLanguage.text(status.title))，\(String(format: appLanguage.text("%d 件"), count))")
+    }
+
+    private func categoryOverview(_ stats: WishStatistics) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .firstTextBaseline) {
+                sectionTitle("想买的分类")
+                Spacer(minLength: 8)
+                Text(appLanguage.text("按物品数量"))
+                    .font(.caption)
+                    .foregroundStyle(HWTheme.secondaryText)
+            }
+            VStack(spacing: 0) {
+                ForEach(Array(stats.categories.enumerated()), id: \.element.id) { index, category in
+                    let color = categoryColor(index)
+                    Button {
+                        onOpenWishList(.waiting)
+                    } label: {
+                        HStack(spacing: 12) {
+                            badge(categoryIcon(category.name), color: color, size: 34)
+                            VStack(alignment: .leading, spacing: 9) {
+                                Text(appLanguage.text(category.name.isEmpty ? "未分类" : category.name))
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(HWTheme.primaryText)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                progressTrack(Double(category.count) / Double(stats.waitingItems.count), color: color, height: 4)
+                                    .accessibilityHidden(true)
+                            }
+                            Text(String(format: appLanguage.text("%d 件"), category.count))
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(HWTheme.secondaryText)
+                                .fixedSize()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(HWTheme.tertiaryText)
+                        }
+                        .padding(.vertical, 15)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    if index < stats.categories.count - 1 {
+                        Divider()
+                            .overlay(HWTheme.separator.opacity(0.35))
+                            .padding(.leading, 46)
+                    }
+                }
+            }
+            .padding(.horizontal, 15)
+            .botanicalCard()
+        }
+    }
+
+    private var emptyOverview: some View {
+        VStack(spacing: 14) {
+            badge("heart", color: HWTheme.freshGreen, size: 64)
+            Text(appLanguage.text("暂无可统计的候物"))
+                .font(.headline)
+                .foregroundStyle(HWTheme.primaryText)
+            Text(appLanguage.text("在首页添加心愿后，预算与状态会显示在这里"))
+                .font(.subheadline)
+                .foregroundStyle(HWTheme.secondaryText)
+                .multilineTextAlignment(.center)
+            Button(appLanguage.text("查看")) { onOpenWishList(nil) }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(HWTheme.freshGreen)
+                .frame(minHeight: 44)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 36)
+        .botanicalCard()
+    }
+
+    private func badge(_ icon: String, color: Color, size: CGFloat) -> some View {
+        Image(systemName: icon)
+            .font(.system(size: size * 0.47, weight: .medium))
+            .foregroundStyle(color)
+            .frame(width: size, height: size)
+            .background(color.opacity(0.11), in: Circle())
+            .accessibilityHidden(true)
+    }
+
+    private func progressTrack(_ progress: Double, color: Color, height: CGFloat) -> some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(HWTheme.separator.opacity(0.36))
+                Capsule()
+                    .fill(LinearGradient(colors: [color.opacity(0.65), color], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: proxy.size.width * min(max(progress, 0), 1))
+            }
+        }
+        .frame(height: height)
+    }
+
+    private func sectionTitle(_ key: String) -> some View {
+        Text(appLanguage.text(key))
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(HWTheme.primaryText)
     }
 
     private func statusColor(_ status: WishItemStatus) -> Color {
         switch status {
         case .waiting: return HWTheme.freshGreen
         case .bought: return HWTheme.softBlueGray
-        case .released: return HWTheme.tertiaryText
+        case .released: return HWTheme.dangerRed.opacity(0.65)
         }
     }
 
-    private func priorityColor(_ priority: WishPriority) -> Color {
-        switch priority {
-        case .high: return HWTheme.dangerRed
-        case .medium: return HWTheme.apricot
-        case .low: return HWTheme.freshGreen
+    private func statusCaption(_ status: WishItemStatus) -> String {
+        switch status {
+        case .waiting: return "正在努力攒钱"
+        case .bought: return "享受已达成的快乐"
+        case .released: return "理性消费更自由"
+        }
+    }
+
+    private func categoryColor(_ index: Int) -> Color {
+        let colors = [HWTheme.freshGreen, HWTheme.softBlueGray, HWTheme.blossom, HWTheme.softWood]
+        return colors[index % colors.count]
+    }
+
+    private func categoryIcon(_ category: String) -> String {
+        switch category {
+        case "数码": return "laptopcomputer"
+        case "衣物": return "tshirt"
+        case "家居": return "house"
+        case "书影音": return "book.closed"
+        case "礼物": return "gift"
+        case "运动": return "figure.run"
+        default: return "tag"
         }
     }
 
     private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
     }
 }
 
-private struct CategoryStat: Identifiable {
-    let name: String
-    let count: Int
-    let budget: Double
-
-    var id: String { name }
-
-    func share(total: Int) -> Double {
-        guard total > 0 else { return 0 }
-        return min(max(Double(count) / Double(total), 0), 1)
+private extension View {
+    func botanicalCard(cornerRadius: CGFloat = 24) -> some View {
+        background {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(HWTheme.cardBackground.opacity(0.88))
+                .overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(HWTheme.cardBackground.opacity(0.95), lineWidth: 1)
+                }
+                .shadow(color: HWTheme.softShadow.opacity(0.38), radius: 12, x: 0, y: 5)
+        }
     }
-}
-
-private struct PriorityStat: Identifiable {
-    let priority: WishPriority
-    let count: Int
-    let budget: Double
-
-    var id: Int { priority.rawValue }
-}
-
-private struct ProgressStat: Identifiable {
-    let title: String
-    let count: Int
-    let color: Color
-
-    var id: String { title }
 }

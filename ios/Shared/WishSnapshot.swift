@@ -104,6 +104,23 @@ enum WidgetSnapshotStore {
         return photoDirectory?.appendingPathComponent(filename)
     }
 
+    static func removeUnusedPhotos(in directory: URL, previousFilenames: [String], currentFilenames: [String]) {
+        let filenames = Set(previousFilenames + currentFilenames)
+        let now = Date()
+        let expiration = now.addingTimeInterval(-24 * 60 * 60)
+        guard let urls = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.contentModificationDateKey]) else { return }
+        // WidgetKit may still display an older timeline across successive updates.
+        for url in urls where url.pathExtension == "png" {
+            if filenames.contains(url.lastPathComponent) {
+                try? FileManager.default.setAttributes([.modificationDate: now], ofItemAtPath: url.path)
+            } else if let values = try? url.resourceValues(forKeys: [.contentModificationDateKey]),
+                      let lastReferencedAt = values.contentModificationDate,
+                      lastReferencedAt < expiration {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+    }
+
     private static var defaults: UserDefaults {
         UserDefaults(suiteName: SharedAppGroup.identifier) ?? .standard
     }
