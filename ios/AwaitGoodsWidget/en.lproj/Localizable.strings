@@ -7,6 +7,19 @@
 "GalleryWidgetName" = "Wish gallery";
 "GalleryWidgetDescription" = "A photo collection of the wishes you are saving for.";
 
+"BoardWidgetName" = "Wish board";
+"BoardWidgetDescription" = "Your wishes, savings and cooling-off periods, together on your Home Screen. Get a little closer every day.";
+"心愿看板" = "Wish board";
+"把心愿、储蓄和冷静期放在桌面。" = "Keep wishes, savings and cooling-off periods on your Home Screen.";
+"每次记录金额" = "Amount per entry";
+"记录心愿储蓄" = "Record wish savings";
+"撤销储蓄记录" = "Undo savings entry";
+"切换心愿" = "Switch wish";
+"心愿 ID" = "Wish ID";
+"储蓄金额" = "Savings amount";
+"数据版本" = "Revision";
+"记录 ID" = "Entry ID";
+
 "内容分组" = "Content group";
 "全部心愿" = "All wishes";
 "心愿商品" = "Wish item";

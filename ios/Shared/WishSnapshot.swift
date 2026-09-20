@@ -8,8 +8,11 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
     let sortIndex: Int
     let photoFilename: String?
     let groups: [String]
+    let updatedAt: Date?
+    let waitUntil: Date?
+    let targetDate: Date?
 
-    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int, photoFilename: String? = nil, groups: [String] = []) {
+    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int, photoFilename: String? = nil, groups: [String] = [], updatedAt: Date? = nil, waitUntil: Date? = nil, targetDate: Date? = nil) {
         self.id = id
         self.title = title
         self.price = price
@@ -17,6 +20,9 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         self.sortIndex = sortIndex
         self.photoFilename = photoFilename
         self.groups = groups
+        self.updatedAt = updatedAt
+        self.waitUntil = waitUntil
+        self.targetDate = targetDate
     }
 
     var savingsProgress: Double {
@@ -37,6 +43,7 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         case sortIndex
         case photoFilename
         case groups
+        case updatedAt, waitUntil, targetDate
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +55,9 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         sortIndex = try container.decode(Int.self, forKey: .sortIndex)
         photoFilename = try container.decodeIfPresent(String.self, forKey: .photoFilename)
         groups = try container.decodeIfPresent([String].self, forKey: .groups) ?? []
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+        waitUntil = try container.decodeIfPresent(Date.self, forKey: .waitUntil)
+        targetDate = try container.decodeIfPresent(Date.self, forKey: .targetDate)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -59,6 +69,9 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         try container.encode(sortIndex, forKey: .sortIndex)
         try container.encodeIfPresent(photoFilename, forKey: .photoFilename)
         try container.encode(groups, forKey: .groups)
+        try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
+        try container.encodeIfPresent(waitUntil, forKey: .waitUntil)
+        try container.encodeIfPresent(targetDate, forKey: .targetDate)
     }
 }
 

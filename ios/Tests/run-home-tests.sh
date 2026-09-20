@@ -21,12 +21,15 @@ cd "$project_root"
 xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     -module-cache-path "$test_dir/ModuleCache" \
     ios/AwaitGoods/Models/WishItem.swift \
+    ios/AwaitGoods/Models/WidgetSavingsMutation.swift \
     ios/AwaitGoods/Models/WishStatistics.swift \
     ios/AwaitGoods/Models/WishPriority.swift \
     ios/AwaitGoods/Models/WishItemStatus.swift \
     ios/AwaitGoods/Models/MarkColor.swift \
     ios/Shared/WishSnapshot.swift \
+    ios/Shared/WishBoardState.swift \
     ios/Tests/WishPhotoPersistenceTests.swift \
     ios/Tests/WishStatisticsTests.swift \
+    ios/Tests/WidgetBoardTests.swift \
     -o "$bundle/Contents/MacOS/HomeTests"
 "$bundle/Contents/MacOS/HomeTests"

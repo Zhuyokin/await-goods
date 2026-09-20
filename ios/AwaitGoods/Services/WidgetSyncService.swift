@@ -19,7 +19,8 @@ enum WidgetSyncService {
             .map { item in
                 WishSnapshot(id: item.id, title: item.title, price: item.price,
                              savedAmount: item.savedAmountValue, sortIndex: item.sortIndex,
-                             photoFilename: savePhoto(for: item), groups: groups(for: item))
+                             photoFilename: savePhoto(for: item), groups: groups(for: item),
+                             updatedAt: item.updatedAt, waitUntil: item.waitUntil, targetDate: item.targetDate)
             }
 
         let languageCode = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.zhHans.rawValue

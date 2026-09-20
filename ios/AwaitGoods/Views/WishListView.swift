@@ -19,12 +19,14 @@ struct WishListView: View {
     @State private var searchText = ""
     @State private var isSearchPresented = false
     @Binding var selectedStatus: WishItemStatus?
+    @Binding var wishRoute: WishDeepLink?
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
     @State private var selectedIDs = Set<UUID>()
     @State private var showingEditor = false
     @State private var editingItem: WishItem?
     @State private var selectedDetailItem: WishItem?
+    @State private var routeWaitingForDismissal = false
     @State private var itemToDelete: WishItem?
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
@@ -53,6 +55,35 @@ struct WishListView: View {
         NavigationStack {
             rootContent
         }
+        .task(id: wishRoute) {
+            guard wishRoute != nil, !routeWaitingForDismissal else { return }
+            if showingEditor || showingQuickAddSheet || showingTrash || actionItem != nil || selectedDetailItem != nil {
+                routeWaitingForDismissal = true
+                showingEditor = false
+                showingQuickAddSheet = false
+                showingTrash = false
+                actionItem = nil
+                selectedDetailItem = nil
+            } else {
+                presentWishRoute()
+            }
+        }
+    }
+
+    private func presentWishRoute() {
+        routeWaitingForDismissal = false
+        guard let route = wishRoute else { return }
+        wishRoute = nil
+        switch route {
+        case .home: selectedStatus = .waiting
+        case .add: showingQuickAddSheet = true
+        case .wish(let id): selectedDetailItem = activeItems.first { $0.id == id }
+        }
+    }
+
+    private func finishRouteDismissal() {
+        guard routeWaitingForDismissal else { return }
+        presentWishRoute()
     }
 
     private var rootContent: some View {
@@ -64,11 +95,14 @@ struct WishListView: View {
         .background { WillowBackdrop() }
         .environment(\.editMode, $editMode)
         .safeAreaInset(edge: .bottom) { bottomBar }
-        .sheet(isPresented: $showingQuickAddSheet, onDismiss: resetQuickAddDraft) { quickAddSheet }
-        .sheet(isPresented: $showingEditor) { editorSheet }
-        .sheet(item: $selectedDetailItem) { item in detailSheet(for: item) }
-        .sheet(item: $actionItem) { item in actionSheet(for: item) }
-        .sheet(isPresented: $showingTrash) { trashSheet }
+        .sheet(isPresented: $showingQuickAddSheet, onDismiss: {
+            resetQuickAddDraft()
+            finishRouteDismissal()
+        }) { quickAddSheet }
+        .sheet(isPresented: $showingEditor, onDismiss: finishRouteDismissal) { editorSheet }
+        .sheet(item: $selectedDetailItem, onDismiss: finishRouteDismissal) { item in detailSheet(for: item) }
+        .sheet(item: $actionItem, onDismiss: finishRouteDismissal) { item in actionSheet(for: item) }
+        .sheet(isPresented: $showingTrash, onDismiss: finishRouteDismissal) { trashSheet }
         .overlay(alignment: .bottom) { floatingAccessoryButtons }
         .overlay(alignment: .bottom) { copyLinkToast }
         .overlay { changeEffectOverlay }

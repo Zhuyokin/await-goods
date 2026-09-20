@@ -14,21 +14,13 @@ struct AwaitGoodsApp: App {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
     @State private var selectedTab: MainTab = .wishList
+    @State private var wishRoute: WishDeepLink?
 
     private var appLanguage: AppLanguage {
         AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans
     }
 
-    private let modelContainer: ModelContainer = {
-        let schema = Schema([WishItem.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [configuration])
-        } catch {
-            fatalError("Unable to create SwiftData container: \(error)")
-        }
-    }()
+    private let modelContainer = AppWishStore.container
 
     init() {
         NotificationScheduler.configure()
@@ -39,7 +31,7 @@ struct AwaitGoodsApp: App {
         WindowGroup {
             Group {
                 if hasSeenOnboarding {
-                    MainTabView(selection: $selectedTab)
+                    MainTabView(selection: $selectedTab, wishRoute: $wishRoute)
                 } else {
                     OnboardingView {
                         hasSeenOnboarding = true
@@ -61,8 +53,9 @@ struct AwaitGoodsApp: App {
     }
 
     private func handleIncomingURL(_ url: URL) {
-        if url.scheme?.lowercased() == "awaitgoods", url.host?.lowercased() == "home" {
+        if let route = WishDeepLink(url: url) {
             selectedTab = .wishList
+            wishRoute = route
             return
         }
         guard url.scheme?.lowercased() == "https",

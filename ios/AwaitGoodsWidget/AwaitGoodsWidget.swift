@@ -2,7 +2,7 @@ import SwiftUI
 import WidgetKit
 import UIKit
 
-private enum WidgetImages {
+enum WidgetImages {
     // WidgetKit archives source pixels, regardless of the view's frame size.
     // The header icon is at most 20 pt, so 60 px covers a 3x display.
     static let appIcon: Image = {
@@ -328,7 +328,7 @@ struct AwaitGoodsWidgetView: View {
     }
 }
 
-private struct WidgetCopy {
+struct WidgetCopy {
     private enum Language {
         case zhHans
         case zhHant
@@ -443,7 +443,7 @@ private struct WidgetCopy {
     }
 }
 
-private enum WidgetPalette {
+enum WidgetPalette {
     private typealias RGB = (CGFloat, CGFloat, CGFloat)
 
     private static func adaptive(light: RGB, dark: RGB, alpha: CGFloat = 1) -> Color {
@@ -493,6 +493,7 @@ struct AwaitGoodsWidget: Widget {
 @main
 struct AwaitGoodsWidgetBundle: WidgetBundle {
     var body: some Widget {
+        AwaitGoodsBoardWidget()
         AwaitGoodsWidget()
         AwaitGoodsPhotoWidget()
         AwaitGoodsSavingsWidget()
@@ -500,7 +501,7 @@ struct AwaitGoodsWidgetBundle: WidgetBundle {
     }
 }
 
-private struct WidgetProductPhoto: View {
+struct WidgetProductPhoto: View {
     let item: WishSnapshot
 
     var body: some View {
@@ -508,9 +509,16 @@ private struct WidgetProductPhoto: View {
             if let filename = item.photoFilename,
                let url = WidgetSnapshotStore.photoURL(filename: filename),
                let image = UIImage(contentsOfFile: url.path) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
+                if #available(iOS 18.0, *) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .widgetAccentedRenderingMode(.fullColor)
+                        .scaledToFit()
+                } else {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                }
             } else {
                 Image(systemName: "gift")
                     .resizable()

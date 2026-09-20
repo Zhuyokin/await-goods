@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @Binding var selection: MainTab
+    @Binding var wishRoute: WishDeepLink?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
@@ -128,7 +129,7 @@ struct MainTabView: View {
     private func rootView(for tab: MainTab) -> some View {
         switch tab {
         case .wishList:
-            WishListView(selectedStatus: $wishListStatus)
+            WishListView(selectedStatus: $wishListStatus, wishRoute: $wishRoute)
                 .id(wishListNavigationID)
         case .statistics:
             StatsView { status in
