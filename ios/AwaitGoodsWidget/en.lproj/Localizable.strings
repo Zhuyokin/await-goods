@@ -1,4 +1,6 @@
 "AwaitGoodsWidgetName" = "AwaitGoods";
+"JarWidgetName" = "Wish jar";
+"JarWidgetDescription" = "Keep every wish in a glass jar. Tap the arrows to bring each one into focus.";
 "AwaitGoodsWidgetDescription" = "View items you are still thinking about.";
 "PhotoWidgetName" = "In focus";
 "PhotoWidgetDescription" = "Your first wish, its photo and savings progress.";

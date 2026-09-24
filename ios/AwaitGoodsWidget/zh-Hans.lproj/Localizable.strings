@@ -1,4 +1,6 @@
 "AwaitGoodsWidgetName" = "候物";
+"JarWidgetName" = "心愿罐";
+"JarWidgetDescription" = "把心愿收进玻璃罐，轻点箭头，逐一看见每份期待。";
 "AwaitGoodsWidgetDescription" = "查看正在想买的物品。";
 "PhotoWidgetName" = "心动单品";
 "PhotoWidgetDescription" = "用商品照片和储蓄进度，记录清单中最心动的一件。";

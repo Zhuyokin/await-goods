@@ -13,6 +13,7 @@
 		1BED6C5F38CF497E9040C667 /* WishBoardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DF6970D838A6877FAE761A /* WishBoardState.swift */; };
 		1D3D9251C623AB7303164D95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3A086528642C745606CD7EAC /* InfoPlist.strings */; };
 		1ECAF37124243C7856D660F0 /* WishBoardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DF6970D838A6877FAE761A /* WishBoardState.swift */; };
+		26B030EF452060DDF4B993D0 /* WishJarContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D29FD9711C250E8DC3C46C1 /* WishJarContent.swift */; };
 		26F4888BF50E347A9A6A378A /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9BC5E1F37B8597DCA6B146 /* WatchSyncService.swift */; };
 		29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EE328A30A60851158B84DC /* MainTabView.swift */; };
 		2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */; };
@@ -32,6 +33,7 @@
 		659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005C425381D5357BFC1BB1BC /* WatchHomeView.swift */; };
 		6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */; };
 		6DDA59987165F43E28E02C4C /* WishBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21DDB17762B7C180F31FBCE /* WishBoardView.swift */; };
+		6E6C6A7A29F807C978F8853A /* WishJarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14438BBB4C91F090D4C8EB1 /* WishJarWidget.swift */; };
 		6F2FB72D0B0CFBA1B23E4503 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
 		702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00133B432093F41F0FC4B014 /* EmptyStateView.swift */; };
 		746632869F5D2CE56A532969 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
@@ -48,6 +50,7 @@
 		A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF262B512826CB029A457C94 /* WishDetailView.swift */; };
 		A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */; };
 		B06760D4F2A223538954E4DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */; };
+		B3A670780D0FB4846C6AF868 /* WishJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8938F55676301E1B6C4F5C46 /* WishJarView.swift */; };
 		B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */; };
 		BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */; };
 		C0366C5697BE19B915941584 /* WishRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB35C22516A74C1F747CD7F /* WishRowView.swift */; };
@@ -147,9 +150,12 @@
 		8417533398FE2DB01C3EA65F /* WishPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishPriority.swift; sourceTree = "<group>"; };
 		84CBFF9844AD7FA6BF93B38E /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
 		87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWishSnapshot.swift; sourceTree = "<group>"; };
+		8938F55676301E1B6C4F5C46 /* WishJarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishJarView.swift; sourceTree = "<group>"; };
+		8D29FD9711C250E8DC3C46C1 /* WishJarContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishJarContent.swift; sourceTree = "<group>"; };
 		900A7A734584BB47390FDEE2 /* AwaitGoods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoods.entitlements; sourceTree = "<group>"; };
 		927A5C55ADED2249C0FB071C /* WishItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItem.swift; sourceTree = "<group>"; };
 		9FD3B79C081515AF09D85D10 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		A14438BBB4C91F090D4C8EB1 /* WishJarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishJarWidget.swift; sourceTree = "<group>"; };
 		A690F2AD3EC7CAFEFDCB22B2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AAB07323C9FC637505E17945 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSnapshot.swift; sourceTree = "<group>"; };
@@ -260,6 +266,9 @@
 				598489FCE453058291FD72FB /* Info.plist */,
 				63509745B8FD0F16086473DF /* WishBoardProvider.swift */,
 				D21DDB17762B7C180F31FBCE /* WishBoardView.swift */,
+				8D29FD9711C250E8DC3C46C1 /* WishJarContent.swift */,
+				8938F55676301E1B6C4F5C46 /* WishJarView.swift */,
+				A14438BBB4C91F090D4C8EB1 /* WishJarWidget.swift */,
 				3A086528642C745606CD7EAC /* InfoPlist.strings */,
 				A5D56B18AE13651F8167A705 /* Localizable.strings */,
 			);
@@ -515,6 +524,9 @@
 				2C2F77FC6C96A29123795E2D /* WishBoardProvider.swift in Sources */,
 				1BED6C5F38CF497E9040C667 /* WishBoardState.swift in Sources */,
 				6DDA59987165F43E28E02C4C /* WishBoardView.swift in Sources */,
+				26B030EF452060DDF4B993D0 /* WishJarContent.swift in Sources */,
+				B3A670780D0FB4846C6AF868 /* WishJarView.swift in Sources */,
+				6E6C6A7A29F807C978F8853A /* WishJarWidget.swift in Sources */,
 				8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -616,7 +628,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.12;
+				MARKETING_VERSION = 1.0.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -750,7 +762,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.12;
+				MARKETING_VERSION = 1.0.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

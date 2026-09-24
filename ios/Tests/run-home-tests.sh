@@ -28,6 +28,7 @@ xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     ios/AwaitGoods/Models/MarkColor.swift \
     ios/Shared/WishSnapshot.swift \
     ios/Shared/WishBoardState.swift \
+    ios/AwaitGoodsWidget/WishJarContent.swift \
     ios/Tests/WishPhotoPersistenceTests.swift \
     ios/Tests/WishStatisticsTests.swift \
     ios/Tests/WidgetBoardTests.swift \

@@ -493,6 +493,7 @@ struct AwaitGoodsWidget: Widget {
 @main
 struct AwaitGoodsWidgetBundle: WidgetBundle {
     var body: some Widget {
+        AwaitGoodsJarWidget()
         AwaitGoodsBoardWidget()
         AwaitGoodsWidget()
         AwaitGoodsPhotoWidget()
