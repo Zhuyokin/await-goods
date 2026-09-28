@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A6C239874DA241BBB181CED2 /* AppBackgroundIllustration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6C239874DA241BBB181CED1 /* AppBackgroundIllustration.swift */; };
 		007348111EE05520A1EBF50B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1F63F0A2808DAB7012964E /* StatsView.swift */; };
 		01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */; };
 		1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BFD927CCD956A68378D2F1 /* OnboardingView.swift */; };
@@ -59,7 +60,7 @@
 		CFA47A78220ED559D7F9EB2F /* WishBoardIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD26EC20DE061652E0D4E0BC /* WishBoardIntents.swift */; };
 		CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */; };
 		D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */; };
-		D72B9E8EE9E0AB093CE5861A /* WillowBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F53848DB78EDC1D7AC0E9F /* WillowBackdrop.swift */; };
+		D72B9E8EE9E0AB093CE5861A /* IllustrationBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */; };
 		D744EAEA11AC5C74A792771E /* DebugSeedImages in Resources */ = {isa = PBXBuildFile; fileRef = 7AB269B8B344BD3D5B0E18EE /* DebugSeedImages */; };
 		DD5B0758A07E52D550504586 /* AppWishStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE665FBAE1D0BB5F1EBD60DA /* AppWishStore.swift */; };
 		E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
@@ -113,6 +114,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A6C239874DA241BBB181CED1 /* AppBackgroundIllustration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackgroundIllustration.swift; sourceTree = "<group>"; };
 		00133B432093F41F0FC4B014 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		005C425381D5357BFC1BB1BC /* WatchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeView.swift; sourceTree = "<group>"; };
 		00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
@@ -162,7 +164,7 @@
 		C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemStatus.swift; sourceTree = "<group>"; };
 		C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5287735703579D6E51D6BAC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C5F53848DB78EDC1D7AC0E9F /* WillowBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WillowBackdrop.swift; sourceTree = "<group>"; };
+		C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IllustrationBackdrop.swift; sourceTree = "<group>"; };
 		C96138BFA2D803862E5AFF06 /* WidgetActionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetActionService.swift; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
 		CDD1875F62F091465AAED568 /* AwaitGoodsWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWatchApp.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 				CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */,
 				00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */,
 				4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */,
+				A6C239874DA241BBB181CED1 /* AppBackgroundIllustration.swift */,
 				4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */,
 				78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */,
 				708A78E8FDF0E2F171E13882 /* MarkColor.swift */,
@@ -315,7 +318,7 @@
 				51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */,
 				00133B432093F41F0FC4B014 /* EmptyStateView.swift */,
 				83F51BB09909F523764B4634 /* StatusBadge.swift */,
-				C5F53848DB78EDC1D7AC0E9F /* WillowBackdrop.swift */,
+				C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -477,6 +480,7 @@
 				458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */,
 				CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */,
 				790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */,
+				A6C239874DA241BBB181CED2 /* AppBackgroundIllustration.swift in Sources */,
 				4AE07D9F619E17919342E861 /* AppTheme.swift in Sources */,
 				DD5B0758A07E52D550504586 /* AppWishStore.swift in Sources */,
 				D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */,
@@ -497,7 +501,7 @@
 				CCE2E99F7E28D82EA1612FDB /* WidgetActionService.swift in Sources */,
 				3029965AC78DBF75A86D1C7F /* WidgetSavingsMutation.swift in Sources */,
 				2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */,
-				D72B9E8EE9E0AB093CE5861A /* WillowBackdrop.swift in Sources */,
+				D72B9E8EE9E0AB093CE5861A /* IllustrationBackdrop.swift in Sources */,
 				5432C12BA60F1742806B7EC6 /* WishBoardIntents.swift in Sources */,
 				1ECAF37124243C7856D660F0 /* WishBoardState.swift in Sources */,
 				A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */,

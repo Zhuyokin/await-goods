@@ -10,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
+    @AppStorage(AppBackgroundIllustration.storageKey) private var backgroundIllustration: AppBackgroundIllustration = .sakura
 
     let items: [WishItem]
     let onChange: () -> Void
@@ -81,6 +82,12 @@ struct SettingsView: View {
                 themeSelectionPage
             } label: {
                 settingsRow("主题配色", icon: "paintpalette", value: appLanguage.text(currentTheme.title))
+            }
+
+            NavigationLink {
+                backgroundIllustrationSelectionPage
+            } label: {
+                settingsRow("背景插画", icon: "photo", value: appLanguage.text(backgroundIllustration.title))
             }
         } header: {
             Text(appLanguage.text("外观与语言"))
@@ -220,6 +227,22 @@ struct SettingsView: View {
         }
         .settingsListStyle()
         .navigationTitle(appLanguage.text("主题配色"))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var backgroundIllustrationSelectionPage: some View {
+        List {
+            Section {
+                ForEach(AppBackgroundIllustration.allCases) { illustration in
+                    selectionRow(appLanguage.text(illustration.title), isSelected: backgroundIllustration == illustration) {
+                        backgroundIllustration = illustration
+                    }
+                }
+            }
+            .listRowBackground(HWTheme.cardBackground)
+        }
+        .settingsListStyle()
+        .navigationTitle(appLanguage.text("背景插画"))
         .navigationBarTitleDisplayMode(.inline)
     }
 

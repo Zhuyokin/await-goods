@@ -92,7 +92,7 @@ struct WishListView: View {
             itemScrollView
         }
         .toolbar(.hidden, for: .navigationBar)
-        .background { WillowBackdrop() }
+        .background { IllustrationBackdrop() }
         .environment(\.editMode, $editMode)
         .safeAreaInset(edge: .bottom) { bottomBar }
         .sheet(isPresented: $showingQuickAddSheet, onDismiss: {

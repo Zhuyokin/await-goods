@@ -32,7 +32,7 @@ struct StatsView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 28)
             }
-            .background { WillowBackdrop(illustrationSize: 480) }
+            .background { IllustrationBackdrop(illustrationSize: 480) }
             .toolbar(.hidden, for: .navigationBar)
         }
     }

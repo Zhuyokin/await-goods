@@ -1,7 +1,8 @@
 import SwiftUI
 
-struct WillowBackdrop: View {
+struct IllustrationBackdrop: View {
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage(AppBackgroundIllustration.storageKey) private var illustration: AppBackgroundIllustration = .sakura
     var illustrationSize: CGFloat = 360
 
     var body: some View {
@@ -12,12 +13,12 @@ struct WillowBackdrop: View {
                 endPoint: .bottomTrailing
             )
             .overlay(alignment: .topTrailing) {
-                Image("WillowBranches")
+                Image(illustration.assetName)
                     .resizable()
                     .scaledToFit()
                     .frame(width: illustrationSize, height: illustrationSize)
-                    .opacity(colorScheme == .dark ? 0.28 : 0.72)
-                    .offset(x: illustrationSize * 0.16, y: -illustrationSize * 0.12)
+                    .opacity(colorScheme == .dark ? 0.24 : 0.56)
+                    .offset(x: illustrationSize * 0.10, y: -illustrationSize * 0.12)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .clipped()
