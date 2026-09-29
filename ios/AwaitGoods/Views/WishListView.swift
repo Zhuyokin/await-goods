@@ -128,23 +128,51 @@ struct WishListView: View {
             ? max(1, Int((contentWidth + spacing) / 292))
             : max(2, Int((contentWidth + spacing) / 202))
         let cardWidth = (contentWidth - CGFloat(count - 1) * spacing) / CGFloat(count)
-        return ScrollView {
-            if displayedItems.isEmpty {
-                EmptyStateView().padding(.top, 48).padding(.horizontal, 16)
-            } else {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: spacing, alignment: .top), count: count), spacing: spacing) {
-                    ForEach(displayedItems) { item in
-                        gridCard(for: item, width: cardWidth)
+        return GeometryReader { viewport in
+            ScrollView {
+                if displayedItems.isEmpty {
+                    EmptyStateView(
+                        state: emptyState,
+                        illustrationSize: min(viewport.size.width * 0.7, min(max(viewport.size.height * 0.42, 180), 300)),
+                        onAction: handleEmptyStateAction
+                    )
+                    .frame(minHeight: viewport.size.height)
+                } else {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: spacing, alignment: .top), count: count), spacing: spacing) {
+                        ForEach(displayedItems) { item in
+                            gridCard(for: item, width: cardWidth)
+                        }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, isEditing ? 20 : 88)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: displayedItemIDs)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-                .padding(.bottom, isEditing ? 20 : 88)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: displayedItemIDs)
             }
+            .scrollDismissesKeyboard(.interactively)
+            .id(selectedStatus)
         }
-        .scrollDismissesKeyboard(.interactively)
-        .id(selectedStatus)
+    }
+
+    private var emptyState: WishListEmptyState {
+        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return .search }
+        if activeItems.isEmpty { return .collection }
+        switch selectedStatus {
+        case .waiting: return .waiting
+        case .bought: return .bought
+        case .released: return .released
+        case nil: return .collection
+        }
+    }
+
+    private func handleEmptyStateAction() {
+        searchFieldFocused = false
+        finishEditing()
+        switch emptyState {
+        case .collection, .waiting: navigationPath.append(.add)
+        case .bought, .released: selectedStatus = nil
+        case .search: searchText = ""
+        }
     }
 
     @ViewBuilder
@@ -348,7 +376,7 @@ struct WishListView: View {
 
     @ViewBuilder
     private var floatingAccessoryButtons: some View {
-        if !isEditing {
+        if !isEditing && !displayedItems.isEmpty {
             HStack {
                 Spacer()
                 Button {

@@ -9,8 +9,8 @@ struct SettingsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("appearanceMode") private var appearanceMode = AppAppearanceMode.system.rawValue
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
-    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
-    @AppStorage(AppBackgroundIllustration.storageKey) private var backgroundIllustration: AppBackgroundIllustration = .sakura
+    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppIllustratedTheme.current.colorTheme.rawValue
+    @AppStorage(AppIllustratedTheme.storageKey) private var illustratedTheme: AppIllustratedTheme = .sakura
 
     let items: [WishItem]
     let onChange: () -> Void
@@ -25,7 +25,7 @@ struct SettingsView: View {
     private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
     private var currentLanguage: AppLanguage { AppLanguage(rawValue: appLanguageRawValue) ?? .zhHans }
     private var currentAppearanceMode: AppAppearanceMode { AppAppearanceMode(rawValue: appearanceMode) ?? .system }
-    private var currentTheme: AppTheme { AppTheme(rawValue: appThemeRawValue) ?? .springPaper }
+    private var currentTheme: AppTheme { AppTheme(rawValue: appThemeRawValue) ?? illustratedTheme.colorTheme }
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.11"
     }
@@ -79,15 +79,15 @@ struct SettingsView: View {
             }
 
             NavigationLink {
-                themeSelectionPage
+                illustratedThemeSelectionPage
             } label: {
-                settingsRow("主题配色", icon: "paintpalette", value: appLanguage.text(currentTheme.title))
+                settingsRow("主题", icon: "photo", value: appLanguage.text(illustratedTheme.title))
             }
 
             NavigationLink {
-                backgroundIllustrationSelectionPage
+                themeSelectionPage
             } label: {
-                settingsRow("背景插画", icon: "photo", value: appLanguage.text(backgroundIllustration.title))
+                settingsRow("配色", icon: "paintpalette", value: appLanguage.text(currentTheme.title))
             }
         } header: {
             Text(appLanguage.text("外观与语言"))
@@ -226,24 +226,83 @@ struct SettingsView: View {
             .listRowBackground(HWTheme.cardBackground)
         }
         .settingsListStyle()
-        .navigationTitle(appLanguage.text("主题配色"))
+        .navigationTitle(appLanguage.text("配色"))
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var backgroundIllustrationSelectionPage: some View {
-        List {
-            Section {
-                ForEach(AppBackgroundIllustration.allCases) { illustration in
-                    selectionRow(appLanguage.text(illustration.title), isSelected: backgroundIllustration == illustration) {
-                        backgroundIllustration = illustration
+    private var illustratedThemeSelectionPage: some View {
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: 18)], spacing: 18) {
+                ForEach(AppIllustratedTheme.allCases) { theme in
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
+                            illustratedTheme = theme
+                            appThemeRawValue = theme.colorTheme.rawValue
+                        }
+                    } label: {
+                        VStack(spacing: 0) {
+                            themePreview(theme)
+                            HStack(spacing: 12) {
+                                Text(appLanguage.text(theme.title))
+                                    .font(.headline)
+                                    .foregroundStyle(HWTheme.primaryText)
+                                HStack(spacing: 4) {
+                                    ForEach(Array(theme.colorTheme.swatchColors.enumerated()), id: \.offset) { _, color in
+                                        Circle().fill(color).frame(width: 10, height: 10)
+                                    }
+                                }
+                                .accessibilityHidden(true)
+                                Spacer()
+                                selectionMark(illustratedTheme == theme)
+                            }
+                            .padding(18)
+                        }
+                        .background(HWTheme.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 22))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 22)
+                                .stroke(illustratedTheme == theme ? HWTheme.freshGreen : HWTheme.cardBorder.opacity(0.4), lineWidth: illustratedTheme == theme ? 1.5 : 0.5)
+                        }
+                        .contentShape(RoundedRectangle(cornerRadius: 22))
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(appLanguage.text(theme.title))
+                    .accessibilityAddTraits(illustratedTheme == theme ? .isSelected : [])
                 }
             }
-            .listRowBackground(HWTheme.cardBackground)
+            .padding(20)
+            .frame(maxWidth: 900)
+            .frame(maxWidth: .infinity)
         }
-        .settingsListStyle()
-        .navigationTitle(appLanguage.text("背景插画"))
+        .background { IllustrationBackdrop() }
+        .navigationTitle(appLanguage.text("主题"))
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func themePreview(_ theme: AppIllustratedTheme) -> some View {
+        ZStack {
+            theme.colorTheme.previewBackground
+            Image(theme.emptyStateAssetName)
+                .resizable().scaledToFit()
+                .frame(width: 156, height: 156)
+        }
+        .overlay(alignment: .topTrailing) {
+            Image(theme.topAssetName)
+                .resizable().scaledToFit()
+                .frame(width: 145, height: 145)
+                .opacity(0.48)
+                .offset(x: 14, y: -18)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Image(theme.bottomAssetName)
+                .resizable().scaledToFit()
+                .frame(width: 150, height: 150)
+                .opacity(0.48)
+                .offset(x: -18, y: 6)
+        }
+        .frame(height: 204)
+        .clipped()
+        .accessibilityHidden(true)
     }
 
     private func settingsRow(_ title: String, icon: String, value: String? = nil, color: Color? = nil) -> some View {
@@ -571,7 +630,7 @@ private extension View {
             .listSectionSpacing(.compact)
             .environment(\.defaultMinListRowHeight, 52)
             .scrollContentBackground(.hidden)
-            .background(HWTheme.pageBackground.ignoresSafeArea())
+            .background { IllustrationBackdrop() }
             .tint(HWTheme.freshGreen)
     }
 }

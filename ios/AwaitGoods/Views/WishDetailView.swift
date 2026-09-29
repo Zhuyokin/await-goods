@@ -44,7 +44,7 @@ struct WishDetailView: View {
                 isDepositFocused = true
             }
         }
-        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .background { IllustrationBackdrop() }
         .overlay { changeEffectOverlay }
         .navigationTitle(appLanguage.text("心愿详情"))
         .navigationBarTitleDisplayMode(.inline)

@@ -8,7 +8,7 @@ struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
-    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppTheme.springPaper.rawValue
+    @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppIllustratedTheme.current.colorTheme.rawValue
     @State private var splitViewVisibility: NavigationSplitViewVisibility = .all
     @State private var wishListStatus: WishItemStatus?
     @State private var wishListNavigationID = UUID()

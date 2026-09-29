@@ -68,7 +68,7 @@ struct WishEditorView: View {
             .frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively)
-        .background(HWTheme.pageBackground.ignoresSafeArea())
+        .background { IllustrationBackdrop() }
         .safeAreaInset(edge: .bottom) { saveButton }
         .navigationTitle(appLanguage.text(item == nil ? "添加心愿" : "编辑心愿"))
         .navigationBarTitleDisplayMode(.inline)

@@ -47,7 +47,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     static var current: AppTheme {
-        AppTheme(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "") ?? .springPaper
+        AppTheme(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "") ?? AppIllustratedTheme.current.colorTheme
     }
 
     var title: String {
