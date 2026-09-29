@@ -23,6 +23,9 @@ struct WishStatistics {
         }.sorted { $0.count == $1.count ? $0.name < $1.name : $0.count > $1.count }
     }
 
+    var completedCount: Int { items(for: .bought).count }
+    var completionProgress: Double { activeItems.isEmpty ? 0 : Double(completedCount) / Double(activeItems.count) }
+
     var remaining: Double { max(budget - saved, 0) }
     var progress: Double { budget > 0 ? min(max(saved / budget, 0), 1) : 0 }
 

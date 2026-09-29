@@ -35,6 +35,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     private static let translations: [String: [String: String]] = [
         "zhHant": [
+            "最近添加": "最近新增",
+            "已完成": "已完成",
+            "共 %d 件心愿": "共 %d 件心願",
             "选择": "選擇",
             "更多": "更多",
             "全选": "全選",
@@ -291,6 +294,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日先不急著擁有"
         ],
         "en": [
+            "已完成": "Completed",
+            "共 %d 件心愿": "%d wishes",
             "选择": "Select",
             "更多": "More",
             "全选": "Select all",
@@ -567,6 +572,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "No need to own it today"
         ],
         "ja": [
+            "已完成": "達成済み",
+            "共 %d 件心愿": "合計%d件のウィッシュ",
             "选择": "選択",
             "更多": "その他",
             "全选": "すべて選択",
@@ -789,6 +796,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日はまだ所有を急がない"
         ],
         "fr": [
+            "已完成": "Réalisés",
+            "共 %d 件心愿": "%d souhaits",
             "选择": "Sélectionner",
             "更多": "Plus",
             "全选": "Tout sélectionner",
@@ -1015,6 +1024,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Pas besoin de posséder aujourd’hui"
         ],
         "de": [
+            "已完成": "Erfüllt",
+            "共 %d 件心愿": "%d Wünsche",
             "选择": "Auswählen",
             "更多": "Mehr",
             "全选": "Alle auswählen",
@@ -1241,6 +1252,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Heute muss es nicht sofort Ihnen gehören"
         ],
         "it": [
+            "已完成": "Realizzati",
+            "共 %d 件心愿": "%d desideri",
             "选择": "Seleziona",
             "更多": "Altro",
             "全选": "Seleziona tutto",
@@ -1467,6 +1480,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Oggi non serve possederlo subito"
         ],
         "ko": [
+            "已完成": "완료",
+            "共 %d 件心愿": "위시 총 %d개",
             "选择": "선택",
             "更多": "더보기",
             "全选": "전체 선택",
