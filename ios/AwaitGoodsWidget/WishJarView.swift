@@ -200,6 +200,7 @@ private enum JarPalette {
 }
 
 struct WishJarArtwork: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let cards: [WishJarCard]
     var selectedID: UUID? = nil
     private var focus: WishJarCard? { cards.first { $0.id == selectedID } ?? cards.first }
@@ -207,24 +208,31 @@ struct WishJarArtwork: View {
     var body: some View {
         GeometryReader { geometry in
             let scale = min(geometry.size.width / 240, geometry.size.height / 270)
+            let focusedIndex = cards.firstIndex { $0.id == focus?.id } ?? 0
+            let drift = focusedIndex.isMultiple(of: 2) ? -1.0 : 1.0
             ZStack {
                 floorShadow
-                glassBack
                 ZStack {
-                    contents
-                    if let focus {
-                        WishJarFocusedCard(card: focus)
-                            .frame(width: cards.count == 1 ? 99 : 92, height: cards.count == 1 ? 117 : 109)
-                            .rotationEffect(.degrees(-8))
-                            .position(x: 119, y: 184)
-                            .id(focus.id)
-                            .transition(.asymmetric(insertion: .offset(y: 10).combined(with: .opacity), removal: .opacity))
+                    glassBack
+                    ZStack {
+                        contents
+                        if let focus {
+                            WishJarFocusedCard(card: focus)
+                                .frame(width: cards.count == 1 ? 99 : 92, height: cards.count == 1 ? 117 : 109)
+                                .rotationEffect(.degrees(-8))
+                                .position(x: 119, y: 184)
+                                .id(focus.id)
+                                .transition(reduceMotion ? .opacity : .asymmetric(insertion: .offset(y: 10).combined(with: .opacity), removal: .opacity))
+                        }
                     }
+                    .animation(.easeInOut(duration: reduceMotion ? 0.2 : 0.8), value: focus?.id)
+                    .clipShape(JarOutline())
+                    glassFront
+                    closure
                 }
-                .animation(.easeInOut(duration: 0.6), value: focus?.id)
-                .clipShape(JarOutline())
-                glassFront
-                closure
+                .rotationEffect(.degrees(reduceMotion || cards.count < 2 ? 0 : drift))
+                .offset(y: reduceMotion || cards.count < 2 ? 0 : drift * 3)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 1.6), value: focus?.id)
             }
             .frame(width: 240, height: 270)
             .scaleEffect(scale)
