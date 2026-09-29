@@ -209,26 +209,36 @@ struct WishPhotoPicker: View {
     @State private var showingError = false
 
     var body: some View {
-        HStack(spacing: 12) {
-            PhotosPicker(selection: $selection, matching: .images) {
-                HStack(spacing: 12) {
-                    WishPhoto(data: photoData, width: 64, height: 64)
-                    Text(appLanguage.text(photoData == nil ? "添加商品图片" : "更换商品图片"))
-                        .font(.system(size: 14, weight: .medium))
+        PhotosPicker(selection: $selection, matching: .images) {
+            ZStack {
+                if let photoData, let photo = UIImage(data: photoData) {
+                    Image(uiImage: photo).resizable().scaledToFit().padding(10)
+                } else {
+                    VStack(spacing: 9) {
+                        Image(systemName: "photo.badge.plus").font(.system(size: 24, weight: .light))
+                        Text(appLanguage.text("添加图片")).font(.system(size: 11))
+                    }
+                    .foregroundStyle(HWTheme.secondaryText)
+                }
+                if isLoading { ProgressView() }
+            }
+            .frame(width: 92, height: 90)
+            .background(HWTheme.cream.opacity(0.65), in: RoundedRectangle(cornerRadius: 19))
+            .overlay(alignment: .bottomTrailing) {
+                if photoData != nil {
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 11))
                         .foregroundStyle(HWTheme.freshGreen)
+                        .padding(7)
+                        .background(HWTheme.cardBackground, in: Circle())
+                        .offset(x: 4, y: 4)
                 }
             }
-            .buttonStyle(.plain)
-            Spacer(minLength: 0)
-            if isLoading {
-                ProgressView()
-            } else if photoData != nil {
-                Button(appLanguage.text("删除"), role: .destructive) {
-                    selection = nil
-                    photoData = nil
-                }
-                .font(.system(size: 12))
-            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(appLanguage.text(photoData == nil ? "添加商品图片" : "更换商品图片"))
+        .onChange(of: photoData) { _, data in
+            if data == nil { selection = nil }
         }
         .task(id: selection) {
             guard let selection else { return }

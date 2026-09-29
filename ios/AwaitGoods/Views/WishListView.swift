@@ -3,11 +3,10 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
-private enum QuickAddField: Hashable {
-    case title
-    case price
-    case saved
-    case category
+private enum WishPage: Hashable {
+    case detail(UUID)
+    case add
+    case edit(UUID)
 }
 
 struct WishListView: View {
@@ -23,47 +22,40 @@ struct WishListView: View {
     @State private var sortMode = SortMode.manual
     @State private var editMode = EditMode.inactive
     @State private var selectedIDs = Set<UUID>()
-    @State private var showingEditor = false
-    @State private var editingItem: WishItem?
-    @State private var selectedDetailItem: WishItem?
+    @State private var navigationPath: [WishPage] = []
+    @State private var pendingEditID: UUID?
     @State private var routeWaitingForDismissal = false
     @State private var itemToDelete: WishItem?
     @State private var actionItem: WishItem?
     @State private var showingBulkDeleteConfirmation = false
-    @State private var showingQuickAddSheet = false
     @State private var showingTrash = false
     @State private var linkCopiedToastVisible = false
     @State private var linkCopiedToastToken = UUID()
     @State private var changeEffect: WishChangeEffect?
     @State private var changeEffectToken = UUID()
-    @State private var quickAddPhotoData: Data?
-    @State private var isQuickAddPhotoLoading = false
-    @State private var quickAddTitle = ""
-    @State private var quickAddPriceText = ""
-    @State private var quickAddSavedText = ""
-    @State private var quickAddCategory = ""
     @State private var draggedItem: WishItem?
     @State private var dragOrderedIDs: [UUID] = []
     @FocusState private var searchFieldFocused: Bool
-    @FocusState private var quickAddField: QuickAddField?
 
     private var isEditing: Bool { editMode.isEditing }
     private var activeItems: [WishItem] { items.filter { !$0.isTrashed } }
     private var trashedItems: [WishItem] { items.filter(\.isTrashed) }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             rootContent
+                .navigationDestination(for: WishPage.self) { page in
+                    destination(for: page)
+                }
         }
+        .toolbar(navigationPath.isEmpty ? .visible : .hidden, for: .tabBar)
         .task(id: wishRoute) {
             guard wishRoute != nil, !routeWaitingForDismissal else { return }
-            if showingEditor || showingQuickAddSheet || showingTrash || actionItem != nil || selectedDetailItem != nil {
+            if showingTrash || actionItem != nil {
                 routeWaitingForDismissal = true
-                showingEditor = false
-                showingQuickAddSheet = false
                 showingTrash = false
                 actionItem = nil
-                selectedDetailItem = nil
+                pendingEditID = nil
             } else {
                 presentWishRoute()
             }
@@ -75,15 +67,23 @@ struct WishListView: View {
         guard let route = wishRoute else { return }
         wishRoute = nil
         switch route {
-        case .home: selectedStatus = .waiting
-        case .add: showingQuickAddSheet = true
-        case .wish(let id): selectedDetailItem = activeItems.first { $0.id == id }
+        case .home:
+            selectedStatus = .waiting
+            navigationPath = []
+        case .add:
+            navigationPath = [.add]
+        case .wish(let id):
+            navigationPath = activeItems.contains { $0.id == id } ? [.detail(id)] : []
         }
     }
 
     private func finishRouteDismissal() {
-        guard routeWaitingForDismissal else { return }
-        presentWishRoute()
+        if routeWaitingForDismissal {
+            presentWishRoute()
+        } else if let id = pendingEditID {
+            pendingEditID = nil
+            navigationPath.append(.edit(id))
+        }
     }
 
     private var rootContent: some View {
@@ -91,16 +91,11 @@ struct WishListView: View {
             headerView
             itemScrollView
         }
+        .navigationTitle(appLanguage.text("候物"))
         .toolbar(.hidden, for: .navigationBar)
         .background { IllustrationBackdrop() }
         .environment(\.editMode, $editMode)
         .safeAreaInset(edge: .bottom) { bottomBar }
-        .sheet(isPresented: $showingQuickAddSheet, onDismiss: {
-            resetQuickAddDraft()
-            finishRouteDismissal()
-        }) { quickAddSheet }
-        .sheet(isPresented: $showingEditor, onDismiss: finishRouteDismissal) { editorSheet }
-        .sheet(item: $selectedDetailItem, onDismiss: finishRouteDismissal) { item in detailSheet(for: item) }
         .sheet(item: $actionItem, onDismiss: finishRouteDismissal) { item in actionSheet(for: item) }
         .sheet(isPresented: $showingTrash, onDismiss: finishRouteDismissal) { trashSheet }
         .overlay(alignment: .bottom) { floatingAccessoryButtons }
@@ -177,20 +172,30 @@ struct WishListView: View {
         )
     }
 
-    private var editorSheet: some View {
-        let isCreatingItem = editingItem == nil
-
-        return WishEditorView(item: editingItem, existingItems: activeItems) { _ in
-            if isCreatingItem {
-                selectedStatus = .waiting
-                sortMode = .manual
+    @ViewBuilder
+    private func destination(for page: WishPage) -> some View {
+        switch page {
+        case .add:
+            editor(for: nil)
+        case .edit(let id):
+            if let item = activeItems.first(where: { $0.id == id }) {
+                editor(for: item)
             }
-            persistChanges()
+        case .detail(let id):
+            if let item = activeItems.first(where: { $0.id == id }) {
+                WishDetailView(item: item, onEdit: { navigationPath.append(.edit(id)) }) {
+                    persistChanges()
+                }
+            }
         }
     }
 
-    private func detailSheet(for item: WishItem) -> some View {
-        WishDetailView(item: item) {
+    private func editor(for item: WishItem?) -> some View {
+        WishEditorView(item: item, existingItems: activeItems) { _ in
+            if item == nil {
+                selectedStatus = .waiting
+                sortMode = .manual
+            }
             persistChanges()
         }
     }
@@ -387,7 +392,7 @@ struct WishListView: View {
         Button {
             withAnimation(.easeInOut(duration: 0.18)) {
                 selectedStatus = .waiting
-                showingQuickAddSheet = true
+                navigationPath.append(.add)
             }
         } label: {
             HStack(spacing: 7) {
@@ -488,133 +493,6 @@ struct WishListView: View {
         .buttonStyle(.plain)
     }
 
-    private var quickAddSheet: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(appLanguage.text("先记下一个心愿"))
-                            .font(.system(size: 22, weight: .semibold))
-                            .foregroundStyle(HWTheme.primaryText)
-
-                        Text(appLanguage.text("少填几项也没关系，清单会安静地接住它。"))
-                            .font(.system(size: 13))
-                            .foregroundStyle(HWTheme.secondaryText)
-                    }
-
-                    HStack(spacing: 12) {
-                        Image(systemName: "square.and.pencil")
-                            .font(.system(size: 17, weight: .regular))
-                            .foregroundStyle(HWTheme.softWood)
-
-                        TextField(appLanguage.text("先记下一个心愿"), text: $quickAddTitle)
-                            .font(.system(size: 16, weight: .medium))
-                            .focused($quickAddField, equals: .title)
-                            .submitLabel(.next)
-                            .onSubmit { quickAddField = .price }
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 13)
-                    .background(HWTheme.cardBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(HWTheme.cardBorder.opacity(0.58), lineWidth: 0.8)
-                    )
-
-                    HStack(spacing: 8) {
-                        compactQuickField(appLanguage.text("价格"), text: $quickAddPriceText, icon: "dollarsign", field: .price)
-                            .keyboardType(.decimalPad)
-                            .submitLabel(.next)
-                            .onSubmit { quickAddField = .saved }
-
-                        compactQuickField(appLanguage.text("已存"), text: $quickAddSavedText, icon: "banknote", field: .saved)
-                            .keyboardType(.decimalPad)
-                            .submitLabel(.next)
-                            .onSubmit { quickAddField = .category }
-
-                        compactQuickField(appLanguage.text("标签"), text: $quickAddCategory, icon: "tag", field: .category)
-                            .submitLabel(.done)
-                    }
-
-                    WishPhotoPicker(photoData: $quickAddPhotoData, isLoading: $isQuickAddPhotoLoading)
-
-                    quickCategorySuggestions
-
-                    if let quickAddValidationMessage {
-                        Text(quickAddValidationMessage)
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundStyle(HWTheme.dangerRed)
-                    }
-
-                    Button(action: quickAdd) {
-                        Text(appLanguage.text("先放进清单"))
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(HWTheme.cardBackground)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(canQuickAdd ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.72))
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    }
-                    .disabled(!canQuickAdd || isQuickAddPhotoLoading)
-                    .buttonStyle(.plain)
-                }
-                .padding(18)
-            }
-            .background(HWTheme.pageBackground.ignoresSafeArea())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(appLanguage.text("取消")) { closeQuickAddSheet() }
-                        .foregroundStyle(HWTheme.secondaryText)
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(HWTheme.pageBackground)
-        .onAppear {
-            quickAddField = .title
-        }
-    }
-
-    private func compactQuickField(_ title: String, text: Binding<String>, icon: String, field: QuickAddField) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 12, weight: .regular))
-                .foregroundStyle(HWTheme.freshGreen)
-
-            TextField(title, text: text)
-                .font(.system(size: 13, weight: .medium))
-                .focused($quickAddField, equals: field)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 9)
-        .background(HWTheme.fieldBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-
-    private var quickCategorySuggestions: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 7) {
-                ForEach(WishCategoryCatalog.suggestions(from: activeItems, including: quickAddCategory), id: \.self) { category in
-                    Button {
-                        quickAddCategory = category
-                    } label: {
-                        Text(appLanguage.text(category))
-                            .font(.system(size: 12, weight: trimmedQuickAddCategory == category ? .medium : .regular))
-                            .foregroundStyle(trimmedQuickAddCategory == category ? HWTheme.cardBackground : HWTheme.secondaryText)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 6)
-                            .background(trimmedQuickAddCategory == category ? HWTheme.freshGreen.opacity(0.82) : HWTheme.fieldBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
     @ViewBuilder
     private var sortMenuContent: some View {
         ForEach(SortMode.allCases) { mode in
@@ -656,14 +534,6 @@ struct WishListView: View {
         displayedItems.map(\.id)
     }
 
-    private var trimmedQuickAddTitle: String {
-        quickAddTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedQuickAddCategory: String {
-        quickAddCategory.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
     @ViewBuilder
     private var copyLinkToast: some View {
         if linkCopiedToastVisible {
@@ -678,28 +548,6 @@ struct WishListView: View {
                 .padding(.bottom, isEditing ? 108 : 18)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         }
-    }
-
-    private var quickAddParsedPrice: Double? {
-        normalizedAmount(from: quickAddPriceText)
-    }
-
-    private var quickAddParsedSavedAmount: Double {
-        normalizedAmount(from: quickAddSavedText) ?? 0
-    }
-
-    private var quickAddValidationMessage: String? {
-        let hasPrice = !quickAddPriceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        let hasSaved = !quickAddSavedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-
-        if hasPrice && quickAddParsedPrice == nil { return appLanguage.text("价格需大于 0") }
-        if hasSaved && normalizedAmount(from: quickAddSavedText) == nil { return appLanguage.text("已存需大于 0") }
-        if let quickAddParsedPrice, quickAddParsedSavedAmount > quickAddParsedPrice { return appLanguage.text("已存不能超过价格") }
-        return nil
-    }
-
-    private var canQuickAdd: Bool {
-        !trimmedQuickAddTitle.isEmpty && quickAddValidationMessage == nil
     }
 
     private var deleteConfirmationBinding: Binding<Bool> {
@@ -731,13 +579,17 @@ struct WishListView: View {
         if isEditing {
             rowCheckTapped(item)
         } else {
-            selectedDetailItem = item
+            navigationPath.append(.detail(item.id))
         }
     }
 
     private func edit(_ item: WishItem) {
-        editingItem = item
-        showingEditor = true
+        if actionItem != nil {
+            pendingEditID = item.id
+            actionItem = nil
+        } else {
+            navigationPath.append(.edit(item.id))
+        }
     }
 
     private func updateStatus(_ status: WishItemStatus, for item: WishItem) {
@@ -908,54 +760,6 @@ struct WishListView: View {
             item.updatedAt = Date()
         }
         persistChanges()
-    }
-
-    private func quickAdd() {
-        guard canQuickAdd && !isQuickAddPhotoLoading else { return }
-        let nextIndex = WishSortIndexPolicy.prepareForNewItem(existingItems: activeItems)
-        let newItem = WishItem(
-            title: trimmedQuickAddTitle,
-            price: quickAddParsedPrice,
-            linkString: "",
-            note: "",
-            category: trimmedQuickAddCategory,
-            priority: .medium,
-            markColor: .none,
-            sortIndex: nextIndex,
-            notifyEnabled: false,
-            savedAmount: quickAddParsedSavedAmount,
-            photoData: quickAddPhotoData
-        )
-        newItem.reconcileSavingsStatus()
-        modelContext.insert(newItem)
-        selectedStatus = .waiting
-        sortMode = .manual
-        persistChanges()
-        closeQuickAddSheet()
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-    }
-
-    private func closeQuickAddSheet() {
-        resetQuickAddDraft()
-        showingQuickAddSheet = false
-    }
-
-    private func resetQuickAddDraft() {
-        quickAddPhotoData = nil
-        isQuickAddPhotoLoading = false
-        quickAddTitle = ""
-        quickAddPriceText = ""
-        quickAddSavedText = ""
-        quickAddCategory = ""
-        quickAddField = nil
-    }
-
-    private func normalizedAmount(from text: String) -> Double? {
-        let normalized = text
-            .replacingOccurrences(of: ",", with: ".")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let value = Double(normalized), value > 0 else { return nil }
-        return value
     }
 
     private func toggleSearch() {

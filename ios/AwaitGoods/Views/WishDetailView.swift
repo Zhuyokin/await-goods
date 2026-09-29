@@ -4,250 +4,237 @@ import UIKit
 
 struct WishDetailView: View {
     @Environment(\.appLanguage) private var appLanguage
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var modelContext
 
     let item: WishItem
+    let onEdit: () -> Void
     let onChange: () -> Void
 
-    @State private var isEditing = false
     @State private var depositText = ""
     @State private var changeEffect: WishChangeEffect?
     @State private var changeEffectToken = UUID()
 
     var body: some View {
-        NavigationStack {
-            if isEditing {
-                WishEditorView(
-                    item: item,
-                    existingItems: [item],
-                    embedsInNavigationStack: false,
-                    dismissOnSave: false,
-                    onCancel: { isEditing = false }
-                ) { _ in
-                    persistChanges()
-                    isEditing = false
-                }
-            } else {
-                detailContent
-            }
-        }
-    }
-
-    private var detailContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                headerCard
+            VStack(alignment: .leading, spacing: 18) {
+                header
                 savingsSection
-
                 if item.linkURL != nil || !item.note.isEmpty {
                     recordSection
                 }
-
-                detailSection(appLanguage.text("现在怎么处理")) {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                        statusAction(appLanguage.text(WishItemStatus.bought.title), icon: WishItemStatus.bought.iconName, status: .bought)
-                        statusAction(appLanguage.text(WishItemStatus.waiting.title), icon: WishItemStatus.waiting.iconName, status: .waiting)
-                        statusAction(appLanguage.text(WishItemStatus.released.title), icon: WishItemStatus.released.iconName, status: .released)
-                    }
-                }
+                statusSelector
             }
-            .padding(14)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 24)
+            .frame(maxWidth: 660)
+            .frame(maxWidth: .infinity)
         }
         .scrollDismissesKeyboard(.interactively)
         .background(HWTheme.pageBackground.ignoresSafeArea())
         .overlay { changeEffectOverlay }
-        .navigationTitle(appLanguage.text("详情"))
+        .navigationTitle(appLanguage.text("心愿详情"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
+        .toolbarBackground(HWTheme.pageBackground, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(appLanguage.text("返回")) { dismiss() }
-            }
-
             ToolbarItem(placement: .topBarTrailing) {
-                Button(appLanguage.text("编辑")) { isEditing = true }
-                    .foregroundStyle(HWTheme.weChatGreen)
+                Button(appLanguage.text("编辑"), action: onEdit)
             }
         }
+        .tint(HWTheme.freshGreen)
     }
 
-    private var headerCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                Text(item.title)
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundStyle(HWTheme.primaryText)
-                    .lineLimit(3)
-
-                Spacer()
-
-                StatusBadge(status: item.status)
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            if let data = item.photoData, let photo = UIImage(data: data) {
+                Image(uiImage: photo)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(20)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 242)
+                    .background(HWTheme.cream.opacity(0.65), in: RoundedRectangle(cornerRadius: 24))
+                    .accessibilityLabel(item.title)
+                    .overlay(alignment: .topTrailing) {
+                        StatusBadge(status: item.status).padding(14)
+                    }
             }
 
-            HStack(spacing: 7) {
-                if let priceText {
-                    infoPill(priceText, color: HWTheme.freshGreen)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 12) {
+                    Text(item.title)
+                        .font(.system(size: 27, weight: .semibold))
+                        .foregroundStyle(HWTheme.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if item.photoData == nil {
+                        StatusBadge(status: item.status)
+                    }
                 }
-
-                if !item.category.isEmpty {
-                    infoPill(item.category, color: HWTheme.softBlueGray)
+                HStack(spacing: 10) {
+                    if item.markColor != .none {
+                        Circle().fill(HWTheme.markColor(item.markColor)).frame(width: 8, height: 8)
+                            .accessibilityLabel(appLanguage.text(item.markColor.title))
+                    }
+                    if !item.category.isEmpty {
+                        Text(appLanguage.text(item.category))
+                            .foregroundStyle(HWTheme.secondaryText)
+                        Circle().fill(HWTheme.tertiaryText).frame(width: 3, height: 3)
+                            .accessibilityHidden(true)
+                    }
+                    Label(String(format: appLanguage.text("%@优先级"), appLanguage.text(item.priority.title)), systemImage: "flag.fill")
+                        .foregroundStyle(HWTheme.softWood)
                 }
-
-                infoPill(appLanguage.text(item.priority.title) + appLanguage.text("优先级"), color: HWTheme.softWood)
+                .font(.system(size: 13))
             }
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(HWTheme.cardBackground)
-        )
-        .overlay(markStripe, alignment: .leading)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(HWTheme.cardBorder.opacity(0.55))
-        )
-        .shadow(color: HWTheme.softShadow, radius: 3, x: 0, y: 1)
     }
 
     private var savingsSection: some View {
-        detailSection(appLanguage.text("存钱")) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(savingsTitle)
-                        .font(.system(size: 16, weight: .medium))
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .lastTextBaseline) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(appLanguage.text("已存金额"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(HWTheme.secondaryText)
+                    Text(moneyText(item.savedAmountValue))
+                        .font(.system(size: 32, weight: .semibold, design: .rounded).monospacedDigit())
                         .foregroundStyle(HWTheme.primaryText)
-
-                    Spacer()
-
-                    if item.savingsTarget != nil {
-                        Text("\(Int((item.savingsProgress * 100).rounded()))%")
-                            .font(.system(size: 13, weight: .regular).monospacedDigit())
-                            .foregroundStyle(HWTheme.secondaryText)
-                    }
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
                 }
-
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(HWTheme.fieldBackground)
-
-                        Capsule()
-                            .fill(HWTheme.savingsProgressColor(item.savingsProgress, isComplete: item.isSavingsComplete))
-                            .frame(width: proxy.size.width * item.savingsProgress)
-                    }
-                }
-                .frame(height: 7)
-
-                if let target = item.savingsTarget {
-                    detailRow(title: appLanguage.text("目标"), value: moneyText(target))
-                    detailRow(title: appLanguage.text("已存"), value: moneyText(item.savedAmountValue))
-                    detailRow(title: appLanguage.text("还差"), value: moneyText(item.remainingSavingsAmount ?? 0))
-                } else {
-                    detailRow(title: appLanguage.text("已存"), value: moneyText(item.savedAmountValue))
-                    detailRow(title: appLanguage.text("目标"), value: appLanguage.text("目标未定"))
-                }
-
-                Text(decisionText)
-                    .font(.system(size: 14))
-                    .foregroundStyle(HWTheme.secondaryText)
-                    .padding(.top, 2)
-
-                HStack(spacing: 8) {
-                    TextField(appLanguage.text("存入金额"), text: $depositText)
-                        .keyboardType(.decimalPad)
-                        .font(.system(size: 15, weight: .medium))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(HWTheme.fieldBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .disabled(item.isSavingsComplete)
-
-                    Button(appLanguage.text("存入")) { addDeposit() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(HWTheme.cardBackground)
-                        .padding(.horizontal, 13)
-                        .padding(.vertical, 10)
-                        .background(parsedDeposit == nil ? HWTheme.tertiaryText.opacity(0.72) : HWTheme.freshGreen)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .disabled(parsedDeposit == nil)
-
-                    if canFillSavings {
-                        Button(appLanguage.text("补满")) { fillSavings() }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(HWTheme.freshGreen)
-                            .padding(.horizontal, 13)
-                            .padding(.vertical, 10)
-                            .background(HWTheme.mint.opacity(0.22))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-
-                if let depositValidationMessage {
-                    Text(depositValidationMessage)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(HWTheme.dangerRed)
+                Spacer(minLength: 8)
+                if item.savingsTarget != nil {
+                    Text(item.isSavingsComplete ? appLanguage.text("已存满") : "\(Int((item.savingsProgress * 100).rounded()))%")
+                        .font(.system(size: 16, weight: .medium).monospacedDigit())
+                        .foregroundStyle(HWTheme.freshGreen)
                 }
             }
+
+            if let target = item.savingsTarget {
+                ProgressView(value: item.savingsProgress)
+                    .tint(HWTheme.freshGreen)
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        targetLabel(target)
+                        Spacer(minLength: 8)
+                        remainingLabel
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        targetLabel(target)
+                        remainingLabel
+                    }
+                }
+                .font(.system(size: 12).monospacedDigit())
+            } else {
+                Text(appLanguage.text("目标未定"))
+                    .font(.system(size: 13))
+                    .foregroundStyle(HWTheme.secondaryText)
+            }
+
+            HStack(spacing: 10) {
+                HStack(spacing: 7) {
+                    Text("$").foregroundStyle(HWTheme.freshGreen)
+                    TextField(appLanguage.text("存入金额"), text: $depositText)
+                        .keyboardType(.decimalPad)
+                        .disabled(item.isSavingsComplete)
+                }
+                .padding(.horizontal, 12)
+                .frame(minHeight: 44)
+                .background(HWTheme.fieldBackground, in: RoundedRectangle(cornerRadius: 12))
+
+                Button(appLanguage.text("存入"), action: addDeposit)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .frame(minHeight: 44)
+                    .background(parsedDeposit == nil ? HWTheme.tertiaryText : HWTheme.freshGreen, in: RoundedRectangle(cornerRadius: 12))
+                    .disabled(parsedDeposit == nil)
+
+                if canFillSavings {
+                    Button(appLanguage.text("补满"), action: fillSavings)
+                        .fontWeight(.medium)
+                        .foregroundStyle(HWTheme.freshGreen)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+            }
+            .font(.system(size: 15))
+            .buttonStyle(.plain)
+
+            if let depositValidationMessage {
+                Text(depositValidationMessage)
+                    .font(.system(size: 12))
+                    .foregroundStyle(HWTheme.dangerRed)
+            }
         }
+        .padding(18)
+        .background(HWTheme.cardBackground, in: RoundedRectangle(cornerRadius: 22))
+    }
+
+    private func targetLabel(_ target: Double) -> some View {
+        Text("\(appLanguage.text("目标")) \(moneyText(target))")
+            .foregroundStyle(HWTheme.secondaryText)
+    }
+
+    private var remainingLabel: some View {
+        Text("\(appLanguage.text("还差")) \(moneyText(item.remainingSavingsAmount ?? 0))")
+            .foregroundStyle(HWTheme.primaryText)
     }
 
     private var recordSection: some View {
-        detailSection(appLanguage.text("记录")) {
+        VStack(alignment: .leading, spacing: 14) {
             if let url = item.linkURL {
                 Button { openURL(url) } label: {
-                    HStack {
-                        Label(appLanguage.text("打开商品页面"), systemImage: "safari")
-                        Spacer()
+                    HStack(spacing: 10) {
+                        Image(systemName: "link").foregroundStyle(HWTheme.freshGreen)
+                        Text(appLanguage.text("商品链接"))
+                            .fontWeight(.medium)
+                            .foregroundStyle(HWTheme.primaryText)
+                        Spacer(minLength: 8)
+                        Text(url.host?.replacingOccurrences(of: "www.", with: "") ?? "")
+                            .font(.system(size: 12))
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Image(systemName: "arrow.up.right")
                     }
+                    .foregroundStyle(HWTheme.secondaryText)
+                    .contentShape(Rectangle())
                 }
-                .foregroundStyle(HWTheme.linkBlue)
+                .buttonStyle(.plain)
+                .accessibilityLabel(appLanguage.text("打开商品页面"))
             }
-
+            if item.linkURL != nil && !item.note.isEmpty {
+                Divider().overlay(HWTheme.separator.opacity(0.4))
+            }
             if !item.note.isEmpty {
-                HStack {
-                    Text(item.note)
-                        .font(.system(size: 15))
-                        .foregroundStyle(HWTheme.primaryText)
-                    Spacer()
+                Text(item.note)
+                    .lineSpacing(4)
+                    .foregroundStyle(HWTheme.secondaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .font(.system(size: 14))
+        .padding(18)
+        .background(HWTheme.cardBackground, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private var statusSelector: some View {
+        HStack(spacing: 5) {
+            ForEach(WishItemStatus.allCases) { status in
+                Button { updateStatus(status) } label: {
+                    Label(appLanguage.text(status.title), systemImage: status.iconName)
+                        .font(.system(size: 14, weight: item.status == status ? .medium : .regular))
+                        .foregroundStyle(item.status == status ? HWTheme.freshGreen : HWTheme.secondaryText)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(item.status == status ? HWTheme.mint.opacity(0.24) : .clear, in: RoundedRectangle(cornerRadius: 12))
                 }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(item.status == status ? .isSelected : [])
             }
         }
-    }
-
-    @ViewBuilder
-    private var markStripe: some View {
-        if item.markColor != .none {
-            HStack(spacing: 0) {
-                Rectangle()
-                    .fill(HWTheme.markColor(item.markColor))
-                    .frame(width: 3)
-                Spacer()
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        }
-    }
-
-    private var priceText: String? {
-        guard let price = item.price else { return nil }
-        return moneyText(price)
-    }
-
-    private var savingsTitle: String {
-        if item.isSavingsComplete { return appLanguage.text("已存满") }
-        guard let remaining = item.remainingSavingsAmount else { return appLanguage.text("目标未定") }
-        return "\(appLanguage.text("还差")) \(moneyText(remaining))"
-    }
-
-    private var decisionText: String {
-        switch item.status {
-        case .waiting:
-            return item.savingsTarget == nil ? appLanguage.text("先留在清单里，让预算慢慢清楚。") : appLanguage.text("一点点存起来，心愿会变得更踏实。")
-        case .bought:
-            return appLanguage.text("已经拥有，记得回看它是否真的被使用。")
-        case .released:
-            return appLanguage.text("放下也很好，清单因此更轻。")
-        }
+        .padding(5)
+        .background(HWTheme.cardBackground, in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var parsedDeposit: Double? {
@@ -269,57 +256,6 @@ struct WishDetailView: View {
     private var canFillSavings: Bool {
         guard let remaining = item.remainingSavingsAmount else { return false }
         return remaining > 0
-    }
-
-    private func detailRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .foregroundStyle(HWTheme.secondaryText)
-            Spacer()
-            Text(value)
-                .foregroundStyle(HWTheme.primaryText)
-        }
-        .font(.system(size: 15))
-    }
-
-    private func detailSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(HWTheme.primaryText)
-
-            content()
-        }
-        .softCard()
-    }
-
-    private func infoPill(_ text: String, color: Color) -> some View {
-        Text(text)
-            .font(.system(size: 13, weight: .regular))
-            .foregroundStyle(color)
-            .padding(.horizontal, 9)
-            .padding(.vertical, 5)
-            .background(HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-
-    private func statusAction(_ title: String, icon: String, status: WishItemStatus) -> some View {
-        let isSelected = status == item.status
-        return Button { updateStatus(status) } label: {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 12, weight: .regular))
-
-                Text(title)
-                    .font(.system(size: 14, weight: isSelected ? .medium : .regular))
-            }
-            .foregroundStyle(isSelected ? HWTheme.freshGreen : HWTheme.secondaryText)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(isSelected ? HWTheme.mint.opacity(0.24) : HWTheme.fieldBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
 
     private func addDeposit() {
