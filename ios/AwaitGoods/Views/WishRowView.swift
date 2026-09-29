@@ -137,7 +137,7 @@ struct WishRowView: View {
     }
 
     private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+        WishCurrency.format(value, code: item.currencyCode)
     }
 }
 
@@ -268,7 +268,7 @@ struct WishGridCard: View {
     }
 
     private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+        WishCurrency.format(value, code: item.currencyCode)
     }
 }
 

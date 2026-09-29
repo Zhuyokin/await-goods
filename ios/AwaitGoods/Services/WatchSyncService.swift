@@ -61,11 +61,19 @@ final class WatchSyncService: NSObject, WCSessionDelegate {
                     priorityRawValue: item.priorityRawValue,
                     sortIndex: item.sortIndex,
                     statusRawValue: item.statusRawValue,
-                    updatedAt: item.updatedAt
+                    updatedAt: item.updatedAt,
+                    currencyCode: item.currencyCode
                 )
             }
 
-        return WatchWishPayload(updatedAt: Date(), items: snapshots)
+        let availableCodes = WishCurrency.orderedCodes(
+            snapshots.filter { $0.status == .waiting }.map(\.currencyCode)
+        )
+        let currencyCode = WishCurrency.resolvedSelection(
+            preferred: UserDefaults.standard.string(forKey: WishCurrency.selectionKey),
+            availableCodes: availableCodes
+        )
+        return WatchWishPayload(updatedAt: Date(), items: snapshots, currencyCode: currencyCode)
     }
 
     @MainActor

@@ -52,11 +52,11 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .springPaper: return "春日纸笺"
-        case .seaSalt: return "海盐蓝调"
-        case .berryGarden: return "暮莓花园"
-        case .forestNight: return "墨绿静夜"
-        case .apricotTea: return "杏茶暖光"
+        case .springPaper: return "浅绿"
+        case .seaSalt: return "蓝色"
+        case .berryGarden: return "粉色"
+        case .forestNight: return "深绿"
+        case .apricotTea: return "杏色"
         }
     }
 
@@ -78,6 +78,18 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .forestNight: return "moon.stars"
         case .apricotTea: return "sun.max"
         }
+    }
+
+    var swatchColor: Color {
+        let rgb: ThemeRGB
+        switch self {
+        case .springPaper: rgb = palette.markGreen.light
+        case .seaSalt: rgb = palette.softBlueGray.light
+        case .berryGarden: rgb = palette.markPink.light
+        case .forestNight: rgb = palette.freshGreen.light
+        case .apricotTea: rgb = palette.apricot.light
+        }
+        return Color(red: rgb.0, green: rgb.1, blue: rgb.2)
     }
 
     var swatchColors: [Color] {

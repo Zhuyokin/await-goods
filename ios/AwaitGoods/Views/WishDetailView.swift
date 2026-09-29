@@ -151,7 +151,7 @@ struct WishDetailView: View {
 
             HStack(spacing: 10) {
                 HStack(spacing: 7) {
-                    Text("$").foregroundStyle(HWTheme.freshGreen)
+                    Text(WishCurrency.symbol(for: item.currencyCode)).foregroundStyle(HWTheme.freshGreen)
                     TextField(appLanguage.text("存入金额"), text: $depositText)
                         .keyboardType(.decimalPad)
                         .focused($isDepositFocused)
@@ -350,14 +350,11 @@ struct WishDetailView: View {
     }
 
     private func normalizedAmount(from text: String) -> Double? {
-        let normalized = text
-            .replacingOccurrences(of: ",", with: ".")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let value = Double(normalized), value > 0 else { return nil }
+        guard let value = WishCurrency.parseAmount(text), value > 0 else { return nil }
         return value
     }
 
     private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        WishCurrency.format(value, code: item.currencyCode)
     }
 }

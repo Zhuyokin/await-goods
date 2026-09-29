@@ -10,13 +10,14 @@ struct WishJarEntry: TimelineEntry {
     let selectedID: UUID?
     let scope: String
     let languageCode: String
+    var currencyCode: String = "USD"
 }
 
 struct WishJarProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> WishJarEntry { preview }
 
     func snapshot(for configuration: WishWidgetConfiguration, in context: Context) async -> WishJarEntry {
-        if context.isPreview && WidgetSnapshotStore.load().isEmpty { return preview }
+        if context.isPreview && WidgetSnapshotStore.load().isEmpty && configuration.group?.group == nil { return preview }
         return entry(for: configuration)
     }
 
@@ -26,10 +27,12 @@ struct WishJarProvider: AppIntentTimelineProvider {
 
     private func entry(for configuration: WishWidgetConfiguration) -> WishJarEntry {
         let scope = configuration.group?.id ?? "all"
+        let currencyCode = WidgetSnapshotStore.loadCurrencyCode()
         return WishJarEntry(date: Date(),
-                            items: WidgetContentFilter.select(WidgetSnapshotStore.load(), group: configuration.group?.group),
+                            items: WidgetContentFilter.select(WidgetSnapshotStore.load(), group: configuration.group?.group,
+                                                              currencyCode: currencyCode),
                             selectedID: WishJarState.selection(scope: scope), scope: scope,
-                            languageCode: WidgetSnapshotStore.loadLanguageCode())
+                            languageCode: WidgetSnapshotStore.loadLanguageCode(), currencyCode: currencyCode)
     }
 
     private var preview: WishJarEntry {
@@ -52,7 +55,8 @@ struct SelectJarWishIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         let group = scope.hasPrefix("group:") ? String(scope.dropFirst("group:".count)) : nil
-        let items = WidgetContentFilter.select(WidgetSnapshotStore.load(), group: group)
+        let items = WidgetContentFilter.select(WidgetSnapshotStore.load(), group: group,
+                                              currencyCode: WidgetSnapshotStore.loadCurrencyCode())
         guard let id = UUID(uuidString: itemID), items.contains(where: { $0.id == id }) else { return .result() }
         WishJarState.select(id, scope: scope)
         WidgetCenter.shared.reloadTimelines(ofKind: AwaitGoodsJarWidget.kind)
@@ -80,14 +84,16 @@ private struct WishJarWidgetView: View {
     let cards: [WishJarCard]
     let scope: String
     let copy: WidgetCopy
+    let currencyCode: String
 
     init(entry: WishJarEntry) {
-        content = WishJarContent(items: entry.items, selectedID: entry.selectedID)
+        content = WishJarContent(items: entry.items, selectedID: entry.selectedID, currencyCode: entry.currencyCode)
         scope = entry.scope
         copy = WidgetCopy(languageCode: entry.languageCode)
+        currencyCode = entry.currencyCode
         // Share a fixed pixel budget across all photos without excluding any wishes.
         let pixelSize = max(1, min(180, Int(sqrt(1_048_576.0 / Double(max(entry.items.count, 1))))))
-        cards = entry.items.map { item in
+        cards = content.displayItems.map { item in
             WishJarCard(id: item.id, title: item.title, image: Self.thumbnail(for: item, pixelSize: pixelSize))
         }
     }
@@ -101,7 +107,9 @@ private struct WishJarWidgetView: View {
     }
 
     var body: some View {
-        let amounts = size == .medium ? WishJarContent(items: content.focus.map { [$0] } ?? []) : content
+        let amounts = size == .medium
+            ? WishJarContent(items: content.focus.map { [$0] } ?? [], currencyCode: currencyCode)
+            : content
         WishJarView(size: size, cards: cards,
                     title: copy.localized("我的心愿罐", "我的心願罐", "My wish jar"),
                     countText: copy.localized("\(content.count) 个心愿", "\(content.count) 個心願",
@@ -109,8 +117,9 @@ private struct WishJarWidgetView: View {
                     savedText: amounts.target > 0 ? "\(copy.savedLabel) \(money(amounts.saved))" : nil,
                     targetText: amounts.target > 0 ? "\(copy.targetLabel) \(money(amounts.target))" : nil,
                     progress: amounts.progress,
-                    emptyText: copy.localized("装下第一个心愿", "裝下第一個心願", "Room for your first wish"),
-                    appIcon: WidgetImages.appIcon, selectedID: content.focus?.id, navigation: navigation)
+                    emptyText: copy.emptyCurrencySubtitle(currencyCode),
+                    appIcon: WidgetImages.appIcon, selectedID: content.focus?.id, navigation: navigation,
+                    currencyCode: currencyCode)
             .containerBackground(for: .widget) { WishJarBackground() }
             .widgetURL(size == .medium ? content.focus.map { WishDeepLink.wish($0.id).url } ?? WishDeepLink.home.url : WishDeepLink.home.url)
     }
@@ -142,7 +151,7 @@ private struct WishJarWidgetView: View {
     }
 
     private func money(_ amount: Double) -> String {
-        "$\(amount.formatted(.number.precision(.fractionLength(0))))"
+        WishCurrency.format(amount, code: currencyCode)
     }
 
     private static func thumbnail(for item: WishSnapshot, pixelSize: Int) -> Image? {

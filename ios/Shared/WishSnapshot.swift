@@ -11,8 +11,9 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
     let updatedAt: Date?
     let waitUntil: Date?
     let targetDate: Date?
+    let currencyCode: String
 
-    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int, photoFilename: String? = nil, groups: [String] = [], updatedAt: Date? = nil, waitUntil: Date? = nil, targetDate: Date? = nil) {
+    init(id: UUID, title: String, price: Double?, savedAmount: Double = 0, sortIndex: Int, photoFilename: String? = nil, groups: [String] = [], updatedAt: Date? = nil, waitUntil: Date? = nil, targetDate: Date? = nil, currencyCode: String = "USD") {
         self.id = id
         self.title = title
         self.price = price
@@ -23,6 +24,7 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         self.updatedAt = updatedAt
         self.waitUntil = waitUntil
         self.targetDate = targetDate
+        self.currencyCode = currencyCode
     }
 
     var savingsProgress: Double {
@@ -43,7 +45,7 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         case sortIndex
         case photoFilename
         case groups
-        case updatedAt, waitUntil, targetDate
+        case updatedAt, waitUntil, targetDate, currencyCode
     }
 
     init(from decoder: Decoder) throws {
@@ -58,6 +60,7 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
         waitUntil = try container.decodeIfPresent(Date.self, forKey: .waitUntil)
         targetDate = try container.decodeIfPresent(Date.self, forKey: .targetDate)
+        currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -72,6 +75,7 @@ struct WishSnapshot: Codable, Hashable, Identifiable {
         try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
         try container.encodeIfPresent(waitUntil, forKey: .waitUntil)
         try container.encodeIfPresent(targetDate, forKey: .targetDate)
+        try container.encode(currencyCode, forKey: .currencyCode)
     }
 }
 
@@ -79,17 +83,20 @@ struct WidgetSnapshotPayload: Codable {
     let updatedAt: Date
     let items: [WishSnapshot]
     let languageCode: String
+    let currencyCode: String
 
-    init(updatedAt: Date, items: [WishSnapshot], languageCode: String = "zhHans") {
+    init(updatedAt: Date, items: [WishSnapshot], languageCode: String = "zhHans", currencyCode: String = "USD") {
         self.updatedAt = updatedAt
         self.items = items
         self.languageCode = languageCode
+        self.currencyCode = currencyCode
     }
 
     private enum CodingKeys: String, CodingKey {
         case updatedAt
         case items
         case languageCode
+        case currencyCode
     }
 
     init(from decoder: Decoder) throws {
@@ -97,6 +104,7 @@ struct WidgetSnapshotPayload: Codable {
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         items = try container.decode([WishSnapshot].self, forKey: .items)
         languageCode = try container.decodeIfPresent(String.self, forKey: .languageCode) ?? "zhHans"
+        currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
     }
 }
 
@@ -138,8 +146,8 @@ enum WidgetSnapshotStore {
         UserDefaults(suiteName: SharedAppGroup.identifier) ?? .standard
     }
 
-    static func save(items: [WishSnapshot], languageCode: String = "zhHans") {
-        let payload = WidgetSnapshotPayload(updatedAt: Date(), items: items, languageCode: languageCode)
+    static func save(items: [WishSnapshot], languageCode: String = "zhHans", currencyCode: String = "USD") {
+        let payload = WidgetSnapshotPayload(updatedAt: Date(), items: items, languageCode: languageCode, currencyCode: currencyCode)
         guard let data = try? JSONEncoder().encode(payload) else { return }
         defaults.set(data, forKey: key)
     }
@@ -159,13 +167,20 @@ enum WidgetSnapshotStore {
         }
         return payload.languageCode
     }
+
+    static func loadCurrencyCode() -> String {
+        guard let data = defaults.data(forKey: key),
+              let payload = try? JSONDecoder().decode(WidgetSnapshotPayload.self, from: data) else { return "USD" }
+        return payload.currencyCode
+    }
 }
 
 
 enum WidgetContentFilter {
-    static func select(_ items: [WishSnapshot], group: String?, itemID: UUID? = nil) -> [WishSnapshot] {
-        if let itemID { return items.filter { $0.id == itemID } }
-        guard let group else { return items }
-        return items.filter { $0.groups.contains(group) }
+    static func select(_ items: [WishSnapshot], group: String?, itemID: UUID? = nil, currencyCode: String? = nil) -> [WishSnapshot] {
+        let matching = currencyCode.map { code in items.filter { $0.currencyCode == code } } ?? items
+        if let itemID { return matching.filter { $0.id == itemID } }
+        guard let group else { return matching }
+        return matching.filter { $0.groups.contains(group) }
     }
 }

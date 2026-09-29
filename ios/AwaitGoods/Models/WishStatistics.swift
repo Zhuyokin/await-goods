@@ -7,15 +7,22 @@ struct WishStatistics {
     let saved: Double
     let unpricedCount: Int
     let categories: [WishCategoryStatistic]
+    let currencyCode: String
+    let availableCurrencyCodes: [String]
+    let currencyItems: [WishItem]
 
-    init(items: [WishItem]) {
+    init(items: [WishItem], currencyCode: String? = nil) {
         activeItems = items.filter { !$0.isTrashed }
         let waiting = activeItems.filter { $0.status == .waiting }
         waitingItems = waiting
-        let priced = waiting.filter { $0.savingsTarget != nil }
+        availableCurrencyCodes = WishCurrency.orderedCodes(waiting.map(\.currencyCode))
+        let selected = WishCurrency.resolvedSelection(preferred: currencyCode, availableCodes: availableCurrencyCodes)
+        self.currencyCode = selected
+        currencyItems = waiting.filter { $0.currencyCode == selected }
+        let priced = currencyItems.filter { $0.savingsTarget != nil }
         budget = priced.reduce(0) { $0 + ($1.savingsTarget ?? 0) }
         saved = priced.reduce(0) { $0 + $1.savedAmountValue }
-        unpricedCount = waiting.count - priced.count
+        unpricedCount = currencyItems.count - priced.count
         categories = Dictionary(grouping: waiting) {
             $0.category.trimmingCharacters(in: .whitespacesAndNewlines)
         }.map { name, items in

@@ -55,7 +55,7 @@ struct WishBoardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(copy.localized("心愿看板", "心願看板", "Wish board"))
                     .font(.system(size: 16, weight: .semibold))
-                Text(copy.waitingSummary(count: entry.items.count))
+                Text("\(entry.currencyCode) · \(copy.waitingSummary(count: entry.items.count))")
                     .font(.system(size: 10)).foregroundStyle(WidgetPalette.secondary)
             }
             Spacer(minLength: 4)
@@ -240,7 +240,7 @@ struct WishBoardView: View {
             Spacer(minLength: 0)
             Image(systemName: "sparkles").font(.system(size: 36)).foregroundStyle(WidgetPalette.green)
             Text(copy.emptyTitle).font(.system(size: 24, weight: .semibold, design: .rounded))
-            Text(copy.emptySubtitle).font(.system(size: 13)).foregroundStyle(WidgetPalette.secondary)
+            Text(copy.emptyCurrencySubtitle(entry.currencyCode)).font(.system(size: 13)).foregroundStyle(WidgetPalette.secondary)
             Link(destination: WishDeepLink.add.url) {
                 Label(copy.localized("记下一个心愿", "記下一個心願", "Add your next wish"), systemImage: "plus")
                     .font(.system(size: 14, weight: .semibold)).padding(.vertical, 12)
@@ -285,7 +285,8 @@ struct WishBoardView: View {
         switch feedback.outcome {
         case .saved:
             guard let receipt = feedback.receipt else { return "" }
-            return copy.localized("已记 \(money(receipt.amount)) · \(receipt.title)", "已記 \(money(receipt.amount)) · \(receipt.title)", "Saved \(money(receipt.amount)) · \(receipt.title)")
+            let amount = WishCurrency.format(receipt.amount, code: receipt.currencyCode ?? "USD")
+            return copy.localized("已记 \(amount) · \(receipt.title)", "已記 \(amount) · \(receipt.title)", "Saved \(amount) · \(receipt.title)")
         case .undone: return copy.localized("已撤销这笔记录", "已撤銷這筆記錄", "Entry undone")
         case .stale: return copy.localized("心愿已变化，请按最新内容操作", "心願已變化，請按最新內容操作", "Wish updated. Please try again.")
         case .failed: return copy.localized("未能保存，请打开 App 重试", "未能儲存，請打開 App 重試", "Couldn’t save. Open the app to retry.")
@@ -293,6 +294,6 @@ struct WishBoardView: View {
     }
 
     private func money(_ amount: Double) -> String {
-        "$\(amount.formatted(.number.precision(.fractionLength(0...2))))"
+        WishCurrency.format(amount, code: entry.currencyCode)
     }
 }

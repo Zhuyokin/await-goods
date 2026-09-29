@@ -9,6 +9,7 @@ struct MainTabView: View {
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.zhHans.rawValue
     @AppStorage(AppTheme.storageKey) private var appThemeRawValue = AppIllustratedTheme.current.colorTheme.rawValue
+    @AppStorage(WishCurrency.selectionKey) private var statisticsCurrencyCode = "USD"
     @State private var splitViewVisibility: NavigationSplitViewVisibility = .all
     @State private var wishListStatus: WishItemStatus?
     @State private var wishListNavigationID = UUID()
@@ -39,6 +40,9 @@ struct MainTabView: View {
         .onChange(of: appLanguageRawValue) { _, _ in
             WidgetSyncService.sync(items: items)
             Task { await NotificationScheduler.synchronize(items: items) }
+        }
+        .onChange(of: statisticsCurrencyCode) { _, _ in
+            WidgetSyncService.sync(items: items)
         }
         .onChange(of: notificationSyncSignature) { _, _ in
             Task { await NotificationScheduler.synchronize(items: items) }
@@ -154,6 +158,7 @@ struct MainTabView: View {
                 item.id.uuidString,
                 item.title,
                 item.category,
+                item.currencyCode,
                 item.statusRawValue,
                 String(item.sortIndex),
                 String(item.price ?? 0),
@@ -170,6 +175,7 @@ struct MainTabView: View {
                 item.id.uuidString,
                 item.title,
                 item.category,
+                item.currencyCode,
                 String(item.priorityRawValue),
                 item.statusRawValue,
                 String(item.price ?? 0),

@@ -51,6 +51,7 @@ struct WidgetSavingsReceipt: Codable {
     let status: String
     let updatedAt: Date
     let amount: Double
+    var currencyCode: String? = nil
 }
 
 struct WishBoardFeedback: Codable {

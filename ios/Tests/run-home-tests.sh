@@ -20,10 +20,27 @@ PLIST
 cd "$project_root"
 xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     -module-cache-path "$test_dir/ModuleCache" \
+    ios/Tests/Fixtures/WishItemBeforeCurrency.swift \
+    ios/AwaitGoods/Models/WishPriority.swift \
+    ios/AwaitGoods/Models/WishItemStatus.swift \
+    ios/AwaitGoods/Models/MarkColor.swift \
+    ios/Shared/WishSnapshot.swift \
+    ios/Tests/LegacyCurrencyStore.swift \
+    -o "$bundle/Contents/MacOS/HomeTests"
+"$bundle/Contents/MacOS/HomeTests" "$test_dir/currency-migration.store"
+
+xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
+    -module-cache-path "$test_dir/ModuleCache" \
     ios/AwaitGoods/Models/WishItem.swift \
     ios/AwaitGoods/Models/WishSortIndexPolicy.swift \
     ios/AwaitGoods/Models/WidgetSavingsMutation.swift \
     ios/AwaitGoods/Models/WishStatistics.swift \
+    ios/AwaitGoods/Models/WishItemExport.swift \
+    ios/Shared/WishCurrency.swift \
+    ios/Shared/WatchWishSnapshot.swift \
+    ios/Tests/CurrencyTests.swift \
+    ios/Tests/WatchCurrencyTests.swift \
+    ios/Tests/WidgetCurrencyTests.swift \
     ios/AwaitGoods/Models/WishPriority.swift \
     ios/AwaitGoods/Models/WishItemStatus.swift \
     ios/AwaitGoods/Models/MarkColor.swift \
@@ -35,4 +52,4 @@ xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     ios/Tests/WishListOrderingTests.swift \
     ios/Tests/WidgetBoardTests.swift \
     -o "$bundle/Contents/MacOS/HomeTests"
-"$bundle/Contents/MacOS/HomeTests"
+"$bundle/Contents/MacOS/HomeTests" "$test_dir/currency-migration.store"

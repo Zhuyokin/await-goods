@@ -6,6 +6,11 @@ import CryptoKit
 
 enum WidgetSyncService {
     static func sync(items: [WishItem]) {
+        let availableCodes = WishCurrency.orderedCodes(items.filter { !$0.isTrashed && $0.status == .waiting }.map(\.currencyCode))
+        let currencyCode = WishCurrency.resolvedSelection(
+            preferred: UserDefaults.standard.string(forKey: WishCurrency.selectionKey), availableCodes: availableCodes
+        )
+        UserDefaults.standard.set(currencyCode, forKey: WishCurrency.selectionKey)
         WatchSyncService.shared.sync(items: items)
 
         let snapshots = items
@@ -20,12 +25,13 @@ enum WidgetSyncService {
                 WishSnapshot(id: item.id, title: item.title, price: item.price,
                              savedAmount: item.savedAmountValue, sortIndex: item.sortIndex,
                              photoFilename: savePhoto(for: item), groups: groups(for: item),
-                             updatedAt: item.updatedAt, waitUntil: item.waitUntil, targetDate: item.targetDate)
+                             updatedAt: item.updatedAt, waitUntil: item.waitUntil, targetDate: item.targetDate,
+                             currencyCode: item.currencyCode)
             }
 
         let languageCode = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.zhHans.rawValue
         let previousPhotos = WidgetSnapshotStore.load().compactMap(\.photoFilename)
-        WidgetSnapshotStore.save(items: Array(snapshots), languageCode: languageCode)
+        WidgetSnapshotStore.save(items: Array(snapshots), languageCode: languageCode, currencyCode: currencyCode)
         if let directory = WidgetSnapshotStore.photoDirectory {
             WidgetSnapshotStore.removeUnusedPhotos(in: directory, previousFilenames: previousPhotos,
                                                    currentFilenames: snapshots.compactMap(\.photoFilename))

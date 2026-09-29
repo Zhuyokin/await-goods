@@ -18,6 +18,7 @@ struct WishBoardEntry: TimelineEntry {
     let scope: String
     let languageCode: String
     let feedback: WishBoardFeedback?
+    var currencyCode: String = "USD"
     var focus: WishSnapshot? { WishBoardSelection.focus(in: items, selectedID: selectedID) }
 }
 
@@ -25,7 +26,7 @@ struct WishBoardProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> WishBoardEntry { preview }
 
     func snapshot(for configuration: WishBoardConfiguration, in context: Context) async -> WishBoardEntry {
-        if context.isPreview && WidgetSnapshotStore.load().isEmpty { return preview }
+        if context.isPreview && WidgetSnapshotStore.load().isEmpty && configuration.group?.group == nil { return preview }
         return entry(configuration, at: Date())
     }
 
@@ -41,11 +42,14 @@ struct WishBoardProvider: AppIntentTimelineProvider {
 
     private func entry(_ configuration: WishBoardConfiguration, at date: Date) -> WishBoardEntry {
         let feedback = WishBoardState.feedback(scope: configuration.scope)
+        let currencyCode = WidgetSnapshotStore.loadCurrencyCode()
         return WishBoardEntry(date: date,
-                              items: WidgetContentFilter.select(WidgetSnapshotStore.load(), group: configuration.group?.group),
+                              items: WidgetContentFilter.select(WidgetSnapshotStore.load(), group: configuration.group?.group,
+                                                                currencyCode: currencyCode),
                               selectedID: WishBoardState.selection(scope: configuration.scope), scope: configuration.scope,
                               languageCode: WidgetSnapshotStore.loadLanguageCode(),
-                              feedback: feedback?.isVisible(at: date) == true ? feedback : nil)
+                              feedback: feedback?.isVisible(at: date) == true ? feedback : nil,
+                              currencyCode: currencyCode)
     }
 
     private var preview: WishBoardEntry {
@@ -71,7 +75,10 @@ struct SelectBoardWishIntent: AppIntent {
     init(id: UUID, scope: String) { itemID = id.uuidString; self.scope = scope }
 
     func perform() async throws -> some IntentResult {
-        guard let id = UUID(uuidString: itemID), WidgetSnapshotStore.load().contains(where: { $0.id == id }) else {
+        let group = scope.hasPrefix("group:") ? String(scope.dropFirst("group:".count)) : nil
+        let items = WidgetContentFilter.select(WidgetSnapshotStore.load(), group: group,
+                                              currencyCode: WidgetSnapshotStore.loadCurrencyCode())
+        guard let id = UUID(uuidString: itemID), items.contains(where: { $0.id == id }) else {
             return .result()
         }
         WishBoardState.select(id, scope: scope)

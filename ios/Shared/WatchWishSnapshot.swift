@@ -34,6 +34,50 @@ struct WatchWishSnapshot: Codable, Hashable, Identifiable {
     let sortIndex: Int
     var statusRawValue: String
     var updatedAt: Date
+    let currencyCode: String
+
+    init(
+        id: UUID,
+        title: String,
+        category: String,
+        price: Double?,
+        savedAmount: Double,
+        priorityRawValue: Int,
+        sortIndex: Int,
+        statusRawValue: String,
+        updatedAt: Date,
+        currencyCode: String = "USD"
+    ) {
+        self.id = id
+        self.title = title
+        self.category = category
+        self.price = price
+        self.savedAmount = savedAmount
+        self.priorityRawValue = priorityRawValue
+        self.sortIndex = sortIndex
+        self.statusRawValue = statusRawValue
+        self.updatedAt = updatedAt
+        self.currencyCode = currencyCode
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, title, category, price, savedAmount, priorityRawValue, sortIndex
+        case statusRawValue, updatedAt, currencyCode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        category = try container.decode(String.self, forKey: .category)
+        price = try container.decodeIfPresent(Double.self, forKey: .price)
+        savedAmount = try container.decode(Double.self, forKey: .savedAmount)
+        priorityRawValue = try container.decode(Int.self, forKey: .priorityRawValue)
+        sortIndex = try container.decode(Int.self, forKey: .sortIndex)
+        statusRawValue = try container.decode(String.self, forKey: .statusRawValue)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
+    }
 
     var status: WatchWishStatus {
         get { WatchWishStatus(rawValue: statusRawValue) ?? .waiting }
@@ -52,6 +96,24 @@ struct WatchWishSnapshot: Codable, Hashable, Identifiable {
 struct WatchWishPayload: Codable {
     let updatedAt: Date
     let items: [WatchWishSnapshot]
+    let currencyCode: String
+
+    init(updatedAt: Date, items: [WatchWishSnapshot], currencyCode: String = "USD") {
+        self.updatedAt = updatedAt
+        self.items = items
+        self.currencyCode = currencyCode
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case updatedAt, items, currencyCode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        items = try container.decode([WatchWishSnapshot].self, forKey: .items)
+        currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode) ?? "USD"
+    }
 }
 
 enum WatchSyncMessageKey {

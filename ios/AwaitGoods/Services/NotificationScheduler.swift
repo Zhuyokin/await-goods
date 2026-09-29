@@ -120,6 +120,7 @@ enum NotificationScheduler {
             category: item.category,
             savedAmount: item.savedAmountValue,
             targetAmount: item.savingsTarget,
+            currencyCode: item.currencyCode,
             language: language
         )
         let content = UNMutableNotificationContent()

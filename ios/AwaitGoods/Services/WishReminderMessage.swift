@@ -12,6 +12,7 @@ enum WishReminderMessageBuilder {
         category: String,
         savedAmount: Double,
         targetAmount: Double?,
+        currencyCode: String,
         language: AppLanguage
     ) -> WishReminderMessage {
         let priorityText = String(
@@ -27,10 +28,10 @@ enum WishReminderMessageBuilder {
             let progress = Int(((normalizedSavedAmount / targetAmount) * 100).rounded())
             let progressText = String(
                 format: language.text("已存 %@ / %@（%d%%），还差 %@。"),
-                moneyText(normalizedSavedAmount),
-                moneyText(targetAmount),
+                WishCurrency.format(normalizedSavedAmount, code: currencyCode),
+                WishCurrency.format(targetAmount, code: currencyCode),
                 progress,
-                moneyText(remainingAmount)
+                WishCurrency.format(remainingAmount, code: currencyCode)
             )
             return WishReminderMessage(
                 title: notificationTitle,
@@ -63,9 +64,5 @@ enum WishReminderMessageBuilder {
         default:
             return " "
         }
-    }
-
-    private static func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
     }
 }

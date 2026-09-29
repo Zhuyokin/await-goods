@@ -7,12 +7,13 @@ struct StatsView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @AppStorage(WishCurrency.selectionKey) private var statisticsCurrencyCode = "USD"
     @Query(sort: [SortDescriptor(\WishItem.sortIndex), SortDescriptor(\WishItem.createdAt, order: .reverse)]) private var items: [WishItem]
 
     let onOpenWishList: (WishItemStatus?) -> Void
 
     var body: some View {
-        let stats = WishStatistics(items: items)
+        let stats = WishStatistics(items: items, currencyCode: statisticsCurrencyCode)
 
         NavigationStack {
             GeometryReader { geometry in
@@ -68,7 +69,7 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: 10) {
             let layout = dynamicTypeSize.isAccessibilitySize
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: 14))
-                : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
+                : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
             layout {
                 VStack(alignment: .leading, spacing: 13) {
                     Button { onOpenWishList(nil) } label: {
@@ -87,18 +88,25 @@ struct StatsView: View {
                         }.frame(minHeight: 44, alignment: .leading).contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    Text(String(format: appLanguage.text("当前币种 · %d 件想买的物品"), stats.currencyItems.count))
+                        .font(.caption2)
+                        .foregroundStyle(HWTheme.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
                     if stats.budget > 0 {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(appLanguage.text("还需存入"))
                                 .font(.subheadline).foregroundStyle(HWTheme.secondaryText)
-                            Text(moneyText(stats.remaining))
+                            Text(moneyText(stats.remaining, code: stats.currencyCode))
                                 .font(.system(size: 34, weight: .bold, design: .rounded).monospacedDigit())
                                 .foregroundStyle(HWTheme.primaryText)
                                 .lineLimit(1).minimumScaleFactor(0.55)
                         }
                     }
                 }.frame(maxWidth: .infinity, alignment: .leading)
-                completionRing(stats)
+                VStack(spacing: 13) {
+                    currencySelection(stats).frame(minHeight: 44)
+                    completionRing(stats)
+                }
             }
 
             if stats.budget > 0 {
@@ -116,13 +124,13 @@ struct StatsView: View {
                 cardDivider
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .top, spacing: 12) {
-                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote")
+                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote", code: stats.currencyCode)
                         Rectangle().fill(HWTheme.separator.opacity(0.5)).frame(width: 1, height: 43).accessibilityHidden(true)
-                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope")
+                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope", code: stats.currencyCode)
                     }
                     VStack(alignment: .leading, spacing: 14) {
-                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote")
-                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope")
+                        amountColumn(title: "已存金额", value: stats.saved, icon: "banknote", code: stats.currencyCode)
+                        amountColumn(title: "目标总额", value: stats.budget, icon: "scope", code: stats.currencyCode)
                     }
                 }
                 cardDivider
@@ -155,6 +163,29 @@ struct StatsView: View {
         Rectangle().fill(HWTheme.separator.opacity(0.4)).frame(height: 0.5).padding(.vertical, 2)
     }
 
+    private func currencySelection(_ stats: WishStatistics) -> some View {
+        Menu {
+            Picker(appLanguage.text("币种"), selection: $statisticsCurrencyCode) {
+                ForEach(stats.availableCurrencyCodes, id: \.self) { code in
+                    Text("\(appLanguage.text(WishCurrency(rawValue: code)?.title ?? code)) · \(code)")
+                        .tag(code)
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Text(stats.currencyCode).fontWeight(.semibold)
+                Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
+            }
+            .font(.subheadline)
+            .foregroundStyle(HWTheme.freshGreen)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 36)
+            .background(HWTheme.fieldBackground, in: Capsule())
+        }
+        .disabled(stats.availableCurrencyCodes.count < 2)
+        .accessibilityLabel("\(appLanguage.text("币种")) \(appLanguage.text(WishCurrency(rawValue: stats.currencyCode)?.title ?? stats.currencyCode))")
+    }
+
     private func completionRing(_ stats: WishStatistics) -> some View {
         Button { onOpenWishList(.bought) } label: {
             ZStack {
@@ -175,14 +206,14 @@ struct StatsView: View {
             .accessibilityLabel("\(appLanguage.text("已完成")) \(stats.completedCount) / \(stats.activeItems.count)")
     }
 
-    private func amountColumn(title: String, value: Double, icon: String) -> some View {
+    private func amountColumn(title: String, value: Double, icon: String, code: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             badge(icon, color: HWTheme.freshGreen, size: 27)
             VStack(alignment: .leading, spacing: 5) {
                 Text(appLanguage.text(title))
                     .font(.caption)
                     .foregroundStyle(HWTheme.secondaryText)
-                Text(moneyText(value))
+                Text(moneyText(value, code: code))
                     .font(.system(size: 19, weight: .semibold, design: .rounded).monospacedDigit())
                     .foregroundStyle(HWTheme.primaryText)
                     .lineLimit(1)
@@ -384,8 +415,8 @@ struct StatsView: View {
         return "tag"
     }
 
-    private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+    private func moneyText(_ value: Double, code: String) -> String {
+        WishCurrency.format(value, code: code)
     }
 }
 

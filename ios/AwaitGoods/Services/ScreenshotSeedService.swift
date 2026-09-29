@@ -45,7 +45,8 @@ enum ScreenshotSeedService {
                 createdAt: now.addingTimeInterval(-Double(index + 1) * day),
                 updatedAt: now.addingTimeInterval(-Double(index % 9) * day),
                 savedAmount: seed.savedAmount,
-                photoData: seed.photoData
+                photoData: seed.photoData,
+                currencyCode: seed.currencyCode
             )
         }
     }
@@ -61,6 +62,7 @@ enum ScreenshotSeedService {
         let markColor: MarkColor
         let savedAmount: Double
         let imageName: String
+        var currencyCode: String = "USD"
 
         var photoData: Data {
             guard let url = Bundle.main.url(forResource: imageName, withExtension: nil, subdirectory: "DebugSeedImages"),
@@ -71,7 +73,7 @@ enum ScreenshotSeedService {
         }
     }
 
-    // USD before sales tax; Hermès, Bentley, and Lamborghini prices are estimated budgets.
+    // USD prices are before sales tax; Hermès, Bentley, and Lamborghini use estimated budgets.
     private static let seedWishes: [SeedWish] = [
         SeedWish(title: "Hermès Birkin 30", price: 14900, linkString: "https://www.hermes.com/us/en/story/106191-birkin/", note: "Gold Togo leather with gold hardware.", category: "Hermès", priority: .high, status: .waiting, markColor: .green, savedAmount: 4800, imageName: "hermes-birkin.png"),
         SeedWish(title: "Hermès Kelly 25", price: 13700, linkString: "https://www.hermes.com/us/en/story/106196-kelly/", note: "Black Epsom leather with gold hardware.", category: "Hermès", priority: .high, status: .waiting, markColor: .pink, savedAmount: 7200, imageName: "hermes-kelly.png"),
@@ -91,6 +93,7 @@ enum ScreenshotSeedService {
         SeedWish(title: "Apple iPhone 17e", price: 599, linkString: "https://www.apple.com/iphone-17e/", note: "A19 performance with MagSafe for everyday use.", category: "Apple", priority: .high, status: .waiting, markColor: .pink, savedAmount: 320, imageName: "apple-iphone.png"),
         SeedWish(title: "Apple MacBook Air 13-inch M5", price: 1099, linkString: "https://www.apple.com/macbook-air/", note: "A lightweight laptop for work and travel.", category: "Apple", priority: .high, status: .waiting, markColor: .green, savedAmount: 680, imageName: "apple-macbook.png"),
         SeedWish(title: "Apple iPad Air 11-inch M4", price: 599, linkString: "https://www.apple.com/ipad-air/", note: "A portable canvas for reading and sketching.", category: "Apple", priority: .medium, status: .waiting, markColor: .yellow, savedAmount: 260, imageName: "apple-ipad.png"),
+        SeedWish(title: "通勤笔记本", price: 6000, linkString: "", note: "轻便、长续航，方便每天带去上班。预算 ¥6,000。", category: "数码", priority: .medium, status: .waiting, markColor: .green, savedAmount: 2000, imageName: "apple-macbook.png", currencyCode: "CNY"),
     ]
 }
 #endif

@@ -16,6 +16,7 @@ struct WishEditorView: View {
     @State private var title: String
     @State private var priceText: String
     @State private var savedText: String
+    @State private var currencyCode: String
     @State private var linkString: String
     @State private var category: String
     @State private var priority: WishPriority
@@ -37,8 +38,9 @@ struct WishEditorView: View {
 
         _photoData = State(initialValue: item?.photoData)
         _title = State(initialValue: item?.title ?? "")
-        _priceText = State(initialValue: item?.price.map { String(format: "%.2f", $0) } ?? "")
-        _savedText = State(initialValue: (item?.savedAmountValue ?? 0) > 0 ? String(format: "%.2f", item?.savedAmountValue ?? 0) : "")
+        _priceText = State(initialValue: item?.price.map { WishCurrency.inputText($0) } ?? "")
+        _savedText = State(initialValue: (item?.savedAmountValue ?? 0) > 0 ? WishCurrency.inputText(item?.savedAmountValue ?? 0) : "")
+        _currencyCode = State(initialValue: item?.currencyCode ?? WishCurrency.usd.rawValue)
         _linkString = State(initialValue: item?.linkString ?? "")
         _category = State(initialValue: item?.category ?? "")
         _priority = State(initialValue: item?.priority ?? .medium)
@@ -113,10 +115,31 @@ struct WishEditorView: View {
 
     private var budgetSection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Text(appLanguage.text("金额"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(HWTheme.primaryText)
+                Spacer(minLength: 0)
+                Picker(appLanguage.text("币种"), selection: $currencyCode) {
+                    ForEach(WishCurrency.allCases) { currency in
+                        Text("\(appLanguage.text(currency.title)) \(currency.rawValue)")
+                            .tag(currency.rawValue)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .font(.system(size: 12, weight: .medium))
+                .accessibilityLabel(appLanguage.text("币种"))
+            }
             HStack(spacing: 18) {
                 amountField("目标价格", placeholder: appLanguage.text("可选"), text: $priceText)
                 Rectangle().fill(HWTheme.separator.opacity(0.4)).frame(width: 1, height: 45)
                 amountField("已存金额", placeholder: "0", text: $savedText)
+            }
+            if let item, currencyCode != item.currencyCode {
+                Text(appLanguage.text("币种已更改，请核对目标价格和已存金额"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(HWTheme.secondaryText)
             }
             if let amountValidationMessage {
                 Text(amountValidationMessage)
@@ -144,7 +167,7 @@ struct WishEditorView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(HWTheme.secondaryText)
             HStack(spacing: 6) {
-                Text("$").foregroundStyle(HWTheme.freshGreen)
+                Text(WishCurrency.symbol(for: currencyCode)).foregroundStyle(HWTheme.freshGreen)
                 TextField(placeholder, text: text)
                     .keyboardType(.decimalPad)
                     .foregroundStyle(HWTheme.primaryText)
@@ -395,6 +418,7 @@ struct WishEditorView: View {
             item.title = trimmedTitle
             item.price = parsedPrice
             item.savedAmountValue = parsedSavedAmount
+            item.currencyCode = currencyCode
             item.linkString = linkString.trimmingCharacters(in: .whitespacesAndNewlines)
             item.category = trimmedCategory
             item.priority = priority
@@ -424,7 +448,8 @@ struct WishEditorView: View {
                 targetDate: notifyEnabled ? reminderDate : nil,
                 notifyEnabled: notifyEnabled,
                 savedAmount: parsedSavedAmount,
-                photoData: photoData
+                photoData: photoData,
+                currencyCode: currencyCode
             )
             newItem.reconcileSavingsStatus()
             if newItem.status != .waiting {
@@ -474,14 +499,11 @@ struct WishEditorView: View {
     }
 
     private func normalizedAmount(from text: String) -> Double? {
-        let normalized = text
-            .replacingOccurrences(of: ",", with: ".")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let value = Double(normalized), value > 0 else { return nil }
+        guard let value = WishCurrency.parseAmount(text), value > 0 else { return nil }
         return value
     }
 
     private func moneyText(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0...0))))"
+        WishCurrency.format(value, code: currencyCode)
     }
 }

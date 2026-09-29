@@ -46,23 +46,23 @@ struct WatchHomeView: View {
                     WatchSavingsView(session: session)
                 } label: {
                     WatchMetricCard(
-                        title: "存钱总额",
-                        value: moneyText(totalSavedAmount),
+                        title: "存钱总额 · \(session.currencyCode)",
+                        value: moneyText(totalSavedAmount, code: session.currencyCode),
                         systemImage: "banknote",
                         colors: WatchPalette.sageGradient
                     )
                 }
                 .buttonStyle(WatchCardButtonStyle())
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("存钱总额")
-                .accessibilityValue(moneyText(totalSavedAmount))
+                .accessibilityLabel("存钱总额 · \(session.currencyCode)")
+                .accessibilityValue(moneyText(totalSavedAmount, code: session.currencyCode))
                 .accessibilityHint("轻点查看存钱进度")
 
                 NavigationLink {
                     WatchProgressOverviewView(session: session)
                 } label: {
                     WatchMetricCard(
-                        title: "平均进度",
+                        title: "平均进度 · \(session.currencyCode)",
                         value: percentText(averageSavingsProgress),
                         progress: averageSavingsProgress,
                         colors: WatchPalette.lavenderGradient
@@ -70,7 +70,7 @@ struct WatchHomeView: View {
                 }
                 .buttonStyle(WatchCardButtonStyle())
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("平均进度")
+                .accessibilityLabel("平均进度 · \(session.currencyCode)")
                 .accessibilityValue(percentText(averageSavingsProgress))
                 .accessibilityHint("轻点查看进度概览")
 
@@ -141,7 +141,9 @@ struct WatchHomeView: View {
     }
 
     private var savingsItems: [WatchWishSnapshot] {
-        session.items.filter { $0.status == .waiting && $0.price != nil }
+        session.items.filter {
+            $0.status == .waiting && $0.price != nil && $0.currencyCode == session.currencyCode
+        }
     }
 
     private var totalSavedAmount: Double {
@@ -321,7 +323,7 @@ private struct WatchWishRow: View {
                 }
 
                 if let price = item.price {
-                    Text(moneyText(price))
+                    Text(moneyText(price, code: item.currencyCode))
                         .monospacedDigit()
                 }
             }
@@ -343,9 +345,9 @@ private struct WatchSavingsView: View {
     var body: some View {
         List {
             WatchAggregateCard(
-                title: "已存总额",
-                value: moneyText(totalSaved),
-                subtitle: "目标 \(moneyText(totalTarget))",
+                title: "已存总额 · \(session.currencyCode)",
+                value: moneyText(totalSaved, code: session.currencyCode),
+                subtitle: "目标 \(moneyText(totalTarget, code: session.currencyCode))",
                 systemImage: "banknote",
                 colors: WatchPalette.sageGradient
             )
@@ -369,7 +371,7 @@ private struct WatchSavingsView: View {
                                 .tint(WatchPalette.sage)
 
                             HStack {
-                                Text(moneyText(item.savedAmount))
+                                Text(moneyText(item.savedAmount, code: item.currencyCode))
                                 Spacer()
                                 Text(percentText(item.savingsProgress))
                             }
@@ -390,7 +392,9 @@ private struct WatchSavingsView: View {
 
     private var savingsItems: [WatchWishSnapshot] {
         session.items
-            .filter { $0.status == .waiting && $0.price != nil }
+            .filter {
+                $0.status == .waiting && $0.price != nil && $0.currencyCode == session.currencyCode
+            }
             .sorted { $0.savingsProgress > $1.savingsProgress }
     }
 
@@ -420,6 +424,10 @@ private struct WatchProgressOverviewView: View {
                     Text("平均存钱进度")
                         .font(.headline)
                         .foregroundStyle(WatchPalette.ink)
+
+                    Text(session.currencyCode)
+                        .font(.caption)
+                        .foregroundStyle(WatchPalette.ink.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
@@ -439,7 +447,9 @@ private struct WatchProgressOverviewView: View {
     }
 
     private var trackableItems: [WatchWishSnapshot] {
-        session.items.filter { $0.status == .waiting && $0.price != nil }
+        session.items.filter {
+            $0.status == .waiting && $0.price != nil && $0.currencyCode == session.currencyCode
+        }
     }
 
     private var averageProgress: Double {
@@ -584,9 +594,9 @@ private struct WatchWishDetailView: View {
                             .font(.caption.weight(.medium))
 
                         HStack {
-                            Text(moneyText(item.savedAmount))
+                            Text(moneyText(item.savedAmount, code: item.currencyCode))
                             Spacer()
-                            Text(moneyText(price))
+                            Text(moneyText(price, code: item.currencyCode))
                                 .foregroundStyle(WatchPalette.ink.opacity(0.66))
                         }
                         .font(.footnote.monospacedDigit())
@@ -595,7 +605,7 @@ private struct WatchWishDetailView: View {
                             .tint(WatchPalette.ink.opacity(0.66))
 
                         if item.savedAmount < price {
-                            Text("还差 \(moneyText(price - item.savedAmount))")
+                            Text("还差 \(moneyText(price - item.savedAmount, code: item.currencyCode))")
                                 .font(.caption2)
                                 .foregroundStyle(WatchPalette.ink.opacity(0.66))
                         }
@@ -761,8 +771,8 @@ private func sortedItems(_ items: [WatchWishSnapshot]) -> [WatchWishSnapshot] {
     }
 }
 
-private func moneyText(_ value: Double) -> String {
-    "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+private func moneyText(_ value: Double, code: String) -> String {
+    WishCurrency.format(value, code: code)
 }
 
 private func percentText(_ progress: Double) -> String {

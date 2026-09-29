@@ -22,6 +22,7 @@ enum WidgetImages {
 struct AwaitGoodsEntry: TimelineEntry {
     let date: Date
     let items: [WishSnapshot]
+    var currencyCode: String = "USD"
 }
 
 import AppIntents
@@ -44,7 +45,9 @@ struct WishGroupQuery: EntityQuery {
     }
     func suggestedEntities() async throws -> [WishGroupEntity] {
         var seen = Set<String>()
-        let groups = WidgetSnapshotStore.load().flatMap(\.groups).filter { seen.insert($0).inserted }
+        let items = WidgetContentFilter.select(WidgetSnapshotStore.load(), group: nil,
+                                               currencyCode: WidgetSnapshotStore.loadCurrencyCode())
+        let groups = items.flatMap(\.groups).filter { seen.insert($0).inserted }
         return [.all] + groups.map { WishGroupEntity(id: "group:" + $0, name: $0) }
     }
     func defaultResult() async -> WishGroupEntity? { .all }
@@ -63,7 +66,9 @@ struct WishProductQuery: EntityStringQuery {
         WidgetSnapshotStore.load().filter { identifiers.contains($0.id) }.map { WishProductEntity(id: $0.id, name: $0.title) }
     }
     func suggestedEntities() async throws -> [WishProductEntity] {
-        WidgetSnapshotStore.load().map { WishProductEntity(id: $0.id, name: $0.title) }
+        WidgetContentFilter.select(WidgetSnapshotStore.load(), group: nil,
+                                   currencyCode: WidgetSnapshotStore.loadCurrencyCode())
+            .map { WishProductEntity(id: $0.id, name: $0.title) }
     }
     func entities(matching string: String) async throws -> [WishProductEntity] {
         try await suggestedEntities().filter { $0.name.localizedCaseInsensitiveContains(string) }
@@ -119,7 +124,10 @@ private var previewEntry: AwaitGoodsEntry {
 private func configuredEntry(group: String?, itemID: UUID? = nil, preview: Bool = false) -> AwaitGoodsEntry {
     let items = WidgetSnapshotStore.load()
     if preview && items.isEmpty && group == nil && itemID == nil { return previewEntry }
-    return AwaitGoodsEntry(date: Date(), items: WidgetContentFilter.select(items, group: group, itemID: itemID))
+    let currencyCode = WidgetSnapshotStore.loadCurrencyCode()
+    return AwaitGoodsEntry(date: Date(),
+                           items: WidgetContentFilter.select(items, group: group, itemID: itemID, currencyCode: currencyCode),
+                           currencyCode: currencyCode)
 }
 
 struct AwaitGoodsWidgetView: View {
@@ -235,9 +243,13 @@ struct AwaitGoodsWidgetView: View {
 
             Spacer(minLength: 4)
 
-            Text(entry.items.isEmpty ? "0" : "\(entry.items.count)")
-                .font(.system(size: 12, weight: .regular).monospacedDigit())
-                .foregroundStyle(WidgetPalette.secondary)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(entry.currencyCode)
+                    .font(.system(size: 9, weight: .medium))
+                Text("\(entry.items.count)")
+                    .font(.system(size: 12, weight: .regular).monospacedDigit())
+            }
+            .foregroundStyle(WidgetPalette.secondary)
         }
     }
 
@@ -300,7 +312,7 @@ struct AwaitGoodsWidgetView: View {
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(WidgetPalette.ink)
 
-            Text(copy.emptySubtitle)
+            Text(copy.emptyCurrencySubtitle(entry.currencyCode))
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(WidgetPalette.secondary)
                 .lineLimit(2)
@@ -314,7 +326,7 @@ struct AwaitGoodsWidgetView: View {
     private func savingsText(for item: WishSnapshot) -> String {
         guard let remaining = item.remainingAmount else { return copy.wantedText }
         if remaining == 0 { return copy.completedText }
-        return copy.remainingText(priceText(for: remaining) ?? "$0")
+        return copy.remainingText(WishCurrency.format(remaining, code: item.currencyCode))
     }
 
     private func progressText(for item: WishSnapshot) -> String {
@@ -324,7 +336,7 @@ struct AwaitGoodsWidgetView: View {
 
     private func priceText(for price: Double?) -> String? {
         guard let price else { return nil }
-        return "$\(price.formatted(.number.precision(.fractionLength(0...0))))"
+        return WishCurrency.format(price, code: entry.currencyCode)
     }
 }
 
@@ -395,12 +407,8 @@ struct WidgetCopy {
         }
     }
 
-    var emptySubtitle: String {
-        switch language {
-        case .zhHans: return "先记下心动，晚点再决定。"
-        case .zhHant: return "先記下心動，晚點再決定。"
-        case .en: return "Save the wish first. Decide later."
-        }
+    func emptyCurrencySubtitle(_ code: String) -> String {
+        localized("暂无 \(code) 待存心愿", "暫無 \(code) 待存心願", "No waiting wishes in \(code)")
     }
 
     var emptySummary: String {
@@ -563,7 +571,7 @@ private struct WishShowcaseView: View {
                 Spacer(minLength: 0)
                 Text(copy.emptyTitle)
                     .font(.system(size: 19, weight: .semibold, design: .rounded))
-                Text(copy.emptySubtitle)
+                Text(copy.emptyCurrencySubtitle(entry.currencyCode))
                     .font(.system(size: 12))
                     .foregroundStyle(WidgetPalette.secondary)
                 Spacer(minLength: 0)
@@ -591,6 +599,9 @@ private struct WishShowcaseView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             Spacer(minLength: 0)
+            Text(entry.currencyCode)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(WidgetPalette.secondary)
             if !isSmall {
                 Text(copy.appName)
                     .font(.system(size: 10))
@@ -777,7 +788,7 @@ private struct WishShowcaseView: View {
     }
 
     private func money(_ value: Double) -> String {
-        "$\(value.formatted(.number.precision(.fractionLength(0))))"
+        WishCurrency.format(value, code: entry.currencyCode)
     }
 
     private func percent(_ value: Double) -> String {

@@ -14,7 +14,8 @@ struct WishJarContent {
         WishBoardSelection.next(in: displayItems, currentID: focus?.id, direction: direction)
     }
 
-    init(items: [WishSnapshot], selectedID: UUID? = nil) {
+    init(items: [WishSnapshot], selectedID: UUID? = nil, currencyCode: String = "USD") {
+        let items = WidgetContentFilter.select(items, group: nil, currencyCode: currencyCode)
         displayItems = items
         count = items.count
         focus = WishBoardSelection.focus(in: items, selectedID: selectedID)

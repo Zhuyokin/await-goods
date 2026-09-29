@@ -5,6 +5,7 @@ final class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchSessionManager()
 
     @Published private(set) var items: [WatchWishSnapshot] = []
+    @Published private(set) var currencyCode = "USD"
     @Published private(set) var lastUpdatedAt: Date?
     @Published private(set) var isReachable = false
 
@@ -116,6 +117,7 @@ final class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
 
         DispatchQueue.main.async { [weak self] in
             self?.items = payload.items
+            self?.currencyCode = payload.currencyCode
             self?.lastUpdatedAt = payload.updatedAt
             UserDefaults.standard.set(payloadData, forKey: Self.cachedPayloadKey)
         }
@@ -133,11 +135,12 @@ final class WatchSessionManager: NSObject, ObservableObject, WCSessionDelegate {
         }
 
         items = payload.items
+        currencyCode = payload.currencyCode
         lastUpdatedAt = payload.updatedAt
     }
 
     private func cacheCurrentItems() {
-        let payload = WatchWishPayload(updatedAt: Date(), items: items)
+        let payload = WatchWishPayload(updatedAt: Date(), items: items, currencyCode: currencyCode)
         guard let data = try? JSONEncoder().encode(payload) else { return }
         lastUpdatedAt = payload.updatedAt
         UserDefaults.standard.set(data, forKey: Self.cachedPayloadKey)

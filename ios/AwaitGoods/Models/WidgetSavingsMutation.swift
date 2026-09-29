@@ -23,11 +23,12 @@ enum WidgetSavingsMutation {
         return WidgetSavingsReceipt(id: UUID(), itemID: item.id, title: item.title,
                                     previousSavedAmount: previous, previousStatus: previousStatus,
                                     savedAmount: item.savedAmountValue, status: item.statusRawValue,
-                                    updatedAt: item.updatedAt, amount: credited)
+                                    updatedAt: item.updatedAt, amount: credited, currencyCode: item.currencyCode)
     }
 
     static func undo(_ item: WishItem, receipt: WidgetSavingsReceipt, at date: Date = Date()) throws {
         guard item.id == receipt.itemID, !item.isTrashed,
+              item.currencyCode == (receipt.currencyCode ?? "USD"),
               abs(item.updatedAt.timeIntervalSince(receipt.updatedAt)) < 0.000001,
               item.savedAmountValue == receipt.savedAmount, item.statusRawValue == receipt.status else {
             throw WidgetSavingsError.stale

@@ -202,14 +202,10 @@ struct SettingsView: View {
                         }
                     } label: {
                         HStack(spacing: 12) {
-                            HStack(spacing: 3) {
-                                ForEach(Array(theme.swatchColors.enumerated()), id: \.offset) { _, color in
-                                    Capsule()
-                                        .fill(color)
-                                        .frame(width: 14, height: 28)
-                                }
-                            }
-                            .accessibilityHidden(true)
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(theme.swatchColor)
+                                .frame(width: 32, height: 32)
+                                .accessibilityHidden(true)
 
                             Text(appLanguage.text(theme.title))
                                 .foregroundStyle(HWTheme.primaryText)
@@ -380,6 +376,11 @@ struct SettingsView: View {
                     title: appLanguage.text("备份文件已导入"),
                     message: String(format: appLanguage.text("新增 %d 条 · 更新 %d 条"), summary.inserted, summary.updated)
                 )
+            } catch BackupImportError.unsupportedCurrency(let code) {
+                dataTransferMessage = DataTransferMessage(
+                    title: appLanguage.text("无法导入备份文件"),
+                    message: String(format: appLanguage.text("备份包含暂不支持的币种：%@。"), code)
+                )
             } catch BackupImportError.emptyBackup {
                 dataTransferMessage = DataTransferMessage(
                     title: appLanguage.text("无法导入备份文件"),
@@ -418,6 +419,9 @@ struct SettingsView: View {
         guard !importedItems.isEmpty else {
             throw BackupImportError.emptyBackup
         }
+        if let unsupported = importedItems.first(where: { WishCurrency(rawValue: $0.resolvedCurrencyCode) == nil }) {
+            throw BackupImportError.unsupportedCurrency(unsupported.resolvedCurrencyCode)
+        }
 
         var existingItemsByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
         var inserted = 0
@@ -455,103 +459,6 @@ struct SettingsView: View {
     }
 }
 
-private struct WishItemExport: Codable {
-    let id: UUID
-    let title: String
-    let price: Double?
-    let link: String
-    let note: String
-    let category: String
-    let priority: String
-    let status: String
-    let markColor: String
-    let savedAmount: Double
-    let photoData: Data?
-    let reminderDate: Date?
-    let notifyEnabled: Bool?
-    let sortIndex: Int
-    let isPinned: Bool?
-    let createdAt: Date
-    let updatedAt: Date
-
-    init(item: WishItem) {
-        id = item.id
-        title = item.title
-        price = item.price
-        link = item.linkString
-        note = item.note
-        category = item.category
-        priority = String(item.priority.rawValue)
-        status = item.status.rawValue
-        markColor = item.markColor.rawValue
-        photoData = item.photoData
-        savedAmount = item.savedAmountValue
-        reminderDate = item.targetDate ?? item.waitUntil
-        notifyEnabled = item.notifyEnabled
-        sortIndex = item.sortIndex
-        isPinned = item.isPinned
-        createdAt = item.createdAt
-        updatedAt = item.updatedAt
-    }
-
-    func makeWishItem() -> WishItem {
-        WishItem(
-            id: id,
-            title: trimmedTitle,
-            price: normalizedPrice,
-            linkString: link.trimmingCharacters(in: .whitespacesAndNewlines),
-            note: note,
-            category: category.trimmingCharacters(in: .whitespacesAndNewlines),
-            priority: WishPriority.fromBackupValue(priority),
-            status: WishItemStatus.fromBackupValue(status),
-            markColor: MarkColor.fromBackupValue(markColor),
-            sortIndex: sortIndex,
-            isPinned: isPinned ?? false,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            targetDate: reminderDate,
-            notifyEnabled: notifyEnabled == true && reminderDate != nil && WishItemStatus.fromBackupValue(status) == .waiting,
-            savedAmount: normalizedSavedAmount,
-            photoData: photoData
-        )
-    }
-
-    func apply(to item: WishItem) {
-        item.title = trimmedTitle
-        item.price = normalizedPrice
-        item.linkString = link.trimmingCharacters(in: .whitespacesAndNewlines)
-        item.note = note
-        item.category = category.trimmingCharacters(in: .whitespacesAndNewlines)
-        item.priority = WishPriority.fromBackupValue(priority)
-        item.status = WishItemStatus.fromBackupValue(status)
-        item.markColor = MarkColor.fromBackupValue(markColor)
-        item.photoData = photoData
-        item.savedAmountValue = normalizedSavedAmount
-        item.waitUntil = nil
-        item.targetDate = reminderDate
-        item.notifyEnabled = notifyEnabled == true && reminderDate != nil && item.status == .waiting
-        item.sortIndex = sortIndex
-        item.isPinned = isPinned ?? false
-        item.createdAt = createdAt
-        item.updatedAt = updatedAt
-        item.trashedAt = nil
-    }
-
-    private var trimmedTitle: String {
-        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? title : trimmed
-    }
-
-    private var normalizedPrice: Double? {
-        guard let price, price > 0 else { return nil }
-        return price
-    }
-
-    private var normalizedSavedAmount: Double {
-        max(savedAmount, 0)
-    }
-}
-
 private struct DataTransferMessage: Identifiable {
     let id = UUID()
     let title: String
@@ -560,6 +467,7 @@ private struct DataTransferMessage: Identifiable {
 
 private enum BackupImportError: Error {
     case emptyBackup
+    case unsupportedCurrency(String)
 }
 
 private extension JSONEncoder {
@@ -576,51 +484,6 @@ private extension JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
-    }
-}
-
-private extension WishPriority {
-    static func fromBackupValue(_ value: String) -> WishPriority {
-        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "1", "low", "低":
-            return .low
-        case "3", "high", "高":
-            return .high
-        default:
-            return .medium
-        }
-    }
-}
-
-private extension WishItemStatus {
-    static func fromBackupValue(_ value: String) -> WishItemStatus {
-        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "waiting", "想买", "想買":
-            return .waiting
-        case "bought", "已拥有", "已擁有":
-            return .bought
-        case "released", "放下":
-            return .released
-        default:
-            return .waiting
-        }
-    }
-}
-
-private extension MarkColor {
-    static func fromBackupValue(_ value: String) -> MarkColor {
-        switch value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "green", "绿色", "綠色":
-            return .green
-        case "yellow", "黄色", "黃色":
-            return .yellow
-        case "pink", "粉色":
-            return .pink
-        case "gray", "grey", "灰色":
-            return .gray
-        default:
-            return .none
-        }
     }
 }
 

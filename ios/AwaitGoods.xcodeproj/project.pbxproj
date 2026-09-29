@@ -69,6 +69,10 @@
 		EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
 		F66885F7D60E4137E6D9A734 /* WishReminderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C43882A59B65025564BC78 /* WishReminderMessage.swift */; };
 		F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */; };
+		ABCF10000000000000000002 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
+		ABCF10000000000000000003 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
+		ABCF10000000000000000004 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
+		ABCF20000000000000000002 /* WishItemExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF20000000000000000001 /* WishItemExport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,6 +185,8 @@
 		F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSortIndexPolicy.swift; sourceTree = "<group>"; };
 		F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogoMark.swift; sourceTree = "<group>"; };
+		ABCF10000000000000000001 /* WishCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishCurrency.swift; sourceTree = "<group>"; };
+		ABCF20000000000000000001 /* WishItemExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemExport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -196,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */,
+				ABCF10000000000000000001 /* WishCurrency.swift */,
 				DD26EC20DE061652E0D4E0BC /* WishBoardIntents.swift */,
 				43DF6970D838A6877FAE761A /* WishBoardState.swift */,
 				AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */,
@@ -307,6 +314,7 @@
 				8417533398FE2DB01C3EA65F /* WishPriority.swift */,
 				F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */,
 				3983BE3949338C16914F9026 /* WishStatistics.swift */,
+				ABCF20000000000000000001 /* WishItemExport.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -476,6 +484,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABCF20000000000000000002 /* WishItemExport.swift in Sources */,
+				ABCF10000000000000000002 /* WishCurrency.swift in Sources */,
 				BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */,
 				458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */,
 				CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */,
@@ -522,6 +532,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABCF10000000000000000003 /* WishCurrency.swift in Sources */,
 				F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */,
 				EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */,
 				CFA47A78220ED559D7F9EB2F /* WishBoardIntents.swift in Sources */,
@@ -539,6 +550,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABCF10000000000000000004 /* WishCurrency.swift in Sources */,
 				96975D4B7120CFF47F6D04E4 /* AwaitGoodsWatchApp.swift in Sources */,
 				659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */,
 				6081F9322A1AD33252EA1984 /* WatchSessionManager.swift in Sources */,

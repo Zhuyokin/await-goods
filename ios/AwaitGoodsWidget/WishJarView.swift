@@ -23,6 +23,7 @@ struct WishJarView<Navigation: View>: View {
     let appIcon: Image
     let selectedID: UUID?
     let navigation: Navigation
+    var currencyCode: String = "USD"
 
     private var focus: WishJarCard? { cards.first { $0.id == selectedID } ?? cards.first }
 
@@ -114,6 +115,9 @@ struct WishJarView<Navigation: View>: View {
                 .font(.system(size: isSmall ? 12 : 15, weight: .semibold, design: .serif))
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
+            Text(currencyCode)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(secondary)
         }
     }
 

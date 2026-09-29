@@ -14,8 +14,8 @@ enum WishSortIndexPolicy {
                 if left.createdAt != right.createdAt { return left.createdAt > right.createdAt }
             case .savings:
                 if left.savingsProgress != right.savingsProgress { return left.savingsProgress > right.savingsProgress }
-                if left.price != right.price { return (left.price ?? 0) > (right.price ?? 0) }
             case .priceHigh:
+                if left.currencyCode != right.currencyCode { return left.currencyCode < right.currencyCode }
                 if left.price != right.price { return (left.price ?? 0) > (right.price ?? 0) }
             case .priority:
                 if left.priorityRawValue != right.priorityRawValue { return left.priorityRawValue > right.priorityRawValue }

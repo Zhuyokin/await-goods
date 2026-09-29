@@ -14,8 +14,8 @@ enum AppIllustratedTheme: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .sakura: return "樱花"
-        case .willow: return "柳枝"
+        case .sakura: return "樱雨春笺"
+        case .willow: return "柳影清风"
         }
     }
 
