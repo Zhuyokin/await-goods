@@ -411,6 +411,7 @@ private struct WishItemExport: Codable {
     let reminderDate: Date?
     let notifyEnabled: Bool?
     let sortIndex: Int
+    let isPinned: Bool?
     let createdAt: Date
     let updatedAt: Date
 
@@ -429,6 +430,7 @@ private struct WishItemExport: Codable {
         reminderDate = item.targetDate ?? item.waitUntil
         notifyEnabled = item.notifyEnabled
         sortIndex = item.sortIndex
+        isPinned = item.isPinned
         createdAt = item.createdAt
         updatedAt = item.updatedAt
     }
@@ -445,6 +447,7 @@ private struct WishItemExport: Codable {
             status: WishItemStatus.fromBackupValue(status),
             markColor: MarkColor.fromBackupValue(markColor),
             sortIndex: sortIndex,
+            isPinned: isPinned ?? false,
             createdAt: createdAt,
             updatedAt: updatedAt,
             targetDate: reminderDate,
@@ -469,6 +472,7 @@ private struct WishItemExport: Codable {
         item.targetDate = reminderDate
         item.notifyEnabled = notifyEnabled == true && reminderDate != nil && item.status == .waiting
         item.sortIndex = sortIndex
+        item.isPinned = isPinned ?? false
         item.createdAt = createdAt
         item.updatedAt = updatedAt
         item.trashedAt = nil

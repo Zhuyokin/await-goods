@@ -21,6 +21,7 @@ cd "$project_root"
 xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     -module-cache-path "$test_dir/ModuleCache" \
     ios/AwaitGoods/Models/WishItem.swift \
+    ios/AwaitGoods/Models/WishSortIndexPolicy.swift \
     ios/AwaitGoods/Models/WidgetSavingsMutation.swift \
     ios/AwaitGoods/Models/WishStatistics.swift \
     ios/AwaitGoods/Models/WishPriority.swift \
@@ -31,6 +32,7 @@ xcrun swiftc -target "$(uname -m)-apple-macosx14.0" \
     ios/AwaitGoodsWidget/WishJarContent.swift \
     ios/Tests/WishPhotoPersistenceTests.swift \
     ios/Tests/WishStatisticsTests.swift \
+    ios/Tests/WishListOrderingTests.swift \
     ios/Tests/WidgetBoardTests.swift \
     -o "$bundle/Contents/MacOS/HomeTests"
 "$bundle/Contents/MacOS/HomeTests"

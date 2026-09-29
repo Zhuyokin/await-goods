@@ -6,6 +6,7 @@ struct WishPhotoPersistenceTests {
     @MainActor
     static func main() throws {
         let container = try ModelContainer(for: WishItem.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        try WishListOrderingTests.run()
         WishStatisticsTests.run()
         try WidgetBoardTests.run()
         let data = Data([0xFF, 0xD8, 0xFF, 0xD9])

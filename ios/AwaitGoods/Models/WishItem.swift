@@ -13,6 +13,7 @@ final class WishItem {
     var statusRawValue: String
     var markColorRawValue: String
     var sortIndex: Int
+    var isPinned: Bool = false
     var createdAt: Date
     var updatedAt: Date
     var waitUntil: Date?
@@ -33,6 +34,7 @@ final class WishItem {
         status: WishItemStatus = .waiting,
         markColor: MarkColor = .none,
         sortIndex: Int = 0,
+        isPinned: Bool = false,
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         waitUntil: Date? = nil,
@@ -52,6 +54,7 @@ final class WishItem {
         self.statusRawValue = status.rawValue
         self.markColorRawValue = markColor.rawValue
         self.sortIndex = sortIndex
+        self.isPinned = isPinned
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.waitUntil = waitUntil

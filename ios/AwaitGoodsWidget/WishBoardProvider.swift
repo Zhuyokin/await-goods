@@ -6,11 +6,9 @@ struct WishBoardConfiguration: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "心愿看板"
     static var description = IntentDescription("把心愿、储蓄和冷静期放在桌面。")
     @Parameter(title: "内容分组") var group: WishGroupEntity?
-    @Parameter(title: "每次记录金额", default: 50) var depositAmount: Double
-    static var parameterSummary: some ParameterSummary { Summary { \.$group; \.$depositAmount } }
+    static var parameterSummary: some ParameterSummary { Summary { \.$group } }
     init() { group = .all }
     var scope: String { group?.id ?? "all" }
-    var validAmount: Double { depositAmount.isFinite && depositAmount > 0 ? depositAmount : 50 }
 }
 
 struct WishBoardEntry: TimelineEntry {
@@ -18,7 +16,6 @@ struct WishBoardEntry: TimelineEntry {
     let items: [WishSnapshot]
     let selectedID: UUID?
     let scope: String
-    let depositAmount: Double
     let languageCode: String
     let feedback: WishBoardFeedback?
     var focus: WishSnapshot? { WishBoardSelection.focus(in: items, selectedID: selectedID) }
@@ -47,7 +44,7 @@ struct WishBoardProvider: AppIntentTimelineProvider {
         return WishBoardEntry(date: date,
                               items: WidgetContentFilter.select(WidgetSnapshotStore.load(), group: configuration.group?.group),
                               selectedID: WishBoardState.selection(scope: configuration.scope), scope: configuration.scope,
-                              depositAmount: configuration.validAmount, languageCode: WidgetSnapshotStore.loadLanguageCode(),
+                              languageCode: WidgetSnapshotStore.loadLanguageCode(),
                               feedback: feedback?.isVisible(at: date) == true ? feedback : nil)
     }
 
@@ -59,7 +56,7 @@ struct WishBoardProvider: AppIntentTimelineProvider {
             WishSnapshot(id: UUID(), title: "Weekend bag", price: 1200, savedAmount: 800, sortIndex: 1, updatedAt: now),
             WishSnapshot(id: UUID(), title: "Classic watch", price: 2400, savedAmount: 1800, sortIndex: 2, updatedAt: now)
         ]
-        return WishBoardEntry(date: now, items: items, selectedID: nil, scope: "all", depositAmount: 50,
+        return WishBoardEntry(date: now, items: items, selectedID: nil, scope: "all",
                               languageCode: WidgetSnapshotStore.loadLanguageCode(), feedback: nil)
     }
 }

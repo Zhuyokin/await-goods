@@ -47,6 +47,17 @@ enum WidgetBoardTests {
         let snapshot = try JSONDecoder().decode(WishSnapshot.self, from: JSONEncoder().encode(first))
         precondition(snapshot.waitUntil == after && snapshot.updatedAt == before)
         precondition(WishDeepLink(url: WishDeepLink.wish(first.id).url) == .wish(first.id))
+        for route in [WishDeepLink.home, .add] {
+            precondition(WishDeepLink(url: route.url) == route)
+        }
+        let depositURL = URL(string: "awaitgoods://deposit/3A76EF30-88F1-47E8-AE7E-B7749D7812E2")!
+        let depositRoute = WishDeepLink(url: depositURL)
+        precondition(depositRoute != nil, "Widget deposits must open the amount entry for the selected wish")
+        precondition(depositRoute?.url == depositURL, "Deposit links must preserve the selected wish ID")
+        precondition(depositRoute != .wish(UUID(uuidString: "3A76EF30-88F1-47E8-AE7E-B7749D7812E2")!))
+        precondition(WishDeepLink(url: URL(string: "awaitgoods://deposit/not-a-uuid")!) == nil)
+        precondition(WishDeepLink(url: URL(string: "awaitgoods://deposit")!) == nil)
+        precondition(WishDeepLink(url: URL(string: "https://deposit/\(first.id)")!) == nil)
         precondition(WishDeepLink(url: URL(string: "awaitgoods://wish/not-a-uuid")!) == nil)
         precondition(WishDeepLink(url: URL(string: "https://wish/\(first.id)")!) == nil)
         print("Widget board mutation, persistence, selection and routing checks passed")

@@ -12,8 +12,6 @@ struct WishRowView: View {
     let isSelected: Bool
     let onCheck: () -> Void
     let onOpen: () -> Void
-    let onMore: (() -> Void)?
-
     var body: some View {
         HStack(spacing: 10) {
             if isEditing {
@@ -93,11 +91,6 @@ struct WishRowView: View {
         .background(HWTheme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .shadow(color: HWTheme.softShadow.opacity(0.5), radius: 8, x: 0, y: 3)
-        .contextMenu {
-            if let onMore, !isEditing {
-                Button(appLanguage.text("编辑"), systemImage: "pencil", action: onMore)
-            }
-        }
     }
 
     private var thumbnailIcon: String {
@@ -140,6 +133,137 @@ struct WishRowView: View {
         case .low: return HWTheme.freshGreen
         case .medium: return HWTheme.apricot
         case .high: return HWTheme.dangerRed
+        }
+    }
+
+    private func moneyText(_ value: Double) -> String {
+        "$\(value.formatted(.number.precision(.fractionLength(0...2))))"
+    }
+}
+
+struct WishGridCard: View {
+    @Environment(\.appLanguage) private var appLanguage
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .body) private var titleSize = 15.0
+    @ScaledMetric(relativeTo: .title3) private var amountSize = 20.0
+
+    let item: WishItem
+    let width: CGFloat
+    let isEditing: Bool
+    let isSelected: Bool
+    let onOpen: () -> Void
+    let onPin: () -> Void
+    let onSelect: () -> Void
+    let onEdit: () -> Void
+    let onCopyLink: () -> Void
+    let onColor: (MarkColor) -> Void
+    let onStatus: (WishItemStatus) -> Void
+    let onDelete: () -> Void
+
+    private var photoWidth: CGFloat { max(width - 24, 1) }
+    private var photoHeight: CGFloat { min(photoWidth * 0.79, 180) }
+
+    var body: some View {
+        Button(action: onOpen) {
+            VStack(alignment: .leading, spacing: 8) {
+                WishPhoto(data: item.photoData, width: max(photoWidth - 20, 1), height: max(photoHeight - 16, 1),
+                          fallbackIcon: "bag", fallbackColor: HWTheme.freshGreen)
+                    .frame(width: photoWidth, height: photoHeight)
+                    .background(HWTheme.fieldBackground.opacity(0.7), in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(alignment: .topLeading) { pinBadge }
+                    .overlay(alignment: .topTrailing) { selectionBadge }
+                    .overlay(alignment: .bottomLeading) {
+                        if item.markColor != .none {
+                            Circle().fill(HWTheme.markColor(item.markColor)).frame(width: 10, height: 10)
+                                .overlay(Circle().stroke(HWTheme.cardBackground, lineWidth: 2)).padding(8)
+                        }
+                    }
+                    .accessibilityHidden(true)
+                Text(item.title)
+                    .font(.system(size: titleSize, weight: .semibold))
+                    .foregroundStyle(HWTheme.primaryText)
+                    .strikethrough(item.status == .released, color: HWTheme.secondaryText)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(alignment: .lastTextBaseline, spacing: 4) {
+                    Text(item.price.map(moneyText) ?? appLanguage.text("目标未定"))
+                        .font(.system(size: amountSize, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(HWTheme.primaryText)
+                        .lineLimit(1).minimumScaleFactor(0.65)
+                    Spacer(minLength: 0)
+                    if item.savingsTarget != nil {
+                        Text("\(Int((item.savingsProgress * 100).rounded()))%")
+                            .font(.caption2.monospacedDigit()).foregroundStyle(HWTheme.freshGreen)
+                    }
+                }
+                WishProgressBar(progress: item.savingsProgress)
+                    .opacity(item.savingsTarget == nil ? 0 : 1)
+                Text("\(appLanguage.text("已存")) \(moneyText(item.savedAmountValue))")
+                    .font(.caption).foregroundStyle(HWTheme.secondaryText)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .padding(12)
+            .frame(width: width, alignment: .topLeading)
+            .background(HWTheme.cardBackground, in: RoundedRectangle(cornerRadius: 21))
+            .overlay(RoundedRectangle(cornerRadius: 21)
+                .stroke(isSelected && isEditing ? HWTheme.freshGreen.opacity(0.72) : HWTheme.cardBorder.opacity(0.22),
+                        lineWidth: isSelected && isEditing ? 1.5 : 0.6))
+            .contentShape(RoundedRectangle(cornerRadius: 21))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected && isEditing ? .isSelected : [])
+        .accessibilityValue(appLanguage.text(item.status.title) + (item.isPinned ? ", " + appLanguage.text("已置顶") : ""))
+        .contextMenu {
+            if !isEditing {
+                Button(appLanguage.text(item.isPinned ? "取消置顶" : "置顶"), systemImage: item.isPinned ? "pin.slash" : "pin", action: onPin)
+                Button(appLanguage.text("编辑"), systemImage: "pencil", action: onEdit)
+                Button(appLanguage.text("选择"), systemImage: "checkmark.circle", action: onSelect)
+                Divider()
+                Menu(appLanguage.text("状态"), systemImage: "heart") {
+                    ForEach(WishItemStatus.allCases) { status in
+                        Button(appLanguage.text(status.title), systemImage: status.iconName) { onStatus(status) }
+                            .disabled(item.status == status)
+                    }
+                }
+                Menu(appLanguage.text("标记"), systemImage: "tag") {
+                    ForEach(MarkColor.allCases) { color in
+                        Button { onColor(color) } label: {
+                            Text(appLanguage.text(color.title))
+                            if item.markColor == color { Image(systemName: "checkmark") }
+                        }
+                    }
+                }
+                if item.linkURL != nil {
+                    Button(appLanguage.text("复制链接"), systemImage: "link", action: onCopyLink)
+                }
+                Divider()
+                Button(appLanguage.text("移入回收站"), systemImage: "trash", role: .destructive, action: onDelete)
+            }
+        }
+    }
+
+    @ViewBuilder private var pinBadge: some View {
+        if item.isPinned {
+            Image(systemName: "pin.fill").font(.system(size: 11)).rotationEffect(.degrees(30))
+                .foregroundStyle(HWTheme.freshGreen).frame(width: 26, height: 26)
+                .background(HWTheme.cardBackground.opacity(0.95), in: Circle()).padding(7)
+        }
+    }
+
+    @ViewBuilder private var selectionBadge: some View {
+        if isEditing {
+            Circle().fill(isSelected ? HWTheme.freshGreen : HWTheme.cardBackground)
+                .overlay(Circle().stroke(isSelected ? HWTheme.freshGreen : HWTheme.tertiaryText.opacity(0.5), lineWidth: 1.3))
+                .overlay {
+                    if isSelected {
+                        Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                    }
+                }
+                .frame(width: 24, height: 24).padding(7)
+        } else if item.status != .waiting {
+            Image(systemName: item.status.iconName).font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(HWTheme.secondaryText).frame(width: 26, height: 26)
+                .background(HWTheme.cardBackground.opacity(0.95), in: Circle()).padding(7)
         }
     }
 

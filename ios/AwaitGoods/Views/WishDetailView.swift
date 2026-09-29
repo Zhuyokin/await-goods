@@ -8,30 +8,42 @@ struct WishDetailView: View {
     @Environment(\.modelContext) private var modelContext
 
     let item: WishItem
+    var focusDeposit = false
     let onEdit: () -> Void
     let onChange: () -> Void
 
     @State private var depositText = ""
     @State private var changeEffect: WishChangeEffect?
     @State private var changeEffectToken = UUID()
+    @State private var didFocusDeposit = false
+    @FocusState private var isDepositFocused: Bool
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                header
-                savingsSection
-                if item.linkURL != nil || !item.note.isEmpty {
-                    recordSection
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    header
+                    savingsSection
+                        .id("savings")
+                    if item.linkURL != nil || !item.note.isEmpty {
+                        recordSection
+                    }
+                    statusSelector
                 }
-                statusSelector
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 24)
+                .frame(maxWidth: 660)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 24)
-            .frame(maxWidth: 660)
-            .frame(maxWidth: .infinity)
+            .scrollDismissesKeyboard(.interactively)
+            .task {
+                guard focusDeposit, !didFocusDeposit, !item.isSavingsComplete else { return }
+                didFocusDeposit = true
+                proxy.scrollTo("savings", anchor: .top)
+                isDepositFocused = true
+            }
         }
-        .scrollDismissesKeyboard(.interactively)
         .background(HWTheme.pageBackground.ignoresSafeArea())
         .overlay { changeEffectOverlay }
         .navigationTitle(appLanguage.text("心愿详情"))
@@ -41,6 +53,10 @@ struct WishDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(appLanguage.text("编辑"), action: onEdit)
+            }
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(appLanguage.text("完成")) { isDepositFocused = false }
             }
         }
         .tint(HWTheme.freshGreen)
@@ -138,6 +154,7 @@ struct WishDetailView: View {
                     Text("$").foregroundStyle(HWTheme.freshGreen)
                     TextField(appLanguage.text("存入金额"), text: $depositText)
                         .keyboardType(.decimalPad)
+                        .focused($isDepositFocused)
                         .disabled(item.isSavingsComplete)
                 }
                 .padding(.horizontal, 12)
@@ -263,6 +280,7 @@ struct WishDetailView: View {
         let shouldMarkBought = shouldMarkBought(afterSaving: parsedDeposit)
         item.savedAmountValue += parsedDeposit
         depositText = ""
+        isDepositFocused = false
         persistChanges()
         if shouldMarkBought {
             updateStatus(.bought)
@@ -274,6 +292,8 @@ struct WishDetailView: View {
         guard let target = item.savingsTarget else { return }
         let shouldMarkBought = item.status != .bought
         item.savedAmountValue = target
+        depositText = ""
+        isDepositFocused = false
         persistChanges()
         if shouldMarkBought {
             updateStatus(.bought)

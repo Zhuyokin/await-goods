@@ -35,6 +35,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     private static let translations: [String: [String: String]] = [
         "zhHant": [
+            "选择": "選擇",
+            "更多": "更多",
+            "全选": "全選",
+            "取消全选": "取消全選",
+            "置顶": "置頂",
+            "取消置顶": "取消置頂",
+            "已置顶": "已置頂",
+            "%d 件心愿": "%d 件心願",
+            "状态": "狀態",
             "心愿详情": "心願詳情",
             "添加心愿": "新增心願",
             "编辑心愿": "編輯心願",
@@ -282,6 +291,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日先不急著擁有"
         ],
         "en": [
+            "选择": "Select",
+            "更多": "More",
+            "全选": "Select all",
+            "取消全选": "Deselect all",
+            "置顶": "Pin",
+            "取消置顶": "Unpin",
+            "已置顶": "Pinned",
+            "%d 件心愿": "%d wishes",
+            "状态": "Status",
             "心愿详情": "Wish details",
             "添加心愿": "Add a wish",
             "编辑心愿": "Edit wish",
@@ -549,6 +567,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "No need to own it today"
         ],
         "ja": [
+            "选择": "選択",
+            "更多": "その他",
+            "全选": "すべて選択",
+            "取消全选": "選択を解除",
+            "置顶": "固定",
+            "取消置顶": "固定を解除",
+            "已置顶": "固定済み",
+            "%d 件心愿": "%d件のウィッシュ",
+            "状态": "状態",
             "心愿详情": "ほしい物の詳細",
             "添加心愿": "ほしい物を追加",
             "编辑心愿": "ほしい物を編集",
@@ -762,6 +789,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "今日はまだ所有を急がない"
         ],
         "fr": [
+            "选择": "Sélectionner",
+            "更多": "Plus",
+            "全选": "Tout sélectionner",
+            "取消全选": "Tout désélectionner",
+            "置顶": "Épingler",
+            "取消置顶": "Désépingler",
+            "已置顶": "Épinglé",
+            "%d 件心愿": "%d souhaits",
+            "状态": "Statut",
             "心愿详情": "Détails du souhait",
             "添加心愿": "Ajouter un souhait",
             "编辑心愿": "Modifier le souhait",
@@ -979,6 +1015,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Pas besoin de posséder aujourd’hui"
         ],
         "de": [
+            "选择": "Auswählen",
+            "更多": "Mehr",
+            "全选": "Alle auswählen",
+            "取消全选": "Auswahl aufheben",
+            "置顶": "Anheften",
+            "取消置顶": "Lösen",
+            "已置顶": "Angeheftet",
+            "%d 件心愿": "%d Wünsche",
+            "状态": "Status",
             "心愿详情": "Wunschdetails",
             "添加心愿": "Wunsch hinzufügen",
             "编辑心愿": "Wunsch bearbeiten",
@@ -1196,6 +1241,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Heute muss es nicht sofort Ihnen gehören"
         ],
         "it": [
+            "选择": "Seleziona",
+            "更多": "Altro",
+            "全选": "Seleziona tutto",
+            "取消全选": "Deseleziona tutto",
+            "置顶": "Fissa",
+            "取消置顶": "Rimuovi fissaggio",
+            "已置顶": "Fissato",
+            "%d 件心愿": "%d desideri",
+            "状态": "Stato",
             "心愿详情": "Dettagli del desiderio",
             "添加心愿": "Aggiungi un desiderio",
             "编辑心愿": "Modifica desiderio",
@@ -1413,6 +1467,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             "今日先不急着拥有": "Oggi non serve possederlo subito"
         ],
         "ko": [
+            "选择": "선택",
+            "更多": "더보기",
+            "全选": "전체 선택",
+            "取消全选": "전체 해제",
+            "置顶": "고정",
+            "取消置顶": "고정 해제",
+            "已置顶": "고정됨",
+            "%d 件心愿": "위시 %d개",
+            "状态": "상태",
             "心愿详情": "위시 상세",
             "添加心愿": "위시 추가",
             "编辑心愿": "위시 편집",

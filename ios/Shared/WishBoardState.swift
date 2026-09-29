@@ -1,7 +1,7 @@
 import Foundation
 
 enum WishDeepLink: Equatable {
-    case home, add, wish(UUID)
+    case home, add, wish(UUID), deposit(UUID)
 
     init?(url: URL) {
         guard url.scheme?.lowercased() == "awaitgoods" else { return nil }
@@ -11,6 +11,9 @@ enum WishDeepLink: Equatable {
         case "wish":
             guard let id = UUID(uuidString: String(url.path.dropFirst())) else { return nil }
             self = .wish(id)
+        case "deposit":
+            guard let id = UUID(uuidString: String(url.path.dropFirst())) else { return nil }
+            self = .deposit(id)
         default: return nil
         }
     }
@@ -20,6 +23,7 @@ enum WishDeepLink: Equatable {
         case .home: return URL(string: "awaitgoods://home")!
         case .add: return URL(string: "awaitgoods://add")!
         case .wish(let id): return URL(string: "awaitgoods://wish/\(id.uuidString)")!
+        case .deposit(let id): return URL(string: "awaitgoods://deposit/\(id.uuidString)")!
         }
     }
 }
