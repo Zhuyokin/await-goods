@@ -43,6 +43,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case berryGarden
     case forestNight
     case apricotTea
+    case roseLetter
 
     var id: String { rawValue }
 
@@ -57,6 +58,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .berryGarden: return "粉色"
         case .forestNight: return "深绿"
         case .apricotTea: return "杏色"
+        case .roseLetter: return "玫瑰"
         }
     }
 
@@ -67,6 +69,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .berryGarden: return "莓果、鼠尾草和纸白"
         case .forestNight: return "深绿与温润木色"
         case .apricotTea: return "杏色、茶棕和蓝灰"
+        case .roseLetter: return "奶油白与柔和玫瑰"
         }
     }
 
@@ -77,6 +80,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .berryGarden: return "camera.macro"
         case .forestNight: return "moon.stars"
         case .apricotTea: return "sun.max"
+        case .roseLetter: return "envelope"
         }
     }
 
@@ -88,6 +92,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .berryGarden: rgb = palette.markPink.light
         case .forestNight: rgb = palette.freshGreen.light
         case .apricotTea: rgb = palette.apricot.light
+        case .roseLetter: rgb = palette.blossom.light
         }
         return Color(red: rgb.0, green: rgb.1, blue: rgb.2)
     }
@@ -115,6 +120,8 @@ enum AppTheme: String, CaseIterable, Identifiable {
             return Self.forestNightPalette
         case .apricotTea:
             return Self.apricotTeaPalette
+        case .roseLetter:
+            return Self.roseLetterPalette
         }
     }
 }
@@ -123,6 +130,33 @@ private extension AppTheme {
     static func c(_ light: ThemeRGB, _ dark: ThemeRGB) -> AdaptiveThemeColor {
         AdaptiveThemeColor(light: light, dark: dark)
     }
+
+    static let roseLetterPalette = AppThemePalette(
+        pageBackground: c((0.988, 0.969, 0.957), (0.118, 0.086, 0.102)),
+        listBackground: c((0.999, 0.987, 0.978), (0.147, 0.112, 0.129)),
+        cardBackground: c((1.000, 0.994, 0.986), (0.182, 0.143, 0.159)),
+        fieldBackground: c((0.972, 0.919, 0.921), (0.236, 0.178, 0.201)),
+        primaryText: c((0.227, 0.147, 0.173), (0.964, 0.929, 0.919)),
+        secondaryText: c((0.500, 0.360, 0.390), (0.802, 0.714, 0.746)),
+        tertiaryText: c((0.570, 0.420, 0.450), (0.708, 0.615, 0.650)),
+        separator: c((0.890, 0.801, 0.807), (0.345, 0.259, 0.294)),
+        cardBorder: c((0.856, 0.748, 0.767), (0.413, 0.307, 0.347)),
+        mint: c((0.956, 0.810, 0.827), (0.484, 0.290, 0.350)),
+        freshGreen: c((0.616, 0.275, 0.376), (0.850, 0.570, 0.660)),
+        softWood: c((0.616, 0.443, 0.326), (0.790, 0.622, 0.486)),
+        softBlueGray: c((0.506, 0.455, 0.647), (0.741, 0.679, 0.836)),
+        cream: c((0.993, 0.958, 0.923), (0.163, 0.124, 0.133)),
+        apricot: c((0.710, 0.471, 0.361), (0.827, 0.610, 0.499)),
+        blossom: c((0.651, 0.318, 0.431), (0.874, 0.563, 0.670)),
+        skyWash: c((0.954, 0.928, 0.949), (0.150, 0.122, 0.175)),
+        linkBlue: c((0.517, 0.337, 0.533), (0.801, 0.651, 0.824)),
+        dangerRed: c((0.720, 0.238, 0.270), (0.902, 0.489, 0.517)),
+        markGreen: c((0.734, 0.814, 0.711), (0.500, 0.626, 0.458)),
+        markYellow: c((0.939, 0.824, 0.620), (0.708, 0.597, 0.400)),
+        markPink: c((0.946, 0.738, 0.790), (0.748, 0.466, 0.579)),
+        markGray: c((0.778, 0.737, 0.748), (0.513, 0.446, 0.479)),
+        shadowLight: (0.300, 0.160, 0.200)
+    )
 
     static let springPaperPalette = AppThemePalette(
         pageBackground: c((0.972, 0.982, 0.968), (0.105, 0.112, 0.108)),
