@@ -124,6 +124,12 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section(appLanguage.text("关于 App")) {
+            NavigationLink {
+                SharePostersView()
+            } label: {
+                settingsRow("分享 App", icon: "square.and.arrow.up")
+            }
+
             if let supportEmailURL = URL(string: "mailto:\(supportEmail)") {
                 Link(destination: supportEmailURL) {
                     externalLinkRow("联系客服", icon: "envelope")

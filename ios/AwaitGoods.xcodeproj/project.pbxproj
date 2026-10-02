@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A6C239874DA241BBB181CED2 /* AppIllustratedTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6C239874DA241BBB181CED1 /* AppIllustratedTheme.swift */; };
 		007348111EE05520A1EBF50B /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1F63F0A2808DAB7012964E /* StatsView.swift */; };
 		01E6338970C93E1E6B455F06 /* WishSortIndexPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */; };
 		1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BFD927CCD956A68378D2F1 /* OnboardingView.swift */; };
@@ -30,6 +29,7 @@
 		52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5C55ADED2249C0FB071C /* WishItem.swift */; };
 		5432C12BA60F1742806B7EC6 /* WishBoardIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD26EC20DE061652E0D4E0BC /* WishBoardIntents.swift */; };
 		54716D683573B89F8270A22B /* MarkColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708A78E8FDF0E2F171E13882 /* MarkColor.swift */; };
+		55412A20EC7022F2F3E602D0 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25E7D924B6736A6B797DFD0 /* WishCurrency.swift */; };
 		6081F9322A1AD33252EA1984 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 105FFB82FAC21E492C9D7BA7 /* WatchSessionManager.swift */; };
 		659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 005C425381D5357BFC1BB1BC /* WatchHomeView.swift */; };
 		6A2593B179EB041E2B175D9C /* CheckBoxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */; };
@@ -39,6 +39,7 @@
 		702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00133B432093F41F0FC4B014 /* EmptyStateView.swift */; };
 		746632869F5D2CE56A532969 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
 		790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */; };
+		7BA126A66E1CF1E9BD69567D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3588A3238D63FE702C8C0224 /* InfoPlist.strings */; };
 		843235594D7CBAE172C31250 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */; };
 		85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8417533398FE2DB01C3EA65F /* WishPriority.swift */; };
 		8BC3C79D02D6A7409906B8ED /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
@@ -50,18 +51,23 @@
 		A31A090FB2553369506A0C6A /* HWTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 385568F103509773D3A07A67 /* HWTheme.swift */; };
 		A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF262B512826CB029A457C94 /* WishDetailView.swift */; };
 		A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D9AD49DE760485D82341E1 /* ScreenshotSeedService.swift */; };
+		AD4CB4017F9D85A514F769CC /* IllustrationBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A72C5FC8F6AFC84BFEB9A5B /* IllustrationBackdrop.swift */; };
 		B06760D4F2A223538954E4DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */; };
 		B3A670780D0FB4846C6AF868 /* WishJarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8938F55676301E1B6C4F5C46 /* WishJarView.swift */; };
 		B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */; };
 		BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */; };
+		BCA5B56D6AC1D6BBEDB0E64E /* AppIllustratedTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6519824C14BA9A5B9EBB02D5 /* AppIllustratedTheme.swift */; };
 		C0366C5697BE19B915941584 /* WishRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB35C22516A74C1F747CD7F /* WishRowView.swift */; };
+		C35EFD1DDC224D81C68BD6EA /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25E7D924B6736A6B797DFD0 /* WishCurrency.swift */; };
 		CCE2E99F7E28D82EA1612FDB /* WidgetActionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96138BFA2D803862E5AFF06 /* WidgetActionService.swift */; };
 		CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F51BB09909F523764B4634 /* StatusBadge.swift */; };
 		CFA47A78220ED559D7F9EB2F /* WishBoardIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD26EC20DE061652E0D4E0BC /* WishBoardIntents.swift */; };
 		CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */; };
+		D252A864CDD102F18222CBD9 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25E7D924B6736A6B797DFD0 /* WishCurrency.swift */; };
+		D4E002E5DB37633263DEA89A /* WishItemExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23A3455F3F59A6D36BFD34D /* WishItemExport.swift */; };
 		D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */; };
-		D72B9E8EE9E0AB093CE5861A /* IllustrationBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */; };
 		D744EAEA11AC5C74A792771E /* DebugSeedImages in Resources */ = {isa = PBXBuildFile; fileRef = 7AB269B8B344BD3D5B0E18EE /* DebugSeedImages */; };
+		D78C712A9F4BF0FC25DB2AB5 /* SharePostersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48D14578EEB72610846BC576 /* SharePostersView.swift */; };
 		DD5B0758A07E52D550504586 /* AppWishStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE665FBAE1D0BB5F1EBD60DA /* AppWishStore.swift */; };
 		E46C8463E955F5AF53C923F6 /* WishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */; };
 		E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */; };
@@ -69,10 +75,6 @@
 		EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */; };
 		F66885F7D60E4137E6D9A734 /* WishReminderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C43882A59B65025564BC78 /* WishReminderMessage.swift */; };
 		F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */; };
-		ABCF10000000000000000002 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
-		ABCF10000000000000000003 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
-		ABCF10000000000000000004 /* WishCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF10000000000000000001 /* WishCurrency.swift */; };
-		ABCF20000000000000000002 /* WishItemExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCF20000000000000000001 /* WishItemExport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,7 +120,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A6C239874DA241BBB181CED1 /* AppIllustratedTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIllustratedTheme.swift; sourceTree = "<group>"; };
 		00133B432093F41F0FC4B014 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		005C425381D5357BFC1BB1BC /* WatchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeView.swift; sourceTree = "<group>"; };
 		00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
@@ -126,23 +127,31 @@
 		0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishEditorView.swift; sourceTree = "<group>"; };
 		0AB35C22516A74C1F747CD7F /* WishRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishRowView.swift; sourceTree = "<group>"; };
 		105FFB82FAC21E492C9D7BA7 /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
+		1816F9F95B17EF8179BB2E32 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		183643EAFFF7A43F3C1BF584 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		2F40FDEA4D882AA725D48E79 /* WidgetSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSyncService.swift; sourceTree = "<group>"; };
 		385568F103509773D3A07A67 /* HWTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HWTheme.swift; sourceTree = "<group>"; };
+		385585BC974181750CF730C3 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3983BE3949338C16914F9026 /* WishStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishStatistics.swift; sourceTree = "<group>"; };
 		3D9BC5E1F37B8597DCA6B146 /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
 		3E8C33675EC2CB045CBCF087 /* WishListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishListView.swift; sourceTree = "<group>"; };
+		3F0F245AD1A2D3E967010485 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3F5B1D70B08DD2BD619CDA70 /* 候物.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "候物.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		43DF6970D838A6877FAE761A /* WishBoardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishBoardState.swift; sourceTree = "<group>"; };
 		446A22DB2555E0B89B36A4CB /* AwaitGoodsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWidget.swift; sourceTree = "<group>"; };
 		44BFD927CCD956A68378D2F1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		48D14578EEB72610846BC576 /* SharePostersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePostersView.swift; sourceTree = "<group>"; };
+		4A72C5FC8F6AFC84BFEB9A5B /* IllustrationBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IllustrationBackdrop.swift; sourceTree = "<group>"; };
 		4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreLinks.swift; sourceTree = "<group>"; };
 		51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxButton.swift; sourceTree = "<group>"; };
 		52EE328A30A60851158B84DC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		55843D8E2A7A2D456B2F6FB3 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		598489FCE453058291FD72FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		61E4D95575BCE5B2F683F77F /* AwaitGoodsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoodsWidget.entitlements; sourceTree = "<group>"; };
 		63509745B8FD0F16086473DF /* WishBoardProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishBoardProvider.swift; sourceTree = "<group>"; };
+		63CA695F422BB276D262F68A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6519824C14BA9A5B9EBB02D5 /* AppIllustratedTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIllustratedTheme.swift; sourceTree = "<group>"; };
 		66C43882A59B65025564BC78 /* WishReminderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishReminderMessage.swift; sourceTree = "<group>"; };
 		708A78E8FDF0E2F171E13882 /* MarkColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkColor.swift; sourceTree = "<group>"; };
 		727F1E5EBBE8A1D2BE0539AC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -161,17 +170,20 @@
 		900A7A734584BB47390FDEE2 /* AwaitGoods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AwaitGoods.entitlements; sourceTree = "<group>"; };
 		927A5C55ADED2249C0FB071C /* WishItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItem.swift; sourceTree = "<group>"; };
 		9FD3B79C081515AF09D85D10 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		9FEF0BEA0D5763F3352EF3FE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		A14438BBB4C91F090D4C8EB1 /* WishJarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishJarWidget.swift; sourceTree = "<group>"; };
 		A690F2AD3EC7CAFEFDCB22B2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AAB07323C9FC637505E17945 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSnapshot.swift; sourceTree = "<group>"; };
+		B23A3455F3F59A6D36BFD34D /* WishItemExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemExport.swift; sourceTree = "<group>"; };
 		C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemStatus.swift; sourceTree = "<group>"; };
+		C25E7D924B6736A6B797DFD0 /* WishCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishCurrency.swift; sourceTree = "<group>"; };
 		C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5287735703579D6E51D6BAC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IllustrationBackdrop.swift; sourceTree = "<group>"; };
 		C96138BFA2D803862E5AFF06 /* WidgetActionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetActionService.swift; sourceTree = "<group>"; };
 		CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAppearanceMode.swift; sourceTree = "<group>"; };
 		CDD1875F62F091465AAED568 /* AwaitGoodsWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitGoodsWatchApp.swift; sourceTree = "<group>"; };
+		CECFB01DF95A796B3877A55B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D21DDB17762B7C180F31FBCE /* WishBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishBoardView.swift; sourceTree = "<group>"; };
 		D329C7BAF98F9775E5BFC765 /* AwaitGoodsWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AwaitGoodsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5B353EBF6ED4DA3E4377701 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -185,8 +197,7 @@
 		F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishSortIndexPolicy.swift; sourceTree = "<group>"; };
 		F253BAB139D5AA9F7B113EF5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogoMark.swift; sourceTree = "<group>"; };
-		ABCF10000000000000000001 /* WishCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishCurrency.swift; sourceTree = "<group>"; };
-		ABCF20000000000000000001 /* WishItemExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishItemExport.swift; sourceTree = "<group>"; };
+		FD976BC6061A43F5380B4630 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -202,9 +213,9 @@
 			isa = PBXGroup;
 			children = (
 				87999714DC2BE30C60EF914A /* WatchWishSnapshot.swift */,
-				ABCF10000000000000000001 /* WishCurrency.swift */,
 				DD26EC20DE061652E0D4E0BC /* WishBoardIntents.swift */,
 				43DF6970D838A6877FAE761A /* WishBoardState.swift */,
+				C25E7D924B6736A6B797DFD0 /* WishCurrency.swift */,
 				AFED1481916B7AA6FFA914BA /* WishSnapshot.swift */,
 			);
 			path = Shared;
@@ -240,6 +251,7 @@
 				52EE328A30A60851158B84DC /* MainTabView.swift */,
 				44BFD927CCD956A68378D2F1 /* OnboardingView.swift */,
 				E2653E608D5681E19C79E2CC /* SettingsView.swift */,
+				48D14578EEB72610846BC576 /* SharePostersView.swift */,
 				DD1F63F0A2808DAB7012964E /* StatsView.swift */,
 				EF262B512826CB029A457C94 /* WishDetailView.swift */,
 				0A61B9F60142DDF8ABADD8CB /* WishEditorView.swift */,
@@ -258,6 +270,7 @@
 				EB5BBD4A2EDBA6AF29407934 /* AwaitGoodsApp.swift */,
 				AAB07323C9FC637505E17945 /* Info.plist */,
 				C3F257A3346B53BF5EA0CE07 /* LaunchScreen.storyboard */,
+				3588A3238D63FE702C8C0224 /* InfoPlist.strings */,
 				C55B71D98C2D96CF3DB1E53B /* Models */,
 				A29243118C49966921FAEBD6 /* Services */,
 				1AFF3494A30E1366493951A3 /* Theme */,
@@ -302,19 +315,19 @@
 			isa = PBXGroup;
 			children = (
 				CC303BCBFBC6F0A73B6A32B0 /* AppAppearanceMode.swift */,
+				6519824C14BA9A5B9EBB02D5 /* AppIllustratedTheme.swift */,
 				00AFB5D9E70C1E253F9EF105 /* AppLanguage.swift */,
 				4F6909B7CC0A783F54955EA1 /* AppStoreLinks.swift */,
-				A6C239874DA241BBB181CED1 /* AppIllustratedTheme.swift */,
 				4B70BD9F0BEA5F282CAD6F52 /* AppTheme.swift */,
 				78B63A5056AD6CAA245043C4 /* DefaultWaitPeriod.swift */,
 				708A78E8FDF0E2F171E13882 /* MarkColor.swift */,
 				72ABB141E84083D37AD26E7A /* WidgetSavingsMutation.swift */,
 				927A5C55ADED2249C0FB071C /* WishItem.swift */,
+				B23A3455F3F59A6D36BFD34D /* WishItemExport.swift */,
 				C1D6D11C8632EFEDF1EE1712 /* WishItemStatus.swift */,
 				8417533398FE2DB01C3EA65F /* WishPriority.swift */,
 				F0CB2A6C5A93029473BB00F5 /* WishSortIndexPolicy.swift */,
 				3983BE3949338C16914F9026 /* WishStatistics.swift */,
-				ABCF20000000000000000001 /* WishItemExport.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -325,8 +338,8 @@
 				F93ACFD4C0CF82FBA7C1A56E /* AppLogoMark.swift */,
 				51BD7CDC6830EDED72FE0EF4 /* CheckBoxButton.swift */,
 				00133B432093F41F0FC4B014 /* EmptyStateView.swift */,
+				4A72C5FC8F6AFC84BFEB9A5B /* IllustrationBackdrop.swift */,
 				83F51BB09909F523764B4634 /* StatusBadge.swift */,
-				C5F53848DB78EDC1D7AC0E9F /* IllustrationBackdrop.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -430,7 +443,12 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				de,
 				en,
+				fr,
+				it,
+				ja,
+				ko,
 				"zh-Hans",
 				"zh-Hant",
 			);
@@ -465,6 +483,7 @@
 			files = (
 				E62661C02EF2CBA665901A1E /* Assets.xcassets in Resources */,
 				D744EAEA11AC5C74A792771E /* DebugSeedImages in Resources */,
+				7BA126A66E1CF1E9BD69567D /* InfoPlist.strings in Resources */,
 				843235594D7CBAE172C31250 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -484,13 +503,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABCF20000000000000000002 /* WishItemExport.swift in Sources */,
-				ABCF10000000000000000002 /* WishCurrency.swift in Sources */,
 				BB2EEE559493D0B07745CB47 /* AppAppearanceMode.swift in Sources */,
+				BCA5B56D6AC1D6BBEDB0E64E /* AppIllustratedTheme.swift in Sources */,
 				458479387094E62CF35EBBF2 /* AppLanguage.swift in Sources */,
 				CFE2DA1495F8A6F064AFEE89 /* AppLogoMark.swift in Sources */,
 				790B126E42186C719EC53259 /* AppStoreLinks.swift in Sources */,
-				A6C239874DA241BBB181CED2 /* AppIllustratedTheme.swift in Sources */,
 				4AE07D9F619E17919342E861 /* AppTheme.swift in Sources */,
 				DD5B0758A07E52D550504586 /* AppWishStore.swift in Sources */,
 				D702D77C8AB61F83AD0D12C0 /* AwaitGoodsApp.swift in Sources */,
@@ -498,12 +515,14 @@
 				3CB1951B7446472661AC50E9 /* DefaultWaitPeriod.swift in Sources */,
 				702A5848464EAE26CB7AB5A4 /* EmptyStateView.swift in Sources */,
 				A31A090FB2553369506A0C6A /* HWTheme.swift in Sources */,
+				AD4CB4017F9D85A514F769CC /* IllustrationBackdrop.swift in Sources */,
 				29ED792EED1B586FFAEEC683 /* MainTabView.swift in Sources */,
 				54716D683573B89F8270A22B /* MarkColor.swift in Sources */,
 				2A22B4AEE2F2CF898CD88304 /* NotificationScheduler.swift in Sources */,
 				1469ED8B9DC0F4409F6DDA5D /* OnboardingView.swift in Sources */,
 				A66196415C1D43838A471DBC /* ScreenshotSeedService.swift in Sources */,
 				3761D23E94566B82690E2BCB /* SettingsView.swift in Sources */,
+				D78C712A9F4BF0FC25DB2AB5 /* SharePostersView.swift in Sources */,
 				007348111EE05520A1EBF50B /* StatsView.swift in Sources */,
 				CEF2848CD1CB3D68FF207B22 /* StatusBadge.swift in Sources */,
 				26F4888BF50E347A9A6A378A /* WatchSyncService.swift in Sources */,
@@ -511,12 +530,13 @@
 				CCE2E99F7E28D82EA1612FDB /* WidgetActionService.swift in Sources */,
 				3029965AC78DBF75A86D1C7F /* WidgetSavingsMutation.swift in Sources */,
 				2D6CAD2D539D1B938D939C9C /* WidgetSyncService.swift in Sources */,
-				D72B9E8EE9E0AB093CE5861A /* IllustrationBackdrop.swift in Sources */,
 				5432C12BA60F1742806B7EC6 /* WishBoardIntents.swift in Sources */,
 				1ECAF37124243C7856D660F0 /* WishBoardState.swift in Sources */,
+				D252A864CDD102F18222CBD9 /* WishCurrency.swift in Sources */,
 				A59402CF342D70F98BF7076C /* WishDetailView.swift in Sources */,
 				9DBED109FFA1161CA77E3C9B /* WishEditorView.swift in Sources */,
 				52BAB0DDC966623BEA03017B /* WishItem.swift in Sources */,
+				D4E002E5DB37633263DEA89A /* WishItemExport.swift in Sources */,
 				B5008B94C67D699F6BC45914 /* WishItemStatus.swift in Sources */,
 				E7709E89F4BE5C3F2160DEAD /* WishListView.swift in Sources */,
 				85E8CBB6D8AFFC8747D5A533 /* WishPriority.swift in Sources */,
@@ -532,13 +552,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABCF10000000000000000003 /* WishCurrency.swift in Sources */,
 				F6E81E97A9110364B05C4D8F /* AwaitGoodsWidget.swift in Sources */,
 				EBB05C798F4C069B00F327C4 /* WatchWishSnapshot.swift in Sources */,
 				CFA47A78220ED559D7F9EB2F /* WishBoardIntents.swift in Sources */,
 				2C2F77FC6C96A29123795E2D /* WishBoardProvider.swift in Sources */,
 				1BED6C5F38CF497E9040C667 /* WishBoardState.swift in Sources */,
 				6DDA59987165F43E28E02C4C /* WishBoardView.swift in Sources */,
+				55412A20EC7022F2F3E602D0 /* WishCurrency.swift in Sources */,
 				26B030EF452060DDF4B993D0 /* WishJarContent.swift in Sources */,
 				B3A670780D0FB4846C6AF868 /* WishJarView.swift in Sources */,
 				6E6C6A7A29F807C978F8853A /* WishJarWidget.swift in Sources */,
@@ -550,11 +570,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABCF10000000000000000004 /* WishCurrency.swift in Sources */,
 				96975D4B7120CFF47F6D04E4 /* AwaitGoodsWatchApp.swift in Sources */,
 				659968F56EA01B6FDA418501 /* WatchHomeView.swift in Sources */,
 				6081F9322A1AD33252EA1984 /* WatchSessionManager.swift in Sources */,
 				6F2FB72D0B0CFBA1B23E4503 /* WatchWishSnapshot.swift in Sources */,
+				C35EFD1DDC224D81C68BD6EA /* WishCurrency.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,6 +594,21 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		3588A3238D63FE702C8C0224 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3F0F245AD1A2D3E967010485 /* de */,
+				63CA695F422BB276D262F68A /* en */,
+				CECFB01DF95A796B3877A55B /* fr */,
+				385585BC974181750CF730C3 /* it */,
+				55843D8E2A7A2D456B2F6FB3 /* ja */,
+				1816F9F95B17EF8179BB2E32 /* ko */,
+				9FEF0BEA0D5763F3352EF3FE /* zh-Hans */,
+				FD976BC6061A43F5380B4630 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		3A086528642C745606CD7EAC /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -644,7 +679,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.14;
+				MARKETING_VERSION = 1.0.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -664,10 +699,7 @@
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoodsWatch/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app.watchkitapp;
 				PRODUCT_NAME = "候物";
 				SDKROOT = watchos;
@@ -778,7 +810,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.14;
+				MARKETING_VERSION = 1.0.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -848,10 +880,7 @@
 				DEVELOPMENT_TEAM = 96DQ7VQS3P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = AwaitGoodsWatch/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.awaitgoods.app.watchkitapp;
 				PRODUCT_NAME = "候物";
 				SDKROOT = watchos;
